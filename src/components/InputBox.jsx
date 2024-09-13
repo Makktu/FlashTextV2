@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View, TextInput } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { TextInput } from 'react-native-paper';
 import React, { useState } from 'react';
 
 export default function InputBox() {
@@ -9,24 +10,39 @@ export default function InputBox() {
     console.log(text);
   };
 
-  return <TextInput style={styles.input} onChangeText={onChangeText} />;
+  return (
+    <View style={styles.container}>
+      <TextInput
+        style={styles.inputText}
+        mode='outlined'
+        textColor='white'
+        placeholder='Enter Message'
+        selectionColor='white'
+        dense={false}
+        onChangeText={onChangeText}
+        keyboardAppearance='default'
+      />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: 10,
+    marginHorizontal: 4,
+  },
   inputText: {
-    includeFontPadding: false,
-    paddingVertical: 12,
-    margin: 0,
+    paddingVertical: 0,
+    marginVertical: 12,
+    height: 60,
     width: '100%',
-    // backgroundColor: 'rgb(67, 46, 26)',
-    backgroundColor: '#472601',
-    fontSize: 26,
-    lineHeight: 28,
+    backgroundColor: '#f43f0339',
+    fontSize: 44,
     fontWeight: 'bold',
-    textAlign: 'auto',
+    textAlign: 'center',
     justifyContent: 'center',
-    alignContent: 'center',
-    // textAlignVertical: 'center',
-    // height: 80,
+    color: 'white',
   },
 });

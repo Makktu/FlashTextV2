@@ -8,8 +8,10 @@ const Main = () => {
       <StatusBar style='light' />
       <View style={styles.bar}></View>
       <View style={styles.container}>
-        <Text style={styles.text}>FlashText 2</Text>
-        <Text style={styles.textTwo}>The Flashening</Text>
+        <View style={styles.titleContainer}>
+          <Text style={styles.text}>FlashText</Text>
+          <Text style={styles.textTwo}>v2.0</Text>
+        </View>
         <View style={styles.inputContainer}>
           <InputBox />
         </View>
@@ -28,12 +30,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  titleContainer: {
+    flexDirection: 'row',
+  },
   text: {
     fontSize: 54,
     color: 'orangered',
   },
   textTwo: {
-    fontSize: 28,
+    fontSize: 14,
     color: '#ff4400d0',
   },
   inputContainer: {
