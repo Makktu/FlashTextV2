@@ -1,13 +1,21 @@
 import { StatusBar, StyleSheet, View, Text } from 'react-native';
 import React from 'react';
+import InputBox from '../components/InputBox';
 
 const Main = () => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>FlashText 2</Text>
-      <Text style={styles.textTwo}>The Flashening</Text>
+    <>
       <StatusBar style='light' />
-    </View>
+      <View style={styles.bar}></View>
+      <View style={styles.container}>
+        <Text style={styles.text}>FlashText 2</Text>
+        <Text style={styles.textTwo}>The Flashening</Text>
+        <View style={styles.inputContainer}>
+          <InputBox />
+        </View>
+      </View>
+      <View style={styles.bar}></View>
+    </>
   );
 };
 
@@ -27,5 +35,15 @@ const styles = StyleSheet.create({
   textTwo: {
     fontSize: 28,
     color: '#ff4400d0',
+  },
+  inputContainer: {
+    height: 100,
+    width: 800,
+    // backgroundColor: '#ff00004e',
+  },
+  bar: {
+    height: 100,
+    width: 800,
+    backgroundColor: 'red',
   },
 });
