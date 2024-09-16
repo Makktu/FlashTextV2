@@ -1,8 +1,21 @@
 import { StatusBar, StyleSheet, View, Text } from 'react-native';
 import React from 'react';
 import InputBox from '../components/InputBox';
+import MyButton from '../components/MyButton';
 
 const Main = () => {
+  const startPressed = () => {
+    console.log('start pressed');
+  };
+
+  const optionsPressed = () => {
+    console.log('options pressed');
+  };
+
+  const historyPressed = () => {
+    console.log('history pressed');
+  };
+
   return (
     <>
       <StatusBar style='light' />
@@ -10,10 +23,36 @@ const Main = () => {
       <View style={styles.container}>
         <View style={styles.titleContainer}>
           <Text style={styles.text}>FlashText</Text>
-          <Text style={styles.textTwo}>v2.0</Text>
+          <Text style={styles.textTwo}>2.0</Text>
         </View>
         <View style={styles.inputContainer}>
           <InputBox />
+        </View>
+        <View style={styles.buttonContainer}>
+          <MyButton
+            style={styles.button}
+            icon='play-box'
+            size={28}
+            whenPressed={startPressed}
+          >
+            START!
+          </MyButton>
+          <MyButton
+            style={styles.button}
+            icon='play-box'
+            size={28}
+            whenPressed={historyPressed}
+          >
+            HISTORY
+          </MyButton>
+          <MyButton
+            style={styles.button}
+            icon='adjust'
+            size={28}
+            whenPressed={optionsPressed}
+          >
+            OPTIONS
+          </MyButton>
         </View>
       </View>
       <View style={styles.bar}></View>
@@ -32,13 +71,14 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flexDirection: 'row',
+    paddingLeft: 20,
   },
   text: {
-    fontSize: 54,
+    fontSize: 74,
     color: 'orangered',
   },
   textTwo: {
-    fontSize: 14,
+    fontSize: 18,
     color: '#ff4400d0',
   },
   inputContainer: {
@@ -49,6 +89,10 @@ const styles = StyleSheet.create({
   bar: {
     height: 100,
     width: 800,
+    backgroundColor: 'red',
+  },
+  button: {
+    marginVertical: 18,
     backgroundColor: 'red',
   },
 });
