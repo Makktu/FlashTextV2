@@ -1,11 +1,17 @@
 import { StatusBar, StyleSheet, View, Text } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import InputBox from '../components/InputBox';
 import MyButton from '../components/MyButton';
 
 const Main = () => {
+  const [clearInput, setClearInput] = useState(false);
+
   const startPressed = () => {
     console.log('start pressed');
+  };
+
+  const clearPressed = () => {
+    setClearInput(true);
   };
 
   const optionsPressed = () => {
@@ -26,17 +32,27 @@ const Main = () => {
           <Text style={styles.textTwo}>2.0</Text>
         </View>
         <View style={styles.inputContainer}>
-          <InputBox />
+          <InputBox clearInput={clearInput} />
         </View>
         <View style={styles.buttonContainer}>
-          <MyButton
-            style={styles.button}
-            icon='play-box'
-            size={28}
-            whenPressed={startPressed}
-          >
-            START!
-          </MyButton>
+          <View style={styles.startAndClearButtons}>
+            <MyButton
+              style={styles.button}
+              icon='play-box'
+              size={28}
+              whenPressed={startPressed}
+            >
+              START!
+            </MyButton>
+            <MyButton
+              style={styles.button}
+              icon='play-box'
+              size={28}
+              whenPressed={clearPressed}
+            >
+              CLEAR
+            </MyButton>
+          </View>
           <MyButton
             style={styles.button}
             icon='play-box'

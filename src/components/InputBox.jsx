@@ -1,9 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { TextInput } from 'react-native-paper';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-export default function InputBox() {
+export default function InputBox(clearInput) {
   const [text, setText] = useState('');
+
+  useEffect(() => {
+    setText('');
+    console.log('got here');
+  }, [clearInput]);
 
   const onChangeText = (enteredText) => {
     setText(enteredText);

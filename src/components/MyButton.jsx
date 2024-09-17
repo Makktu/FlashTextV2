@@ -41,5 +41,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 8,
+    borderWidth: 1,
+    borderColor: 'white',
   },
 });
