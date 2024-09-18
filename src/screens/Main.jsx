@@ -2,10 +2,23 @@ import { StatusBar, StyleSheet, View, Text } from 'react-native';
 import React, { useState } from 'react';
 import InputBox from '../components/InputBox';
 import MyButton from '../components/MyButton';
+import Options from './Options';
 
 const Main = () => {
   const [text, setText] = useState('');
   const [history, changeHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+
+  const historyManagement = () => {
+    if (text == history[history.length - 1]) {
+      console.log('duplicate');
+    } else {
+      history.push(text);
+      changeHistory(history);
+      console.log(history);
+    }
+  };
 
   const handleInput = (enteredText) => {
     setText(enteredText);
@@ -16,10 +29,12 @@ const Main = () => {
   };
 
   const startPressed = () => {
+    if (!text) {
+      return;
+    }
     // auto-add current entry to User History
-    // depending on options
-    history.push(text);
-    changeHistory(history);
+    // (depending on options)
+    historyManagement();
     // then handle display
   };
 
