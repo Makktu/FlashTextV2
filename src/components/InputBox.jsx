@@ -1,20 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { TextInput } from 'react-native-paper';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-export default function InputBox(clearInput) {
-  const [text, setText] = useState('');
-
-  useEffect(() => {
-    setText('');
-    console.log('got here');
-  }, [clearInput]);
-
-  const onChangeText = (enteredText) => {
-    setText(enteredText);
-    console.log(text);
-  };
-
+export default function InputBox({ handleInput, text }) {
   return (
     <View style={styles.container}>
       <TextInput
@@ -24,8 +12,9 @@ export default function InputBox(clearInput) {
         placeholder='Enter Message'
         selectionColor='white'
         dense={false}
-        onChangeText={onChangeText}
+        onChangeText={handleInput}
         keyboardAppearance='default'
+        value={text}
       />
     </View>
   );

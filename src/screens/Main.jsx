@@ -4,14 +4,23 @@ import InputBox from '../components/InputBox';
 import MyButton from '../components/MyButton';
 
 const Main = () => {
-  const [clearInput, setClearInput] = useState(false);
+  const [text, setText] = useState('');
+  const [history, changeHistory] = useState([]);
 
-  const startPressed = () => {
-    console.log('start pressed');
+  const handleInput = (enteredText) => {
+    setText(enteredText);
   };
 
-  const clearPressed = () => {
-    setClearInput(true);
+  const clearInput = () => {
+    setText('');
+  };
+
+  const startPressed = () => {
+    // auto-add current entry to User History
+    // depending on options
+    history.push(text);
+    changeHistory(history);
+    // then handle display
   };
 
   const optionsPressed = () => {
@@ -32,7 +41,7 @@ const Main = () => {
           <Text style={styles.textTwo}>2.0</Text>
         </View>
         <View style={styles.inputContainer}>
-          <InputBox clearInput={clearInput} />
+          <InputBox text={text} handleInput={handleInput} />
         </View>
         <View style={styles.buttonContainer}>
           <View style={styles.startAndClearButtons}>
@@ -48,7 +57,7 @@ const Main = () => {
               style={styles.button}
               icon='play-box'
               size={28}
-              whenPressed={clearPressed}
+              whenPressed={clearInput}
             >
               CLEAR
             </MyButton>
