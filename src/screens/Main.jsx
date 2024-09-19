@@ -14,6 +14,9 @@ const Main = () => {
     if (text == history[history.length - 1]) {
       console.log('duplicate');
     } else {
+      if (history.length >= 100) {
+        history.shift();
+      }
       history.push(text);
       changeHistory(history);
       console.log(history);
