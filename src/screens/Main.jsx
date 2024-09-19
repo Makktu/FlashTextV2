@@ -52,7 +52,7 @@ const Main = () => {
   return (
     <>
       <StatusBar style='light' />
-      <View style={styles.bar}></View>
+      {/* <View style={styles.bar}></View> */}
       <View style={styles.container}>
         <View style={styles.titleContainer}>
           <Text style={styles.text}>FlashText</Text>
@@ -98,7 +98,7 @@ const Main = () => {
           </MyButton>
         </View>
       </View>
-      <View style={styles.bar}></View>
+      {/* <View style={styles.bar}></View> */}
     </>
   );
 };
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   bar: {
     height: 100,
     width: 800,
-    backgroundColor: 'red',
+    backgroundColor: '#ff0000ff',
   },
   button: {
     marginVertical: 18,
