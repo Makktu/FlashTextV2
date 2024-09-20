@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import InputBox from '../components/InputBox';
 import MyButton from '../components/MyButton';
 import Options from './Options';
+import COLORS from '../values/COLORS';
 
 const Main = () => {
   const [text, setText] = useState('');
