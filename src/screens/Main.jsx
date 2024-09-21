@@ -109,7 +109,7 @@ export default Main;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#080808',
+    backgroundColor: COLORS.alt1Bg,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -137,6 +137,6 @@ const styles = StyleSheet.create({
   },
   button: {
     marginVertical: 18,
-    backgroundColor: 'red',
+    backgroundColor: '#5f4444',
   },
 });

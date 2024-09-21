@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { Button } from 'react-native-paper';
+import COLORS from '../values/COLORS';
 
 export default function MyButton({
   size = 24,
@@ -12,7 +13,7 @@ export default function MyButton({
     <Button
       style={styles.button}
       icon={icon}
-      buttonColor='orangered'
+      buttonColor={COLORS.alt1Secondary}
       mode='outlined'
       onPress={whenPressed}
       textColor='white'

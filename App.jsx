@@ -17,11 +17,13 @@ export default function App() {
           component={Main}
           options={{
             tabBarStyle: {
-              backgroundColor: '#ff0000ff',
+              // backgroundColor: '#ff0000ff',
+              backgroundColor: COLORS.alt1Primary,
             },
 
             headerStyle: {
               backgroundColor: '#ff0000ff',
+              backgroundColor: COLORS.alt1Primary,
             },
             tabBarLabelStyle: {
               fontSize: 24,
