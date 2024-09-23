@@ -24,7 +24,7 @@ export default function MyButton({
       <Text
         style={{
           fontSize: size,
-          color: 'black',
+          color: '#ffffff',
           fontWeight: 'bold',
           padding: 12,
         }}

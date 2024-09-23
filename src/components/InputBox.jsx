@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { TextInput } from 'react-native-paper';
+import COLORS from '../values/COLORS';
 import React from 'react';
 
 export default function InputBox({ handleInput, text }) {
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     height: 60,
     width: '100%',
-    backgroundColor: '#f43f0339',
+    backgroundColor: COLORS.alt1Bg,
     fontSize: 44,
     fontWeight: 'bold',
     textAlign: 'center',

@@ -1,7 +1,9 @@
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
+// navigation imports______________________________________________
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+// ________________________________________________________________
 import Main from './src/screens/Main';
 import Options from './src/screens/Options';
 import COLORS from './src/values/COLORS';
@@ -22,12 +24,11 @@ export default function App() {
             },
 
             headerStyle: {
-              backgroundColor: '#ff0000ff',
               backgroundColor: COLORS.alt1Primary,
             },
             tabBarLabelStyle: {
               fontSize: 24,
-              color: 'black',
+              color: '#fffcfc',
               fontWeight: 'bold',
             },
           }}
@@ -38,16 +39,16 @@ export default function App() {
           options={{
             tabBarStyle: {
               // backgroundColor: '#ff0000ff',
-              backgroundColor: COLORS.mainPrimary,
+              backgroundColor: COLORS.alt1Primary,
             },
 
             headerStyle: {
-              // backgroundColor: '#ff0000ff',
-              backgroundColor: COLORS.mainSecondary,
+              backgroundColor: '#ff0000ff',
+              backgroundColor: COLORS.alt1Primary,
             },
             tabBarLabelStyle: {
               fontSize: 24,
-              color: 'black',
+              color: '#fffcfc',
               fontWeight: 'bold',
             },
           }}
