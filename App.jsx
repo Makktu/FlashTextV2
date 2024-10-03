@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
-// navigation imports______________________________________________
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-// ________________________________________________________________
 import Main from './src/screens/Main';
 import Options from './src/screens/Options';
 import COLORS from './src/values/COLORS';
