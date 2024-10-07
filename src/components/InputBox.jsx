@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     height: 60,
     width: '100%',
-    backgroundColor: COLORS.alt1Bg,
+    backgroundColor: COLORS.alt2Secondary,
     fontSize: 44,
     fontWeight: 'bold',
     textAlign: 'center',

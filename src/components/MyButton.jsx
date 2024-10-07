@@ -13,7 +13,7 @@ export default function MyButton({
     <Button
       style={styles.button}
       icon={icon}
-      buttonColor={COLORS.alt1Secondary}
+      buttonColor={COLORS.alt2Secondary}
       mode='outlined'
       onPress={whenPressed}
       textColor='white'

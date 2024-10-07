@@ -18,11 +18,11 @@ export default function App() {
           options={{
             tabBarStyle: {
               // backgroundColor: '#ff0000ff',
-              backgroundColor: COLORS.alt1Primary,
+              backgroundColor: COLORS.alt2Primary,
             },
 
             headerStyle: {
-              backgroundColor: COLORS.alt1Primary,
+              backgroundColor: COLORS.alt2Primary,
             },
             tabBarLabelStyle: {
               fontSize: 24,
@@ -37,12 +37,12 @@ export default function App() {
           options={{
             tabBarStyle: {
               // backgroundColor: '#ff0000ff',
-              backgroundColor: COLORS.alt1Primary,
+              backgroundColor: COLORS.alt2Primary,
             },
 
             headerStyle: {
-              backgroundColor: '#ff0000ff',
-              backgroundColor: COLORS.alt1Primary,
+              // backgroundColor: '#ff0000ff',
+              backgroundColor: COLORS.alt2Primary,
             },
             tabBarLabelStyle: {
               fontSize: 24,

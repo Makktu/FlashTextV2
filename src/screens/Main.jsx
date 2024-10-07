@@ -144,7 +144,7 @@ export default Main;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.alt1Bg,
+    backgroundColor: COLORS.alt2Bg,
     alignItems: 'center',
     justifyContent: 'center',
   },
