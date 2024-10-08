@@ -12,7 +12,7 @@ export default function MyButton({
   return (
     <Button
       style={styles.button}
-      icon={icon}
+      // icon={icon}
       buttonColor={COLORS.alt2Secondary}
       mode='outlined'
       onPress={whenPressed}
@@ -26,7 +26,6 @@ export default function MyButton({
           fontSize: size,
           color: '#ffffff',
           fontWeight: 'bold',
-          padding: 12,
         }}
       >
         {children}
@@ -38,7 +37,7 @@ export default function MyButton({
 const styles = StyleSheet.create({
   button: {
     height: 70,
-    width: 180,
+    width: 280,
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 8,

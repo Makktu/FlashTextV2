@@ -1,17 +1,27 @@
 import { StatusBar, StyleSheet, View, Text, Alert } from 'react-native';
 import React, { useState } from 'react';
+import { Modal, Portal, PaperProvider } from 'react-native-paper';
 import InputBox from '../components/InputBox';
 import MyButton from '../components/MyButton';
 import FlashMessage from './FlashMessage';
+import Options from './Options';
 import COLORS from '../values/COLORS';
 
 const Main = () => {
+  const [settingsVisible, setSettingsVisible] = useState(false);
   const [text, setText] = useState('');
   const [history, changeHistory] = useState([]);
   const [currentScreen, setCurrentScreen] = useState('main');
   const [currentMode, setCurrentMode] = useState('flash');
   const [showHistory, setShowHistory] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+
+  const showModal = () => {
+    setSettingsVisible(true);
+  };
+  const hideModal = () => {
+    setSettingsVisible(false);
+  };
 
   const historyManagement = () => {
     if (text == history[history.length - 1]) {
@@ -54,8 +64,8 @@ const Main = () => {
     setCurrentScreen('flash');
   };
 
-  const optionsPressed = () => {
-    console.log('options pressed');
+  const settingsPressed = () => {
+    showModal();
   };
 
   const historyPressed = () => {
@@ -77,64 +87,75 @@ const Main = () => {
 
   return (
     (currentScreen == 'main' && (
-      <>
-        <StatusBar style='light' />
-        {/* <View style={styles.bar}></View> */}
-        <View style={styles.container}>
-          <View style={styles.titleContainer}>
-            <Text style={styles.text}>FlashText</Text>
-            <Text style={styles.textTwo}>2.0</Text>
-          </View>
-          <View style={styles.inputContainer}>
-            <InputBox text={text} handleInput={handleInput} />
-          </View>
-          <View style={styles.buttonContainer}>
-            <View style={styles.startAndClearButtons}>
+      <PaperProvider>
+        <>
+          <Portal>
+            <Modal
+              visible={settingsVisible}
+              onDismiss={hideModal}
+              contentContainerStyle={styles.modalContainerStyle}
+            >
+              <Options />
+            </Modal>
+          </Portal>
+          <StatusBar style='light' />
+          {/* <View style={styles.bar}></View> */}
+          <View style={styles.container}>
+            <View style={styles.titleContainer}>
+              <Text style={styles.text}>FlashText</Text>
+              <Text style={styles.textTwo}>2.0</Text>
+            </View>
+            <View style={styles.inputContainer}>
+              <InputBox text={text} handleInput={handleInput} />
+            </View>
+            <View style={styles.buttonContainer}>
+              <View style={styles.startAndClearButtons}>
+                <MyButton
+                  style={styles.button}
+                  icon='play-box'
+                  size={28}
+                  whenPressed={startPressed}
+                >
+                  START!
+                </MyButton>
+                <MyButton
+                  style={styles.button}
+                  icon='play-box'
+                  size={28}
+                  whenPressed={clearInput}
+                >
+                  CLEAR
+                </MyButton>
+              </View>
               <MyButton
                 style={styles.button}
                 icon='play-box'
                 size={28}
-                whenPressed={startPressed}
+                whenPressed={historyPressed}
               >
-                START!
+                HISTORY
               </MyButton>
               <MyButton
                 style={styles.button}
                 icon='play-box'
                 size={28}
-                whenPressed={clearInput}
+                whenPressed={modeChanged}
               >
-                CLEAR
+                {currentMode == 'flash' ? 'FLASH' : 'SCROLL'}
+              </MyButton>
+              <MyButton
+                style={styles.button}
+                icon='play-box'
+                size={28}
+                whenPressed={settingsPressed}
+              >
+                SETTINGS
               </MyButton>
             </View>
-            <MyButton
-              style={styles.button}
-              icon='play-box'
-              size={28}
-              whenPressed={historyPressed}
-            >
-              HISTORY
-            </MyButton>
-            <MyButton
-              style={styles.button}
-              icon='play-box'
-              size={28}
-              whenPressed={modeChanged}
-            >
-              FLASH!
-            </MyButton>
-            <MyButton
-              style={styles.button}
-              icon='play-box'
-              size={28}
-              whenPressed={modeChanged}
-            >
-              SCROLL
-            </MyButton>
           </View>
-        </View>
-        {/* <View style={styles.bar}></View> */}
-      </>
+          {/* <View style={styles.bar}></View> */}
+        </>
+      </PaperProvider>
     )) || <FlashMessage returnTap={returnTap} />
   );
 };
@@ -151,6 +172,9 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
     paddingLeft: 20,
+  },
+  modalContainerStyle: {
+    flex: 1,
   },
   text: {
     fontSize: 74,

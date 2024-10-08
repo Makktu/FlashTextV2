@@ -31,3 +31,12 @@ Targets:
 - Decide on overall design. Am I including Tabbed navigation just because I want to gain experience with it? This could still be a one-screen app.
 - Implement basics of colour scheme picker.
 - Finalise where and how the likes of History will pop up. I.e. as a modal or a separate screen. AND implement first draft of it.
+
+Tabbed screens OUT -- modal Settings screen IN. Not really working yet.
+Theme picker button added (not working yet).
+History will also be on the modal.
+
+### Weds 9 October 2024
+
+- Get Modal Settings working and talking to the app and vice versa
+- Bonus: get Themes working, at least as a rough draft.
