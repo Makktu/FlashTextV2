@@ -6,6 +6,7 @@ import MyButton from '../components/MyButton';
 import FlashMessage from './FlashMessage';
 import Options from './Options';
 import COLORS from '../values/COLORS';
+import ScrollMessage from './ScrollMessage';
 
 const Main = () => {
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -61,7 +62,8 @@ const Main = () => {
     // (depending on options)
     historyManagement();
     // then handle display
-    setCurrentScreen('flash');
+
+    setCurrentScreen(currentMode == 'flash' ? 'flash' : 'scroll');
   };
 
   const settingsPressed = () => {
@@ -69,7 +71,7 @@ const Main = () => {
   };
 
   const historyPressed = () => {
-    console.log('history pressed');
+    console.log(history);
   };
 
   const returnTap = () => {
@@ -156,7 +158,13 @@ const Main = () => {
           {/* <View style={styles.bar}></View> */}
         </>
       </PaperProvider>
-    )) || <FlashMessage returnTap={returnTap} />
+    )) ||
+    (currentScreen == 'flash' && (
+      <FlashMessage returnTap={returnTap} message={text} />
+    )) ||
+    (currentScreen == 'scroll' && (
+      <ScrollMessage returnTap={returnTap} message={text} />
+    ))
   );
 };
 

@@ -38,5 +38,11 @@ History will also be on the modal.
 
 ### Weds 9 October 2024
 
-- Get Modal Settings working and talking to the app and vice versa
+Added full Flash/Scroll screen change functionality.
+Started on sensing device orientation.
+
+### Thur 10 October 2024
+
+- Get screen orientation working.
+- Get Modal Settings working and talking to the app and vice versa.
 - Bonus: get Themes working, at least as a rough draft.
