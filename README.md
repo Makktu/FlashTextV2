@@ -43,6 +43,9 @@ Started on sensing device orientation.
 
 ### Thur 10 October 2024
 
-- Get screen orientation working.
+Got screen orientation working. Responds to live user choice. No longer locked to a Settings choice. (Give user option to control it from a setting in final version?)
+
+### Mon 14 October 2024
+
 - Get Modal Settings working and talking to the app and vice versa.
 - Bonus: get Themes working, at least as a rough draft.

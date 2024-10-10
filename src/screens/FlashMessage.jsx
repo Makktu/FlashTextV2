@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import COLORS from '../values/COLORS';
 
 export default function FlashMessage({
+  type,
   returnTap,
   message = 'NO MESSAGE PASSED',
 }) {
@@ -12,6 +13,7 @@ export default function FlashMessage({
     // Function to get the current orientation and set it
     const getOrientation = async () => {
       const orientationLock = await ScreenOrientation.getOrientationAsync();
+      console.log(orientationLock);
       handleOrientationChange(orientationLock);
     };
 
@@ -22,6 +24,7 @@ export default function FlashMessage({
     const subscription = ScreenOrientation.addOrientationChangeListener(
       (evt) => {
         const newOrientation = evt.orientationInfo.orientation;
+        console.log(newOrientation);
         handleOrientationChange(newOrientation);
       }
     );
@@ -45,7 +48,10 @@ export default function FlashMessage({
         break;
       default:
         setOrientation('UNKNOWN');
+
+        console.log('getting here');
     }
+    console.log('and here');
   };
 
   return (
