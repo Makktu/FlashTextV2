@@ -48,10 +48,7 @@ export default function FlashMessage({
         break;
       default:
         setOrientation('UNKNOWN');
-
-        console.log('getting here');
     }
-    console.log('and here');
   };
 
   return (
