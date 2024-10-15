@@ -11,6 +11,7 @@ import ScrollMessage from './ScrollMessage';
 const Main = () => {
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [text, setText] = useState('');
+  const [choppedMessage, setChoppedMessage] = useState([]);
   const [history, changeHistory] = useState([]);
   const [currentScreen, setCurrentScreen] = useState('main');
   const [currentMode, setCurrentMode] = useState('flash');
@@ -62,12 +63,13 @@ const Main = () => {
     // (depending on options)
     historyManagement();
     // then handle display
-
+    setChoppedMessage(text.split(' '));
     setCurrentScreen(currentMode == 'flash' ? 'flash' : 'scroll');
   };
 
   const settingsPressed = () => {
-    showModal();
+    // showModal(); - DISABLED FOR NOW
+    console.log('settings pressed');
   };
 
   const historyPressed = () => {
@@ -160,7 +162,7 @@ const Main = () => {
       </PaperProvider>
     )) ||
     (currentScreen == 'flash' && (
-      <FlashMessage returnTap={returnTap} message={text} />
+      <FlashMessage returnTap={returnTap} message={choppedMessage} />
     )) ||
     (currentScreen == 'scroll' && (
       <ScrollMessage returnTap={returnTap} message={text} />
