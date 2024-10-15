@@ -47,5 +47,8 @@ Got screen orientation working. Responds to live user choice. No longer locked t
 
 ### Mon 14 October 2024
 
-- Get Modal Settings working and talking to the app and vice versa.
-- Bonus: get Themes working, at least as a rough draft.
+Nothing today.
+
+### Tue 15 October 2024
+
+Added Reanimation library and started to learn it.
