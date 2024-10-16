@@ -1,5 +1,12 @@
-import { StatusBar, StyleSheet, View, Text, Alert } from 'react-native';
-import React, { useState } from 'react';
+import {
+  StatusBar,
+  StyleSheet,
+  View,
+  Text,
+  Alert,
+  Dimensions,
+} from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { Modal, Portal, PaperProvider } from 'react-native-paper';
 import InputBox from '../components/InputBox';
 import MyButton from '../components/MyButton';
@@ -17,6 +24,15 @@ const Main = () => {
   const [currentMode, setCurrentMode] = useState('flash');
   const [showHistory, setShowHistory] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+
+  const windowWidth = Dimensions.get('window').width;
+  const windowHeight = Dimensions.get('window').height;
+
+  console.log(windowHeight, windowWidth);
+
+  // useEffect(() => {
+  //   StatusBar.setHidden(false);
+  // }, []);
 
   const showModal = () => {
     setSettingsVisible(true);
@@ -162,7 +178,12 @@ const Main = () => {
       </PaperProvider>
     )) ||
     (currentScreen == 'flash' && (
-      <FlashMessage returnTap={returnTap} message={choppedMessage} />
+      <FlashMessage
+        returnTap={returnTap}
+        message={choppedMessage}
+        displayHeight={windowHeight}
+        displayWidth={windowWidth}
+      />
     )) ||
     (currentScreen == 'scroll' && (
       <ScrollMessage returnTap={returnTap} message={text} />
