@@ -10,7 +10,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Portal, PaperProvider } from 'react-native-paper';
 import InputBox from '../components/InputBox';
 import MyButton from '../components/MyButton';
-import FlashMessage from './FlashMessage';
+import FlashScreen from './FlashScreen';
 import Options from './Options';
 import COLORS from '../values/COLORS';
 import ScrollMessage from './ScrollMessage';
@@ -178,7 +178,7 @@ const Main = () => {
       </PaperProvider>
     )) ||
     (currentScreen == 'flash' && (
-      <FlashMessage
+      <FlashScreen
         returnTap={returnTap}
         message={choppedMessage}
         displayHeight={windowHeight}
