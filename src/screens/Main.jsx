@@ -183,6 +183,7 @@ const Main = () => {
         message={choppedMessage}
         displayHeight={windowHeight}
         displayWidth={windowWidth}
+        duration={750}
       />
     )) ||
     (currentScreen == 'scroll' && (

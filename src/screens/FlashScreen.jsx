@@ -1,12 +1,6 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  StatusBar,
-} from 'react-native';
+import { StyleSheet, View, TouchableOpacity, StatusBar } from 'react-native';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import COLORS from '../values/COLORS';
 import FlashMessage from '../components/FlashMessage';
 
@@ -15,6 +9,7 @@ export default function FlashScreen({
   message,
   displayHeight,
   displayWidth,
+  duration,
 }) {
   useEffect(() => {
     StatusBar.setHidden(true);
@@ -22,13 +17,13 @@ export default function FlashScreen({
 
   return (
     <TouchableOpacity style={styles.container} onPress={returnTap}>
-      <View style={styles.messageContainer}>
-        <FlashMessage
-          message={message}
-          displayHeight={displayHeight}
-          displayWidth={displayWidth}
-        />
-      </View>
+      <FlashMessage
+        message={message}
+        displayHeight={displayHeight}
+        displayWidth={displayWidth}
+        duration={duration}
+        animationType={'swoosh'}
+      />
     </TouchableOpacity>
   );
 }
@@ -37,14 +32,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.alt1Bg,
-    borderColor: 'yellow',
-    borderWidth: 2,
   },
   messageContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   messageText: {
-    color: 'white',
+    color: '#fd05ec',
   },
 });
