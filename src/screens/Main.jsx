@@ -6,8 +6,8 @@ import {
   Alert,
   Dimensions,
 } from 'react-native';
-import React, { useState, useEffect } from 'react';
-import { Modal, Portal, PaperProvider } from 'react-native-paper';
+import React, { useState } from 'react';
+import { Modal, Portal, PaperProvider, Button } from 'react-native-paper';
 import InputBox from '../components/InputBox';
 import MyButton from '../components/MyButton';
 import FlashScreen from './FlashScreen';
@@ -22,35 +22,23 @@ const Main = () => {
   const [history, changeHistory] = useState([]);
   const [currentScreen, setCurrentScreen] = useState('main');
   const [currentMode, setCurrentMode] = useState('flash');
-  const [showHistory, setShowHistory] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
 
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
 
-  console.log(windowHeight, windowWidth);
-
-  // useEffect(() => {
-  //   StatusBar.setHidden(false);
-  // }, []);
-
-  const showModal = () => {
-    setSettingsVisible(true);
-  };
-  const hideModal = () => {
-    setSettingsVisible(false);
-  };
+  const showModal = () => setSettingsVisible(true);
+  const hideModal = () => setSettingsVisible(false);
 
   const historyManagement = () => {
-    if (text == history[history.length - 1]) {
+    if (text === history[history.length - 1]) {
       console.log('duplicate');
     } else {
-      if (history.length >= 100) {
-        history.shift();
+      const updatedHistory = [...history];
+      if (updatedHistory.length >= 100) {
+        updatedHistory.shift();
       }
-      history.push(text);
-      changeHistory(history);
-      console.log(history);
+      updatedHistory.push(text);
+      changeHistory(updatedHistory);
     }
   };
 
@@ -75,120 +63,87 @@ const Main = () => {
       tellUserToEnter();
       return;
     }
-    // auto-add current entry to User History
-    // (depending on options)
     historyManagement();
-    // then handle display
     setChoppedMessage(text.split(' '));
-    setCurrentScreen(currentMode == 'flash' ? 'flash' : 'scroll');
+    setCurrentScreen(currentMode === 'flash' ? 'flash' : 'scroll');
   };
 
-  const settingsPressed = () => {
-    // showModal(); - DISABLED FOR NOW
-    console.log('settings pressed');
-  };
+  const returnTap = () => setCurrentScreen('main');
 
-  const historyPressed = () => {
-    console.log(history);
-  };
-
-  const returnTap = () => {
-    console.log('return tap tapped');
-    setCurrentScreen('main');
-  };
-
-  const modeChanged = () => {
-    if (currentMode == 'flash') {
-      setCurrentMode('scroll');
-    } else {
-      setCurrentMode('flash');
-    }
-  };
+  const modeChanged = () =>
+    setCurrentMode((prev) => (prev === 'flash' ? 'scroll' : 'flash'));
 
   return (
-    (currentScreen == 'main' && (
-      <PaperProvider>
-        <>
-          <Portal>
-            <Modal
-              visible={settingsVisible}
-              onDismiss={hideModal}
-              contentContainerStyle={styles.modalContainerStyle}
-            >
-              <Options />
-            </Modal>
-          </Portal>
-          <StatusBar style='light' />
-          {/* <View style={styles.bar}></View> */}
+    <PaperProvider>
+      <>
+        <Portal>
+          <Modal
+            visible={settingsVisible}
+            onDismiss={hideModal}
+            contentContainerStyle={styles.modalContainerStyle}
+          >
+            <Options />
+          </Modal>
+        </Portal>
+        <StatusBar style='light' />
+        {(currentScreen === 'main' && (
           <View style={styles.container}>
             <View style={styles.titleContainer}>
-              <Text style={styles.text}>FlashText</Text>
-              <Text style={styles.textTwo}>2.0</Text>
+              <Text style={styles.titleText}>FlashText</Text>
+              <Text style={styles.versionText}>2.0</Text>
             </View>
             <View style={styles.inputContainer}>
               <InputBox text={text} handleInput={handleInput} />
             </View>
             <View style={styles.buttonContainer}>
-              <View style={styles.startAndClearButtons}>
-                <MyButton
-                  style={styles.button}
-                  icon='play-box'
-                  size={28}
-                  whenPressed={startPressed}
-                >
-                  START!
-                </MyButton>
-                <MyButton
-                  style={styles.button}
-                  icon='play-box'
-                  size={28}
-                  whenPressed={clearInput}
-                >
-                  CLEAR
-                </MyButton>
-              </View>
               <MyButton
-                style={styles.button}
+                style={styles.startButton}
                 icon='play-box'
                 size={28}
-                whenPressed={historyPressed}
+                whenPressed={startPressed}
               >
-                HISTORY
+                START!
               </MyButton>
               <MyButton
-                style={styles.button}
-                icon='play-box'
+                style={styles.clearButton}
+                icon='trash-can'
                 size={28}
-                whenPressed={modeChanged}
+                whenPressed={clearInput}
               >
-                {currentMode == 'flash' ? 'FLASH' : 'SCROLL'}
+                CLEAR
               </MyButton>
+              <Button
+                style={styles.modeButton}
+                mode='contained'
+                onPress={modeChanged}
+              >
+                {currentMode === 'flash' ? 'FLASH' : 'SCROLL'}
+              </Button>
               <MyButton
-                style={styles.button}
-                icon='play-box'
+                style={styles.settingsButton}
+                icon='cog'
                 size={28}
-                whenPressed={settingsPressed}
+                whenPressed={showModal}
               >
                 SETTINGS
               </MyButton>
             </View>
           </View>
-          {/* <View style={styles.bar}></View> */}
-        </>
-      </PaperProvider>
-    )) ||
-    (currentScreen == 'flash' && (
-      <FlashScreen
-        returnTap={returnTap}
-        message={choppedMessage}
-        displayHeight={windowHeight}
-        displayWidth={windowWidth}
-        duration={750}
-      />
-    )) ||
-    (currentScreen == 'scroll' && (
-      <ScrollMessage returnTap={returnTap} message={text} />
-    ))
+        )) ||
+          (currentScreen === 'flash' && (
+            <FlashScreen
+              returnTap={returnTap}
+              message={choppedMessage}
+              displayHeight={windowHeight}
+              displayWidth={windowWidth}
+              duration={750}
+            />
+          )) ||
+          (currentScreen === 'scroll' && (
+            <ScrollMessage returnTap={returnTap} message={text} />
+          ))}
+      </>
+    </PaperProvider>
   );
 };
 
@@ -200,34 +155,53 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.alt2Bg,
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 16,
   },
   titleContainer: {
     flexDirection: 'row',
-    paddingLeft: 20,
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  titleText: {
+    fontSize: 48,
+    color: '#ffffff',
+    fontWeight: 'bold',
+    marginRight: 8,
+  },
+  versionText: {
+    fontSize: 18,
+    color: '#ffffff60',
+  },
+  inputContainer: {
+    width: '100%',
+    maxWidth: 600,
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  startButton: {
+    backgroundColor: '#6200EE',
+    marginBottom: 10,
+    width: '80%',
+  },
+  clearButton: {
+    backgroundColor: '#FF5733',
+    marginBottom: 10,
+    width: '80%',
+  },
+  modeButton: {
+    marginBottom: 10,
+    width: '80%',
+  },
+  settingsButton: {
+    backgroundColor: '#2196F3',
+    marginBottom: 10,
+    width: '80%',
   },
   modalContainerStyle: {
     flex: 1,
-  },
-  text: {
-    fontSize: 74,
-    color: '#fefcfb',
-  },
-  textTwo: {
-    fontSize: 18,
-    color: '#ffffff6e',
-  },
-  inputContainer: {
-    height: 100,
-    width: 800,
-    // backgroundColor: '#ff00004e',
-  },
-  bar: {
-    height: 100,
-    width: 800,
-    backgroundColor: '#ff0000ff',
-  },
-  button: {
-    marginVertical: 18,
-    backgroundColor: '#5f4444',
   },
 });

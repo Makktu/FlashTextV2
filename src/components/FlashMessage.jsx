@@ -1,153 +1,193 @@
-import { StyleSheet, View, Dimensions } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import { StyleSheet, Dimensions } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
 import Animated, {
   useSharedValue,
-  useAnimatedStyle,
   withTiming,
-  withSequence,
+  useAnimatedStyle,
   runOnJS,
+  withSequence,
 } from 'react-native-reanimated';
 
-// Function to get the current screen dimensions and orientation
-const getScreenDimensions = () => {
-  const { width, height } = Dimensions.get('window');
-  const isPortrait = height > width; // Detect orientation
-  return { width, height, isPortrait };
+const getContrastingColor = (bgColor) => {
+  const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
+  const r = parseInt(color.substring(0, 2), 16);
+  const g = parseInt(color.substring(2, 2), 16);
+  const b = parseInt(color.substring(4, 2), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+
+  // Hard-code text color for specific background colors
+  if (bgColor === '#FFFF00' || bgColor === '#00FFFF' || bgColor === '#FFC0CB') {
+    return '#000000'; // Black for yellow, cyan, and pink
+  }
+
+  return brightness > 186 ? '#000000' : '#FFFFFF'; // Default contrasting color
 };
 
 export default function FlashMessage({
   message,
-  duration = 1000, // Animation duration
-  animationType = 'stretch', // Default to 'stretch' animation
+  duration = 2000,
+  stretch = false,
+  swoosh = false,
+  stretchSwoosh = false,
+  randomColors = false,
 }) {
-  const [nextWord, setNextWord] = useState(0); // Index of the current word
-  const [screenData, setScreenData] = useState(getScreenDimensions()); // Screen size and orientation
+  const [currentWord, setCurrentWord] = useState(0);
+  const scale = useSharedValue(1);
+  const position = useSharedValue(0);
+  const opacity = useSharedValue(1);
+  const bgColor = useSharedValue('#000000');
+  const textColor = useSharedValue('#FFFFFF');
 
-  const scale = useSharedValue(0); // For 'stretch' animation (start with text invisible)
-  const translateX = useSharedValue(screenData.width); // For 'swoosh' animation (start off-screen to the right)
+  const availableColors = [
+    '#00FF00',
+    '#FFC0CB',
+    '#0000FF',
+    '#800080',
+    '#FFFF00',
+    '#FF0000',
+    '#00FFFF',
+  ];
 
-  // Function to calculate dynamic scale based on word length and screen size
-  const calculateScale = (word) => {
-    const wordLength = word.length;
-    const baseFontSize = 30; // Starting font size for words
-    const maxWidth = screenData.isPortrait
-      ? screenData.width
-      : screenData.width * 0.9;
-    const maxHeight = screenData.isPortrait
-      ? screenData.height * 0.9
-      : screenData.height * 0.8;
-    const desiredFontSizeByWidth = (maxWidth * 0.8) / wordLength;
-    const desiredFontSizeByHeight = maxHeight / 2;
-    const desiredFontSize = Math.min(
-      desiredFontSizeByWidth,
-      desiredFontSizeByHeight
-    );
-    const scaleValue = desiredFontSize / baseFontSize; // Calculate the scale factor
-    return scaleValue;
+  const screenData = {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
   };
 
-  // Animated style for the 'stretch' animation
-  const stretchStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-    };
-  });
-
-  // Animated style for the 'swoosh' animation
-  const swooshStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: translateX.value }, { scale: scale.value }], // Combine translation and scaling
-    };
-  });
-
-  // Function to animate the text based on the selected animation type
-  const animateText = () => {
-    if (animationType === 'stretch') {
-      const currentWord = message[nextWord];
-      const dynamicScale = calculateScale(currentWord); // Get dynamic scale based on word length
-
-      // Animate scale from 0 to dynamic scale
-      scale.value = withTiming(dynamicScale, { duration: 500 }, () => {
-        scale.value = withTiming(1, { duration: 500 }, () => {
-          runOnJS(animationFinished)();
-        });
-      });
-    } else if (animationType === 'swoosh') {
-      const currentWord = message[nextWord];
-      const dynamicScale = calculateScale(currentWord); // Get dynamic scale based on word length
-
-      // Animate the word swooshing in from the right
-      translateX.value = screenData.width; // Start off-screen on the right
-      scale.value = dynamicScale; // Scale the word based on length and screen size
-
-      translateX.value = withSequence(
-        withTiming(0, { duration: 500 }), // Swoosh to the center
-        withTiming(0, { duration: 750 }), // Pause in the center
-        withTiming(-screenData.width, { duration: 500 }, () => {
-          // Exit off-screen to the left
-          runOnJS(animationFinished)(); // After exiting, show the next word
-        })
+  const calculateScale = useCallback(
+    (word) => {
+      const wordLength = word.length;
+      const baseFontSize = 30;
+      const maxWidth = screenData.width * 0.8;
+      const maxHeight = screenData.height * 0.8;
+      const desiredFontSizeByWidth = maxWidth / wordLength;
+      const desiredFontSizeByHeight = maxHeight / 2;
+      const desiredFontSize = Math.min(
+        desiredFontSizeByWidth,
+        desiredFontSizeByHeight
       );
-    }
-  };
+      return desiredFontSize / baseFontSize;
+    },
+    [screenData]
+  );
 
-  // Function to update the next word when animation finishes
-  const animationFinished = () => {
-    if (nextWord === message.length - 1) {
-      setNextWord(0); // Loop back to the first word
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }, { translateX: position.value }],
+    opacity: opacity.value,
+  }));
+
+  const animatedBgStyle = useAnimatedStyle(() => ({
+    backgroundColor: bgColor.value,
+  }));
+
+  const animatedTextStyle = useAnimatedStyle(() => ({
+    color: textColor.value,
+  }));
+
+  const changeWord = useCallback(() => {
+    setCurrentWord((prev) => (prev + 1) % message.length);
+  }, [message.length]);
+
+  const animateBackgroundColor = useCallback(() => {
+    const randomIndex = Math.floor(Math.random() * availableColors.length);
+    const newColor = availableColors[randomIndex];
+    bgColor.value = withTiming(newColor, { duration: 500 });
+
+    // Set text color based on the new background color
+    textColor.value = withTiming(getContrastingColor(newColor), {
+      duration: 500,
+    });
+  }, [availableColors, bgColor, textColor]);
+
+  const animateStretch = useCallback(() => {
+    scale.value = withSequence(
+      withTiming(0, { duration: 250 }),
+      withTiming(calculateScale(message[currentWord]), { duration: 750 })
+    );
+  }, [calculateScale, message, currentWord, scale]);
+
+  const animateSwoosh = useCallback(() => {
+    position.value = withSequence(
+      withTiming(-screenData.width, { duration: 500 }),
+      withTiming(screenData.width, { duration: 0 }),
+      withTiming(0, { duration: 500 })
+    );
+  }, [position, screenData.width]);
+
+  const animateStretchSwoosh = useCallback(() => {
+    scale.value = withSequence(
+      withTiming(0, { duration: 250 }),
+      withTiming(calculateScale(message[currentWord]), { duration: 750 })
+    );
+    position.value = withSequence(
+      withTiming(-screenData.width, { duration: 500 }),
+      withTiming(screenData.width, { duration: 0 }),
+      withTiming(0, { duration: 500 })
+    );
+  }, [calculateScale, message, currentWord, scale, position, screenData.width]);
+
+  const animateText = useCallback(() => {
+    if (randomColors) {
+      animateBackgroundColor();
     } else {
-      setNextWord(nextWord + 1); // Move to the next word
+      // Ensure text color contrasts with background even when not using random colors
+      textColor.value = withTiming(getContrastingColor(bgColor.value), {
+        duration: 500,
+      });
     }
-  };
 
-  // useEffect to run the animation whenever the word changes
-  useEffect(() => {
-    scale.value = 0; // Reset scale for 'stretch' animation
-    translateX.value = screenData.width; // Reset position for 'swoosh' animation (off-screen to the right)
-    animateText(); // Start the animation based on the animation type
-  }, [nextWord, screenData, animationType]);
-
-  // Listener to update screen dimensions and orientation on resize
-  useEffect(() => {
-    const updateScreenData = () => {
-      setScreenData(getScreenDimensions());
-    };
-
-    const subscription = Dimensions.addEventListener(
-      'change',
-      updateScreenData
+    opacity.value = withSequence(
+      withTiming(0, { duration: 250 }),
+      withTiming(1, { duration: 250 })
     );
 
-    return () => {
-      subscription.remove(); // Clean up the event listener
-    };
-  }, []);
+    if (stretch) {
+      animateStretch();
+    } else if (swoosh) {
+      animateSwoosh();
+    } else if (stretchSwoosh) {
+      animateStretchSwoosh();
+    }
+
+    setTimeout(changeWord, duration);
+  }, [
+    randomColors,
+    stretch,
+    swoosh,
+    stretchSwoosh,
+    animateBackgroundColor,
+    animateStretch,
+    animateSwoosh,
+    animateStretchSwoosh,
+    duration,
+    changeWord,
+    opacity,
+    bgColor,
+    textColor,
+  ]);
+
+  useEffect(() => {
+    animateText();
+  }, [animateText, currentWord]);
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, animatedBgStyle]}>
       <Animated.Text
-        style={[
-          styles.messageText,
-          animationType === 'stretch' ? stretchStyle : swooshStyle,
-        ]}
+        style={[styles.messageText, animatedStyle, animatedTextStyle]}
       >
-        {message[nextWord]} {/* Display the current word */}
+        {message[currentWord]}
       </Animated.Text>
-    </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Take up the full screen
-    justifyContent: 'center', // Center vertically
-    alignItems: 'center', // Center horizontally
-    backgroundColor: 'black', // Optional: improves visibility for white text
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   messageText: {
-    color: 'white',
-    textAlign: 'center',
-    fontSize: 30, // Base font size used for dynamic scaling
+    fontSize: 30,
     fontWeight: 'bold',
   },
 });

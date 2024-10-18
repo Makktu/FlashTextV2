@@ -21,8 +21,13 @@ export default function FlashScreen({
         message={message}
         displayHeight={displayHeight}
         displayWidth={displayWidth}
-        duration={duration}
+        duration={4000}
         animationType={'swoosh'}
+        randomizeDirection={true}
+        stretch={false}
+        swoosh={true}
+        stretchSwoosh={false}
+        randomColors={true}
       />
     </TouchableOpacity>
   );
