@@ -1,21 +1,23 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { TextInput } from 'react-native-paper';
-import COLORS from '../values/COLORS';
 import React from 'react';
 
 export default function InputBox({ handleInput, text }) {
   return (
     <View style={styles.container}>
       <TextInput
-        style={styles.inputText}
-        mode='outlined'
+        style={[styles.inputText, { width: '100%' }]}
         textColor='white'
-        placeholder='Enter Message'
-        selectionColor='white'
-        dense={false}
+        mode='outlined'
+        placeholder='Enter Your Message!'
+        selectionColor='#FFFFFF'
+        placeholderTextColor='#8e9498'
         onChangeText={handleInput}
-        keyboardAppearance='default'
         value={text}
+        underlineColor='transparent'
+        outlineColor='#37474F'
+        activeOutlineColor='#546E7A'
+        theme={{ colors: { text: '#FFFFFF', background: '#263238' } }}
       />
     </View>
   );
@@ -25,19 +27,15 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     alignItems: 'center',
-    marginTop: 10,
-    marginHorizontal: 4,
+    paddingHorizontal: 16,
+    width: '100%',
   },
   inputText: {
-    paddingVertical: 0,
-    marginVertical: 12,
     height: 60,
-    width: '100%',
-    backgroundColor: COLORS.alt2Secondary,
-    fontSize: 44,
+    backgroundColor: '#263238', // Dark background matching the theme
+    fontSize: 20,
+    color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'center',
-    justifyContent: 'center',
-    color: 'white',
   },
 });

@@ -1,148 +1,150 @@
+import React, { useState } from 'react';
 import {
-  StatusBar,
   StyleSheet,
   View,
   Text,
-  Alert,
   Dimensions,
+  StatusBar,
+  Pressable,
 } from 'react-native';
-import React, { useState } from 'react';
-import { Modal, Portal, PaperProvider, Button } from 'react-native-paper';
+import { PaperProvider } from 'react-native-paper';
 import InputBox from '../components/InputBox';
-import MyButton from '../components/MyButton';
 import FlashScreen from './FlashScreen';
-import Options from './Options';
 import COLORS from '../values/COLORS';
-import ScrollMessage from './ScrollMessage';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
+const CustomButton = ({ children, onPress, style }) => {
+  return (
+    <Pressable onPress={onPress}>
+      {({ pressed }) => (
+        <View style={[styles.customButton, style, pressed && styles.pressed]}>
+          <Icon
+            name='play-box'
+            size={44}
+            color={COLORS.white}
+            style={{ marginRight: 8 }}
+          />
+
+          <Text style={styles.customButtonText}>{children}</Text>
+        </View>
+      )}
+    </Pressable>
+  );
+};
 
 const Main = () => {
-  const [settingsVisible, setSettingsVisible] = useState(false);
-  const [text, setText] = useState('');
-  const [choppedMessage, setChoppedMessage] = useState([]);
-  const [history, changeHistory] = useState([]);
   const [currentScreen, setCurrentScreen] = useState('main');
-  const [currentMode, setCurrentMode] = useState('flash');
-
+  const [duration, setduration] = useState(2000); // ms
+  const [choppedMessage, setChoppedMessage] = useState([]);
+  const [text, setText] = useState('');
+  const [selectedItems, setSelectedItems] = useState([
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+  ]);
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
 
-  const showModal = () => setSettingsVisible(true);
-  const hideModal = () => setSettingsVisible(false);
-
-  const historyManagement = () => {
-    if (text === history[history.length - 1]) {
-      console.log('duplicate');
-    } else {
-      const updatedHistory = [...history];
-      if (updatedHistory.length >= 100) {
-        updatedHistory.shift();
-      }
-      updatedHistory.push(text);
-      changeHistory(updatedHistory);
-    }
-  };
-
-  const handleInput = (enteredText) => {
-    setText(enteredText);
-  };
-
-  const clearInput = () => {
-    setText('');
-  };
-
-  const tellUserToEnter = () => {
-    Alert.alert(
-      'Enter some Text!',
-      'Enter something in the message box and then press Start',
-      [{ text: 'OK' }]
-    );
-  };
-
   const startPressed = () => {
     if (!text) {
-      tellUserToEnter();
+      alert('Enter some text first!');
       return;
     }
-    historyManagement();
     setChoppedMessage(text.split(' '));
-    setCurrentScreen(currentMode === 'flash' ? 'flash' : 'scroll');
+    setCurrentScreen('flash');
   };
 
   const returnTap = () => setCurrentScreen('main');
 
-  const modeChanged = () =>
-    setCurrentMode((prev) => (prev === 'flash' ? 'scroll' : 'flash'));
+  const handleInput = (enteredText) => {
+    console.log(text);
+    setText(enteredText);
+  };
+
+  const modeChanged = () => {
+    setCurrentScreen((prevMode) => (prevMode === 'flash' ? 'scroll' : 'flash'));
+  };
+
+  const handlePlainPress = () => {
+    console.log('Plain Pressed');
+  };
+  // Handler for toggling the color of grid items
+  const toggleItem = (index) => {
+    setSelectedItems((prevSelectedItems) => {
+      const updatedItems = [...prevSelectedItems];
+      updatedItems[index] = !updatedItems[index];
+      return updatedItems;
+    });
+  };
 
   return (
     <PaperProvider>
-      <>
-        <Portal>
-          <Modal
-            visible={settingsVisible}
-            onDismiss={hideModal}
-            contentContainerStyle={styles.modalContainerStyle}
-          >
-            <Options />
-          </Modal>
-        </Portal>
-        <StatusBar style='light' />
-        {(currentScreen === 'main' && (
-          <View style={styles.container}>
-            <View style={styles.titleContainer}>
-              <Text style={styles.titleText}>FlashText</Text>
-              <Text style={styles.versionText}>2.0</Text>
-            </View>
-            <View style={styles.inputContainer}>
-              <InputBox text={text} handleInput={handleInput} />
-            </View>
-            <View style={styles.buttonContainer}>
-              <MyButton
-                style={styles.startButton}
-                icon='play-box'
-                size={28}
-                whenPressed={startPressed}
-              >
-                START!
-              </MyButton>
-              <MyButton
-                style={styles.clearButton}
-                icon='trash-can'
-                size={28}
-                whenPressed={clearInput}
-              >
-                CLEAR
-              </MyButton>
-              <Button
-                style={styles.modeButton}
-                mode='contained'
-                onPress={modeChanged}
-              >
-                {currentMode === 'flash' ? 'FLASH' : 'SCROLL'}
-              </Button>
-              <MyButton
-                style={styles.settingsButton}
-                icon='cog'
-                size={28}
-                whenPressed={showModal}
-              >
-                SETTINGS
-              </MyButton>
-            </View>
+      <StatusBar backgroundColor={COLORS.darkBg} barStyle='light-content' />
+      {(currentScreen === 'main' && (
+        <View style={styles.container}>
+          {/* Top Title Section */}
+          <View style={styles.titleContainer}>
+            <Text style={styles.titleText}>FlashText</Text>
+            <Text style={styles.subTitleText}>Version 2.0</Text>
           </View>
-        )) ||
-          (currentScreen === 'flash' && (
-            <FlashScreen
-              returnTap={returnTap}
-              message={choppedMessage}
-              displayHeight={windowHeight}
-              displayWidth={windowWidth}
-              duration={750}
-            />
-          )) ||
-          (currentScreen === 'scroll' && (
-            <ScrollMessage returnTap={returnTap} message={text} />
-          ))}
-      </>
+
+          {/* Input Section */}
+          <View style={styles.inputContainer}>
+            <InputBox text={text} handleInput={handleInput} />
+          </View>
+
+          {/* START Button Section */}
+          <View style={styles.buttonContainer}>
+            <CustomButton onPress={startPressed} style={{ marginTop: 2 }}>
+              START
+            </CustomButton>
+          </View>
+
+          {/* Main Grid Section */}
+          <View style={styles.gridContainer}>
+            {[
+              {
+                name: 'fit-to-screen',
+                label: 'Plain',
+                onPress: handlePlainPress,
+              },
+              { name: 'format-color-fill', label: 'Random Colours' },
+              { name: 'weather-windy', label: 'Swoosh' },
+              { name: 'fast-forward', label: `Speed: ${duration / 1000}s` },
+              { name: 'stretch-to-page', label: 'Stretch' },
+              { name: 'home-outline', label: 'History' },
+            ].map((item, index) => (
+              <Pressable
+                key={index}
+                onPress={() => toggleItem(index)}
+                style={[
+                  styles.gridItem,
+                  {
+                    backgroundColor: selectedItems[index]
+                      ? '#28a745'
+                      : '#27273b',
+                  }, // Toggle between green and default
+                ]}
+              >
+                <Icon name={item.name} size={40} color='#FFF' />
+                <Text style={styles.gridItemText}>{item.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      )) ||
+        (currentScreen === 'flash' && (
+          <FlashScreen
+            returnTap={returnTap}
+            message={choppedMessage}
+            displayHeight={windowHeight}
+            displayWidth={windowWidth}
+            duration={750}
+          />
+        ))}
     </PaperProvider>
   );
 };
@@ -152,56 +154,71 @@ export default Main;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.alt2Bg,
+    backgroundColor: '#1e1e2d',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
+    justifyContent: 'space-between',
+    paddingVertical: 40,
   },
   titleContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    paddingBottom: 20,
   },
   titleText: {
-    fontSize: 48,
-    color: '#ffffff',
+    fontSize: 58,
     fontWeight: 'bold',
-    marginRight: 8,
+    color: '#fefcfb',
   },
-  versionText: {
-    fontSize: 18,
-    color: '#ffffff60',
+  subTitleText: {
+    fontSize: 28,
+    color: '#ffffff6e',
   },
-  inputContainer: {
-    width: '100%',
-    maxWidth: 600,
-    marginBottom: 20,
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    width: '90%',
+  },
+  gridItem: {
+    width: 120,
+    height: 120,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 10,
+  },
+  gridItemText: {
+    color: '#FFF',
+    marginTop: 10,
+    fontSize: 16,
   },
   buttonContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    width: '100%',
+  },
+  mainButton: {
+    backgroundColor: '#5f4444',
+    marginVertical: 18,
+    paddingHorizontal: 30,
+  },
+  customButton: {
+    width: 300,
+    height: 80,
+    borderRadius: 10,
+    flexDirection: 'row',
+    backgroundColor: 'white',
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  startButton: {
-    backgroundColor: '#6200EE',
-    marginBottom: 10,
-    width: '80%',
+  pressed: {
+    opacity: 0.5,
   },
-  clearButton: {
-    backgroundColor: '#FF5733',
-    marginBottom: 10,
-    width: '80%',
+  customButtonText: {
+    fontSize: 38,
+    color: COLORS.white,
+    fontWeight: 'bold',
   },
-  modeButton: {
-    marginBottom: 10,
-    width: '80%',
-  },
-  settingsButton: {
-    backgroundColor: '#2196F3',
-    marginBottom: 10,
-    width: '80%',
-  },
-  modalContainerStyle: {
-    flex: 1,
+  inputContainer: {
+    width: '85%',
   },
 });
