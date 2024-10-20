@@ -142,7 +142,10 @@ const Main = () => {
             message={choppedMessage}
             displayHeight={windowHeight}
             displayWidth={windowWidth}
-            duration={750}
+            duration={1000}
+            flashType={'stretch'}
+            userBgColor={'black'}
+            randomBgcolors={true}
           />
         ))}
     </PaperProvider>

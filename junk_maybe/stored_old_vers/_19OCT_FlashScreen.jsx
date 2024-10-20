@@ -1,19 +1,15 @@
-import { StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, StatusBar } from 'react-native';
+
 import React, { useEffect } from 'react';
 import COLORS from '../values/COLORS';
-// import FlashMessage from '../components/FlashMessage';
-import FlashStretch from './subflash screens/FlashStretch';
-import FlashPlain from './subflash screens/FlashPlain';
-import FlashSwoosh from './subflash screens/FlashSwoosh';
+import FlashMessage from '../components/FlashMessage';
 
 export default function FlashScreen({
   returnTap,
   message,
-  userBgColor,
   displayHeight,
   displayWidth,
   duration,
-  flashType,
 }) {
   useEffect(() => {
     StatusBar.setHidden(true);
@@ -21,14 +17,18 @@ export default function FlashScreen({
 
   return (
     <TouchableOpacity style={styles.container} onPress={returnTap}>
-      {flashType === 'stretch' && (
-        <FlashStretch
-          message={message}
-          duration={duration}
-          randomBgcolors={true}
-          userBgColor={userBgColor}
-        />
-      )}
+      <FlashMessage
+        message={message}
+        displayHeight={displayHeight}
+        displayWidth={displayWidth}
+        duration={2000}
+        animationType={'swoosh'}
+        randomizeDirection={true}
+        stretch={false}
+        swoosh={true}
+        stretchSwoosh={false}
+        randomColors={false}
+      />
     </TouchableOpacity>
   );
 }
