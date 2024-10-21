@@ -14,6 +14,8 @@ export default function FlashScreen({
   displayWidth,
   duration,
   flashType,
+  swooshDirection,
+  randomizeBgColor,
 }) {
   useEffect(() => {
     StatusBar.setHidden(true);
@@ -25,8 +27,26 @@ export default function FlashScreen({
         <FlashStretch
           message={message}
           duration={duration}
-          randomBgcolors={true}
           userBgColor={userBgColor}
+          randomizeBgColor
+        />
+      )}
+      {flashType === 'plain' && (
+        <FlashPlain
+          message={message}
+          duration={duration}
+          randomizeBgColor
+          userBgColor={userBgColor}
+        />
+      )}
+      {flashType === 'swoosh' && (
+        <FlashSwoosh
+          message={message}
+          duration={duration}
+          randomizeBgColor
+          userBgColor={userBgColor}
+          swooshDirection={swooshDirection}
+          fontSizeFactor={0.3}
         />
       )}
     </TouchableOpacity>

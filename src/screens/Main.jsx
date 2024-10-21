@@ -36,6 +36,7 @@ const Main = () => {
   const [currentScreen, setCurrentScreen] = useState('main');
   const [duration, setduration] = useState(2000); // ms
   const [choppedMessage, setChoppedMessage] = useState([]);
+  const [randomizeBgColor, setRandomizeBgColor] = useState(false);
   const [text, setText] = useState('');
   const [selectedItems, setSelectedItems] = useState([
     false,
@@ -45,7 +46,7 @@ const Main = () => {
     true,
     false,
   ]);
-  const [pickedAnimation, setPickedAnimation] = useState('stretch');
+  // const [pickedAnimation, setPickedAnimation] = useState('stretch');
 
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
@@ -162,10 +163,12 @@ const Main = () => {
             message={choppedMessage}
             displayHeight={windowHeight}
             displayWidth={windowWidth}
-            duration={1000}
-            flashType={'stretch'}
+            duration={duration}
+            flashType={'plain'}
+            swooshDirection={'random'}
             userBgColor={'black'}
-            randomBgcolors={true}
+            randomizeBgColor={false}
+            fontSizeFactor={0.7}
           />
         ))}
     </PaperProvider>
