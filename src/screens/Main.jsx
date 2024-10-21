@@ -42,9 +42,11 @@ const Main = () => {
     false,
     false,
     false,
-    false,
+    true,
     false,
   ]);
+  const [pickedAnimation, setPickedAnimation] = useState('stretch');
+
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
 
@@ -75,7 +77,26 @@ const Main = () => {
   const toggleItem = (index) => {
     setSelectedItems((prevSelectedItems) => {
       const updatedItems = [...prevSelectedItems];
-      updatedItems[index] = !updatedItems[index];
+
+      // Check if the selected item is one of the special ones (0, 2, or 4)
+      if ([0, 2, 4].includes(index)) {
+        // If the clicked item is already green, do nothing
+        if (prevSelectedItems[index]) {
+          return prevSelectedItems;
+        }
+
+        // Set all special items (0, 2, and 4) to false
+        updatedItems[0] = false;
+        updatedItems[2] = false;
+        updatedItems[4] = false;
+
+        // Set the clicked item to true (make it green)
+        updatedItems[index] = true;
+      } else {
+        // For non-special items, toggle them normally
+        updatedItems[index] = !prevSelectedItems[index];
+      }
+
       return updatedItems;
     });
   };
@@ -109,7 +130,6 @@ const Main = () => {
               {
                 name: 'fit-to-screen',
                 label: 'Plain',
-                onPress: handlePlainPress,
               },
               { name: 'format-color-fill', label: 'Random Colours' },
               { name: 'weather-windy', label: 'Swoosh' },
