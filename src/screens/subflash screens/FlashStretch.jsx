@@ -16,19 +16,19 @@ const getContrastingColor = (bgColor) => {
   return brightness > 186 ? '#000000' : '#FFFFFF';
 };
 
-const availableColors = ['#006400', '#00008B', '#8B8000', '#FF4500', '#8B008B'];
+const availableColors = ['#04eb04', '#0606e7', '#f2de07', '#FF4500', '#f203f2'];
 
 export default function FlashStretch({
   message,
   duration = 2000,
-  randomBgColors = false,
+  randomizeBgColor = false,
   userBgColor = '#000000',
 }) {
   const [currentWord, setCurrentWord] = useState(0);
   const scale = useSharedValue(0.1);
   const opacity = useSharedValue(0);
   const bgColor = useSharedValue(
-    randomBgColors ? availableColors[0] : userBgColor
+    randomizeBgColor ? availableColors[0] : userBgColor
   );
   const textColor = useSharedValue(getContrastingColor(bgColor.value));
 
@@ -72,7 +72,7 @@ export default function FlashStretch({
   }, [message.length]);
 
   const animateBackgroundColor = useCallback(() => {
-    if (randomBgColors) {
+    if (randomizeBgColor) {
       const newColor =
         availableColors[Math.floor(Math.random() * availableColors.length)];
       bgColor.value = withTiming(newColor, { duration: duration / 4 });
@@ -80,7 +80,7 @@ export default function FlashStretch({
         duration: duration / 4,
       });
     }
-  }, [randomBgColors, bgColor, textColor, duration]);
+  }, [randomizeBgColor, bgColor, textColor, duration]);
 
   const animateStretch = useCallback(() => {
     scale.value = 0.1;

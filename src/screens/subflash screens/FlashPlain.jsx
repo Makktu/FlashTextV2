@@ -1,66 +1,75 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { StyleSheet, Dimensions, Text } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
   withTiming,
   useAnimatedStyle,
-  withSequence,
 } from 'react-native-reanimated';
 
-const getContrastingColor = (bgColor) => {
-  try {
-    const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
-    const r = parseInt(color.substring(0, 2), 16);
-    const g = parseInt(color.substring(2, 4), 16);
-    const b = parseInt(color.substring(4, 6), 16);
-    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-    return brightness > 186 ? '#000000' : '#FFFFFF';
-  } catch (error) {
-    console.error('Error parsing color:', error);
-    return '#FFFFFF'; // Default to white on error
-  }
+// Function to get a contrasting color for readability
+const getContrastingColor = (bgColor = '#000000') => {
+  const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
+  const r = parseInt(color.substring(0, 2), 16);
+  const g = parseInt(color.substring(2, 4), 16);
+  const b = parseInt(color.substring(4, 6), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness > 186 ? '#000000' : '#FFFFFF';
 };
 
-const availableColors = ['#006400', '#00008B', '#8B8000', '#FF4500', '#8B008B'];
+const availableColors = [
+  '#04eb04',
+  '#0606e7',
+  '#f2de07',
+  '#FF4500',
+  '#f203f2',
+  '#000000',
+];
 
 export default function FlashPlain({
-  message = [],
+  message = ['No', 'Message', 'Passed'],
   duration = 2000,
-  randomizeBgColor = false,
+  randomizeBgColors = false,
   userBgColor = '#000000',
 }) {
   const [currentWord, setCurrentWord] = useState(0);
+  const [initialBgColor] = useState(
+    randomizeBgColors ? availableColors[0] : userBgColor
+  );
+
   const opacity = useSharedValue(1);
-  const bgColor = useSharedValue(
-    randomizeBgColor ? availableColors[0] : userBgColor
-  );
-  const textColor = useSharedValue(getContrastingColor(bgColor.value));
+  const bgColor = useSharedValue(initialBgColor);
+  const textColor = useSharedValue(getContrastingColor(initialBgColor));
 
-  const screenData = useMemo(() => {
-    try {
-      return {
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').height,
-      };
-    } catch (error) {
-      console.error('Error getting dimensions:', error);
-      return { width: 300, height: 500 }; // Fallback values
+  const screenData = {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
+  };
+
+  // Calculate dynamic font size based on screen dimensions
+  const calculateFontSize = (text) => {
+    const minScreenDimension = Math.min(screenData.width, screenData.height);
+    const availableWidth = screenData.width * 0.97; // Use 97% of the screen width for text
+    let fontSize = minScreenDimension * 0.8; // Starting at 80% of the screen size
+    let textWidth = text.length * (fontSize / 2); // Approximate text width
+
+    // Adjust font size until it fits within the available width
+    // while (textWidth > availableWidth) {
+    //   fontSize -= 1; // Reduce font size
+    //   textWidth = text.length * (fontSize / 2); // Recalculate text width
+    // }
+    const MIN_FONT_SIZE = 12;
+
+    while (
+      fontSize > MIN_FONT_SIZE &&
+      text.length * (fontSize / 2) > availableWidth
+    ) {
+      fontSize -= 1;
     }
-  }, []);
 
-  const calculateFontSize = useCallback(
-    (word) => {
-      if (!word) return 30; // Default font size
-      const wordLength = word.length;
-      const maxWidth = screenData.width * 0.9;
-      const maxHeight = screenData.height * 0.9;
-      const desiredFontSizeByWidth = maxWidth / wordLength;
-      const desiredFontSizeByHeight = maxHeight / 2;
-      return Math.min(desiredFontSizeByWidth, desiredFontSizeByHeight, 100); // Cap at 100 to prevent excessive sizes
-    },
-    [screenData]
-  );
+    return fontSize;
+  };
 
+  // Animated styles for opacity, background color, and text color
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
   }));
@@ -71,55 +80,30 @@ export default function FlashPlain({
 
   const animatedTextStyle = useAnimatedStyle(() => ({
     color: textColor.value,
-    fontSize: calculateFontSize(message[currentWord] || ''),
+    fontSize: calculateFontSize(message[currentWord]),
   }));
 
   const changeWord = useCallback(() => {
-    if (message.length > 0) {
-      setCurrentWord((prev) => (prev + 1) % message.length);
-    }
-  }, [message]);
+    setCurrentWord((prev) => (prev + 1) % message.length);
+  }, [message.length]);
 
-  const animateBackgroundColor = useCallback(() => {
-    const newColor =
-      availableColors[Math.floor(Math.random() * availableColors.length)];
-    bgColor.value = withTiming(newColor, { duration: duration / 4 });
-    textColor.value = withTiming(getContrastingColor(newColor), {
-      duration: duration / 4,
+  const fadeOut = useCallback(() => {
+    opacity.value = withTiming(0, { duration: 500 }, () => {
+      // Reset opacity back to 1 after the fade-out completes
+      opacity.value = 1;
     });
-  }, [bgColor, textColor, duration]);
-
-  const animateFade = useCallback(() => {
-    opacity.value = withSequence(
-      withTiming(0, { duration: duration / 4 }),
-      withTiming(1, { duration: duration / 4 }),
-      withTiming(1, { duration: duration / 4 }),
-      withTiming(0, { duration: duration / 4 })
-    );
-  }, [opacity, duration]);
+  }, [opacity]);
 
   useEffect(() => {
     if (message.length > 0) {
-      if (randomizeBgColor) {
-        animateBackgroundColor();
-      }
-      animateFade();
-      const timer = setTimeout(changeWord, duration);
+      const timer = setTimeout(() => {
+        fadeOut(); // Call fadeOut first
+        setTimeout(changeWord, 500); // Change word after the fade-out completes
+      }, duration);
+
       return () => clearTimeout(timer);
     }
-  }, [
-    animateBackgroundColor,
-    animateFade,
-    changeWord,
-    duration,
-    currentWord,
-    message,
-    randomizeBgColor,
-  ]);
-
-  if (message.length === 0) {
-    return <Text style={styles.errorText}>No message provided</Text>;
-  }
+  }, [fadeOut, changeWord, duration, message]);
 
   return (
     <Animated.View style={[styles.container, animatedBgStyle]}>
@@ -140,10 +124,5 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontWeight: 'bold',
-  },
-  errorText: {
-    fontSize: 16,
-    color: 'red',
-    textAlign: 'center',
   },
 });

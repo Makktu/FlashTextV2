@@ -8,14 +8,14 @@ import FlashSwoosh from './subflash screens/FlashSwoosh';
 
 export default function FlashScreen({
   returnTap,
-  message,
+  message = ['no', 'message', 'was', 'passed'],
   userBgColor,
   displayHeight,
   displayWidth,
-  duration,
+  duration = 2000,
   flashType,
   swooshDirection,
-  randomizeBgColor,
+  randomizeBgColor = false,
 }) {
   useEffect(() => {
     StatusBar.setHidden(true);

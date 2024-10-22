@@ -34,22 +34,25 @@ const CustomButton = ({ children, onPress, style }) => {
 
 const Main = () => {
   const [currentScreen, setCurrentScreen] = useState('main');
-  const [duration, setduration] = useState(2000); // ms
+  const [flashType, setFlashType] = useState('plain');
+  const [duration, setDuration] = useState(2000); // ms
   const [choppedMessage, setChoppedMessage] = useState([]);
   const [randomizeBgColor, setRandomizeBgColor] = useState(false);
-  const [text, setText] = useState('');
+  const [text, setText] = useState('This is FlashText!');
   const [selectedItems, setSelectedItems] = useState([
-    false,
-    false,
-    false,
-    false,
     true,
+    false,
+    false,
+    false,
+    false,
     false,
   ]);
   // const [pickedAnimation, setPickedAnimation] = useState('stretch');
 
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
+
+  console.log(flashType);
 
   const startPressed = () => {
     if (!text) {
@@ -76,6 +79,33 @@ const Main = () => {
   };
   // Handler for toggling the color of grid items
   const toggleItem = (index) => {
+    if (index == 0 || index == 2 || index == 4) {
+      index == 0
+        ? setFlashType('plain')
+        : index == 2
+        ? setFlashType('swoosh')
+        : setFlashType('stretch');
+    }
+
+    if (index == 1) {
+      console.log('CHANGE TO NEXT COLOR OPTION');
+      return;
+    }
+
+    // SPEED CONTROLS
+    if (index == 3) {
+      if (duration < 5000) {
+        setDuration(duration + 1000);
+      } else {
+        setDuration(1000);
+      }
+      return;
+    }
+
+    if (index == 5) {
+      console.log('OPEN HISTORY MODAL OR WHATEVER LOL');
+      return;
+    }
     setSelectedItems((prevSelectedItems) => {
       const updatedItems = [...prevSelectedItems];
 
@@ -132,9 +162,9 @@ const Main = () => {
                 name: 'fit-to-screen',
                 label: 'Plain',
               },
-              { name: 'format-color-fill', label: 'Random Colours' },
+              { name: 'format-color-fill', label: 'Background' },
               { name: 'weather-windy', label: 'Swoosh' },
-              { name: 'fast-forward', label: `Speed: ${duration / 1000}s` },
+              { name: 'fast-forward', label: `Duration: ${duration / 1000}s` },
               { name: 'stretch-to-page', label: 'Stretch' },
               { name: 'home-outline', label: 'History' },
             ].map((item, index) => (
@@ -164,10 +194,10 @@ const Main = () => {
             displayHeight={windowHeight}
             displayWidth={windowWidth}
             duration={duration}
-            flashType={'plain'}
+            flashType={flashType}
             swooshDirection={'random'}
             userBgColor={'black'}
-            randomizeBgColor={false}
+            randomizeBgColor={true}
             fontSizeFactor={0.7}
           />
         ))}
