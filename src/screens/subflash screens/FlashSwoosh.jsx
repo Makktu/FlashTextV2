@@ -17,7 +17,14 @@ const getContrastingColor = (bgColor) => {
   return brightness > 186 ? '#000000' : '#FFFFFF';
 };
 
-const availableColors = ['#04eb04', '#0606e7', '#f2de07', '#FF4500', '#f203f2'];
+const availableColors = [
+  '#02a402',
+  '#0606e7',
+  '#f2de07',
+  '#a42e03',
+  '#f203f2',
+  '#000000',
+];
 
 // Function to get random color different from the last one
 const getRandomColor = (previousColor) => {

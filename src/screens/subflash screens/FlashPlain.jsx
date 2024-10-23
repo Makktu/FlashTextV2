@@ -4,9 +4,9 @@ import Animated, {
   useSharedValue,
   withTiming,
   useAnimatedStyle,
+  runOnJS,
 } from 'react-native-reanimated';
 
-// Function to get a contrasting color for readability
 const getContrastingColor = (bgColor = '#000000') => {
   const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
   const r = parseInt(color.substring(0, 2), 16);
@@ -28,48 +28,46 @@ const availableColors = [
 export default function FlashPlain({
   message = ['No', 'Message', 'Passed'],
   duration = 2000,
-  randomizeBgColors = false,
+  randomizeBgColor = false,
   userBgColor = '#000000',
 }) {
   const [currentWord, setCurrentWord] = useState(0);
-  const [initialBgColor] = useState(
-    randomizeBgColors ? availableColors[0] : userBgColor
-  );
-
+  const [fontSize, setFontSize] = useState(30); // Default font size
   const opacity = useSharedValue(1);
-  const bgColor = useSharedValue(initialBgColor);
-  const textColor = useSharedValue(getContrastingColor(initialBgColor));
+  const bgColor = useSharedValue(
+    randomizeBgColor ? availableColors[0] : userBgColor
+  );
+  const textColor = useSharedValue(getContrastingColor(bgColor.value));
 
-  const screenData = {
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-  };
+  // print value of randomizeBgColor
+  console.log(randomizeBgColor);
 
-  // Calculate dynamic font size based on screen dimensions
-  const calculateFontSize = (text) => {
+  const calculateFontSize = useCallback((text) => {
+    const screenData = {
+      width: Dimensions.get('window').width,
+      height: Dimensions.get('window').height,
+    };
     const minScreenDimension = Math.min(screenData.width, screenData.height);
-    const availableWidth = screenData.width * 0.97; // Use 97% of the screen width for text
-    let fontSize = minScreenDimension * 0.8; // Starting at 80% of the screen size
-    let textWidth = text.length * (fontSize / 2); // Approximate text width
-
-    // Adjust font size until it fits within the available width
-    // while (textWidth > availableWidth) {
-    //   fontSize -= 1; // Reduce font size
-    //   textWidth = text.length * (fontSize / 2); // Recalculate text width
-    // }
+    const availableWidth = screenData.width * 0.97;
     const MIN_FONT_SIZE = 12;
+    let newFontSize = minScreenDimension * 0.8;
 
     while (
-      fontSize > MIN_FONT_SIZE &&
-      text.length * (fontSize / 2) > availableWidth
+      newFontSize > MIN_FONT_SIZE &&
+      text.length * (newFontSize / 2) > availableWidth
     ) {
-      fontSize -= 1;
+      newFontSize -= 1;
     }
 
-    return fontSize;
-  };
+    return newFontSize;
+  }, []);
 
-  // Animated styles for opacity, background color, and text color
+  // Update font size when word changes
+  useEffect(() => {
+    const newSize = calculateFontSize(message[currentWord]);
+    setFontSize(newSize);
+  }, [currentWord, message, calculateFontSize]);
+
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
   }));
@@ -80,35 +78,50 @@ export default function FlashPlain({
 
   const animatedTextStyle = useAnimatedStyle(() => ({
     color: textColor.value,
-    fontSize: calculateFontSize(message[currentWord]),
   }));
 
   const changeWord = useCallback(() => {
     setCurrentWord((prev) => (prev + 1) % message.length);
   }, [message.length]);
 
-  const fadeOut = useCallback(() => {
-    opacity.value = withTiming(0, { duration: 500 }, () => {
-      // Reset opacity back to 1 after the fade-out completes
-      opacity.value = 1;
+  const animateBackgroundColor = useCallback(() => {
+    if (randomizeBgColor) {
+      const newColor =
+        availableColors[Math.floor(Math.random() * availableColors.length)];
+      bgColor.value = withTiming(newColor, { duration: duration / 4 });
+      textColor.value = withTiming(getContrastingColor(newColor), {
+        duration: duration / 4,
+      });
+    }
+  }, [randomizeBgColor, bgColor, textColor, duration]);
+
+  const animate = useCallback(() => {
+    opacity.value = withTiming(0, { duration: duration / 4 }, (finished) => {
+      if (finished) {
+        runOnJS(changeWord)();
+        opacity.value = withTiming(1, { duration: duration / 4 });
+      }
     });
-  }, [opacity]);
+  }, [opacity, duration, changeWord]);
 
   useEffect(() => {
-    if (message.length > 0) {
-      const timer = setTimeout(() => {
-        fadeOut(); // Call fadeOut first
-        setTimeout(changeWord, 500); // Change word after the fade-out completes
-      }, duration);
+    const timer = setTimeout(() => {
+      animateBackgroundColor();
+      animate();
+    }, duration);
 
-      return () => clearTimeout(timer);
-    }
-  }, [fadeOut, changeWord, duration, message]);
+    return () => clearTimeout(timer);
+  }, [animate, animateBackgroundColor, duration, currentWord]);
 
   return (
     <Animated.View style={[styles.container, animatedBgStyle]}>
       <Animated.Text
-        style={[styles.messageText, animatedStyle, animatedTextStyle]}
+        style={[
+          styles.messageText,
+          { fontSize },
+          animatedStyle,
+          animatedTextStyle,
+        ]}
       >
         {message[currentWord]}
       </Animated.Text>

@@ -16,7 +16,14 @@ const getContrastingColor = (bgColor) => {
   return brightness > 186 ? '#000000' : '#FFFFFF';
 };
 
-const availableColors = ['#04eb04', '#0606e7', '#f2de07', '#FF4500', '#f203f2'];
+const availableColors = [
+  '#04eb04',
+  '#0606e7',
+  '#f2de07',
+  '#FF4500',
+  '#f203f2',
+  '#000000',
+];
 
 export default function FlashStretch({
   message,
@@ -25,6 +32,7 @@ export default function FlashStretch({
   userBgColor = '#000000',
 }) {
   const [currentWord, setCurrentWord] = useState(0);
+  const [fontSize, setFontSize] = useState(30);
   const scale = useSharedValue(0.1);
   const opacity = useSharedValue(0);
   const bgColor = useSharedValue(
@@ -32,27 +40,41 @@ export default function FlashStretch({
   );
   const textColor = useSharedValue(getContrastingColor(bgColor.value));
 
-  const screenData = {
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-  };
+  const calculateInitialFontSize = useCallback((text) => {
+    const screenData = {
+      width: Dimensions.get('window').width,
+      height: Dimensions.get('window').height,
+    };
+    // Set initial font size to be readable but small enough to show dramatic scaling
+    const minScreenDimension = Math.min(screenData.width, screenData.height);
+    return minScreenDimension * 0.15; // Reduced from 0.8 to make initial size smaller
+  }, []);
 
-  const calculateScale = useCallback(
-    (word) => {
-      const wordLength = word.length;
-      const baseFontSize = 30;
-      const maxWidth = screenData.width * 0.9;
-      const maxHeight = screenData.height * 0.9;
-      const desiredFontSizeByWidth = maxWidth / wordLength;
-      const desiredFontSizeByHeight = maxHeight / 2;
-      const desiredFontSize = Math.min(
-        desiredFontSizeByWidth,
-        desiredFontSizeByHeight
-      );
-      return desiredFontSize / baseFontSize;
-    },
-    [screenData]
-  );
+  useEffect(() => {
+    const updateFontSize = () => {
+      const newSize = calculateInitialFontSize(message[currentWord]);
+      setFontSize(newSize);
+    };
+
+    updateFontSize();
+
+    const subscription = Dimensions.addEventListener('change', updateFontSize);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [currentWord, message, calculateInitialFontSize]);
+
+  const calculateScale = useCallback(() => {
+    // Calculate a much larger scale factor to ensure text expands beyond screen
+    const screenData = {
+      width: Dimensions.get('window').width,
+      height: Dimensions.get('window').height,
+    };
+    const maxScreenDimension = Math.max(screenData.width, screenData.height);
+    // Scale up to 3x the screen size for dramatic effect
+    return (maxScreenDimension * 0.3) / fontSize;
+  }, [fontSize]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -86,12 +108,18 @@ export default function FlashStretch({
     scale.value = 0.1;
     opacity.value = 0;
 
+    // Start with fade in
     opacity.value = withTiming(1, { duration: duration / 4 });
+
+    // Expand beyond screen boundaries
     scale.value = withTiming(
-      calculateScale(message[currentWord]),
-      { duration: (duration * 3) / 4 },
+      calculateScale(),
+      {
+        duration: (duration * 3) / 4,
+      },
       (finished) => {
         if (finished) {
+          // Start fade out when maximum scale is reached
           opacity.value = withTiming(
             0,
             { duration: duration / 4 },
@@ -104,15 +132,7 @@ export default function FlashStretch({
         }
       }
     );
-  }, [
-    calculateScale,
-    message,
-    currentWord,
-    scale,
-    opacity,
-    duration,
-    changeWord,
-  ]);
+  }, [calculateScale, scale, opacity, duration, changeWord]);
 
   useEffect(() => {
     animateBackgroundColor();
@@ -122,7 +142,12 @@ export default function FlashStretch({
   return (
     <Animated.View style={[styles.container, animatedBgStyle]}>
       <Animated.Text
-        style={[styles.messageText, animatedStyle, animatedTextStyle]}
+        style={[
+          styles.messageText,
+          { fontSize },
+          animatedStyle,
+          animatedTextStyle,
+        ]}
       >
         {message[currentWord]}
       </Animated.Text>
@@ -135,9 +160,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden', // Remove this to allow content to expand beyond boundaries
   },
   messageText: {
-    fontSize: 30,
     fontWeight: 'bold',
   },
 });

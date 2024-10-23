@@ -37,7 +37,7 @@ const Main = () => {
   const [flashType, setFlashType] = useState('plain');
   const [duration, setDuration] = useState(2000); // ms
   const [choppedMessage, setChoppedMessage] = useState([]);
-  const [randomizeBgColor, setRandomizeBgColor] = useState(false);
+  const [randomizeBgColor, setRandomizeBgColor] = useState(true);
   const [text, setText] = useState('This is FlashText!');
   const [selectedItems, setSelectedItems] = useState([
     true,
@@ -197,7 +197,7 @@ const Main = () => {
             flashType={flashType}
             swooshDirection={'random'}
             userBgColor={'black'}
-            randomizeBgColor={true}
+            randomizeBgColor={randomizeBgColor}
             fontSizeFactor={0.7}
           />
         ))}
