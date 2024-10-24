@@ -64,6 +64,8 @@ export default function FlashSwoosh({
     height: Dimensions.get('window').height,
   });
 
+  console.log(randomizeBgColor);
+
   // Listener for screen orientation changes (detect screen rotation)
   useEffect(() => {
     const onChange = () => {

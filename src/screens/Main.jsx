@@ -8,10 +8,24 @@ import {
   Pressable,
 } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ImageBackground } from 'react-native';
 import InputBox from '../components/InputBox';
 import FlashScreen from './FlashScreen';
 import COLORS from '../values/COLORS';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
+const availableColors = [
+  '#04eb04',
+  '#0606e7',
+  '#f2de07',
+  '#FF4500',
+  '#f203f2',
+  '#000000',
+  '#ffffff',
+];
+
+const randomImg = require('../../assets/img/randomImg.png');
 
 const CustomButton = ({ children, onPress, style }) => {
   return (
@@ -37,7 +51,8 @@ const Main = () => {
   const [flashType, setFlashType] = useState('plain');
   const [duration, setDuration] = useState(2000); // ms
   const [choppedMessage, setChoppedMessage] = useState([]);
-  const [randomizeBgColor, setRandomizeBgColor] = useState(true);
+  const [userBgColor, setUserBgColor] = useState(0);
+  const [randomizeBgColor, setRandomizeBgColor] = useState(false);
   const [text, setText] = useState('This is FlashText!');
   const [selectedItems, setSelectedItems] = useState([
     true,
@@ -51,8 +66,6 @@ const Main = () => {
 
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
-
-  console.log(flashType);
 
   const startPressed = () => {
     if (!text) {
@@ -88,7 +101,18 @@ const Main = () => {
     }
 
     if (index == 1) {
-      console.log('CHANGE TO NEXT COLOR OPTION');
+      console.log(userBgColor);
+      if (randomizeBgColor) {
+        setUserBgColor(0);
+        setRandomizeBgColor(false);
+        return;
+      } else if (userBgColor < availableColors.length - 2) {
+        setUserBgColor(userBgColor + 1);
+        return;
+      } else {
+        setUserBgColor(availableColors.length - 1);
+        setRandomizeBgColor(true);
+      }
       return;
     }
 
@@ -137,6 +161,13 @@ const Main = () => {
       <StatusBar backgroundColor={COLORS.darkBg} barStyle='light-content' />
       {(currentScreen === 'main' && (
         <View style={styles.container}>
+          <LinearGradient
+            // colors={['#0a0b19', '#060307']}
+            colors={['#37222d', '#360e43']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
           {/* Top Title Section */}
           <View style={styles.titleContainer}>
             <Text style={styles.titleText}>FlashText</Text>
@@ -171,15 +202,40 @@ const Main = () => {
               <Pressable
                 key={index}
                 onPress={() => toggleItem(index)}
+                // style={[
+                //   styles.gridItem,
+                //   {
+                //     backgroundColor:
+                //       index === 1
+                //         ? availableColors[userBgColor]
+                //         : selectedItems[index]
+                //         ? '#28a745'
+                //         : '#27273b',
+                //   }, // Toggle between green and default
+                // ]}
                 style={[
                   styles.gridItem,
-                  {
-                    backgroundColor: selectedItems[index]
-                      ? '#28a745'
-                      : '#27273b',
-                  }, // Toggle between green and default
+                  index === 1 && randomizeBgColor
+                    ? null // No background color when using image
+                    : {
+                        backgroundColor:
+                          index === 1
+                            ? availableColors[userBgColor]
+                            : selectedItems[index]
+                            ? '#28a745'
+                            : '#27273b',
+                      },
                 ]}
               >
+                {index === 1 && randomizeBgColor ? (
+                  <ImageBackground
+                    source={randomImg}
+                    style={[
+                      styles.gridItem,
+                      { position: 'absolute', width: '100%', height: '100%' },
+                    ]}
+                  />
+                ) : null}
                 <Icon name={item.name} size={40} color='#FFF' />
                 <Text style={styles.gridItemText}>{item.label}</Text>
               </Pressable>
@@ -196,7 +252,7 @@ const Main = () => {
             duration={duration}
             flashType={flashType}
             swooshDirection={'random'}
-            userBgColor={'black'}
+            userBgColor={availableColors[userBgColor]}
             randomizeBgColor={randomizeBgColor}
             fontSizeFactor={0.7}
           />
@@ -241,6 +297,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     margin: 10,
+    overflow: 'hidden', // Add this to ensure image doesn't overflow
+    position: 'relative', // Add this to help with image positioning
   },
   gridItemText: {
     color: '#FFF',

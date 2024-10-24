@@ -28,7 +28,7 @@ export default function FlashScreen({
           message={message}
           duration={duration}
           userBgColor={userBgColor}
-          randomizeBgColor
+          randomizeBgColor={randomizeBgColor}
         />
       )}
       {flashType === 'plain' && (
@@ -43,7 +43,7 @@ export default function FlashScreen({
         <FlashSwoosh
           message={message}
           duration={duration + 500}
-          randomizeBgColor
+          randomizeBgColor={randomizeBgColor}
           userBgColor={userBgColor}
           swooshDirection={swooshDirection}
           fontSizeFactor={0.3}
