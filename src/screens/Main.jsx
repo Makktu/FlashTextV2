@@ -6,6 +6,9 @@ import {
   Dimensions,
   StatusBar,
   Pressable,
+  Modal,
+  ScrollView,
+  Alert,
 } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -38,7 +41,6 @@ const CustomButton = ({ children, onPress, style }) => {
             color={COLORS.white}
             style={{ marginRight: 8 }}
           />
-
           <Text style={styles.customButtonText}>{children}</Text>
         </View>
       )}
@@ -49,11 +51,12 @@ const CustomButton = ({ children, onPress, style }) => {
 const Main = () => {
   const [currentScreen, setCurrentScreen] = useState('main');
   const [flashType, setFlashType] = useState('plain');
-  const [duration, setDuration] = useState(2000); // ms
+  const [duration, setDuration] = useState(2000);
   const [choppedMessage, setChoppedMessage] = useState([]);
   const [userBgColor, setUserBgColor] = useState(0);
   const [randomizeBgColor, setRandomizeBgColor] = useState(false);
   const [text, setText] = useState('This is FlashText!');
+  const [messageHistory, setMessageHistory] = useState([]);
   const [selectedItems, setSelectedItems] = useState([
     true,
     false,
@@ -62,15 +65,30 @@ const Main = () => {
     false,
     false,
   ]);
-  // const [pickedAnimation, setPickedAnimation] = useState('stretch');
+  const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false);
 
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
 
+  /**
+   * Handler for when the user presses the "Start" button.
+   * If there is no text entered, alert the user.
+   * If the text is not already in the message history, add it.
+   * Set the chopped message to an array of words from the text.
+   * Switch to the flash screen.
+   */
   const startPressed = () => {
     if (!text) {
       alert('Enter some text first!');
       return;
+    }
+    // check that text does not match any entry in history
+    if (!messageHistory.includes(text)) {
+      // if messageHistory is longer than 50, remove the first element
+      if (messageHistory.length >= 50) {
+        messageHistory.shift();
+      }
+      setMessageHistory((prevHistory) => [...prevHistory, text]);
     }
     setChoppedMessage(text.split(' '));
     setCurrentScreen('flash');
@@ -83,14 +101,40 @@ const Main = () => {
     setText(enteredText);
   };
 
-  const modeChanged = () => {
-    setCurrentScreen((prevMode) => (prevMode === 'flash' ? 'scroll' : 'flash'));
+  const handleHistoryPress = () => {
+    if (messageHistory.length === 0) {
+      Alert.alert('No History', 'No history yet');
+      return;
+    }
+    setIsHistoryModalVisible(true);
   };
 
-  const handlePlainPress = () => {
-    console.log('Plain Pressed');
+  const handleHistoryItemPress = (message) => {
+    setText(message);
+    setIsHistoryModalVisible(false);
   };
-  // Handler for toggling the color of grid items
+
+  const handleClearHistory = () => {
+    Alert.alert(
+      'Clear History',
+      'Are you sure you want to clear all history?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Clear',
+          onPress: () => {
+            setMessageHistory([]);
+            setIsHistoryModalVisible(false);
+          },
+          style: 'destructive',
+        },
+      ]
+    );
+  };
+
   const toggleItem = (index) => {
     if (index == 0 || index == 2 || index == 4) {
       index == 0
@@ -101,7 +145,6 @@ const Main = () => {
     }
 
     if (index == 1) {
-      console.log(userBgColor);
       if (randomizeBgColor) {
         setUserBgColor(0);
         setRandomizeBgColor(false);
@@ -116,7 +159,6 @@ const Main = () => {
       return;
     }
 
-    // SPEED CONTROLS
     if (index == 3) {
       if (duration < 5000) {
         setDuration(duration + 1000);
@@ -127,31 +169,23 @@ const Main = () => {
     }
 
     if (index == 5) {
-      console.log('OPEN HISTORY MODAL OR WHATEVER LOL');
+      handleHistoryPress();
       return;
     }
+
     setSelectedItems((prevSelectedItems) => {
       const updatedItems = [...prevSelectedItems];
-
-      // Check if the selected item is one of the special ones (0, 2, or 4)
       if ([0, 2, 4].includes(index)) {
-        // If the clicked item is already green, do nothing
         if (prevSelectedItems[index]) {
           return prevSelectedItems;
         }
-
-        // Set all special items (0, 2, and 4) to false
         updatedItems[0] = false;
         updatedItems[2] = false;
         updatedItems[4] = false;
-
-        // Set the clicked item to true (make it green)
         updatedItems[index] = true;
       } else {
-        // For non-special items, toggle them normally
         updatedItems[index] = !prevSelectedItems[index];
       }
-
       return updatedItems;
     });
   };
@@ -159,40 +193,73 @@ const Main = () => {
   return (
     <PaperProvider>
       <StatusBar backgroundColor={COLORS.darkBg} barStyle='light-content' />
-      {(currentScreen === 'main' && (
+      {currentScreen === 'main' ? (
         <View style={styles.container}>
           <LinearGradient
-            // colors={['#0a0b19', '#060307']}
             colors={['#37222d', '#360e43']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={StyleSheet.absoluteFill}
           />
-          {/* Top Title Section */}
+
+          <Modal
+            visible={isHistoryModalVisible}
+            transparent={true}
+            animationType='slide'
+            onRequestClose={() => setIsHistoryModalVisible(false)}
+          >
+            <Pressable
+              style={styles.modalOverlay}
+              onPress={() => setIsHistoryModalVisible(false)}
+            >
+              <View style={styles.modalContent}>
+                <Pressable
+                  style={styles.clearHistoryButton}
+                  onPress={handleClearHistory}
+                >
+                  <Text style={styles.clearHistoryText}>Clear History</Text>
+                </Pressable>
+
+                <ScrollView style={styles.historyScrollView}>
+                  {messageHistory.map((message, index) => (
+                    <Pressable
+                      key={index}
+                      style={styles.historyItem}
+                      onPress={() => handleHistoryItemPress(message)}
+                    >
+                      <Text style={styles.historyItemText}>{message}</Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+
+                <Pressable
+                  style={styles.returnButton}
+                  onPress={() => setIsHistoryModalVisible(false)}
+                >
+                  <Text style={styles.returnButtonText}>Return</Text>
+                </Pressable>
+              </View>
+            </Pressable>
+          </Modal>
+
           <View style={styles.titleContainer}>
             <Text style={styles.titleText}>FlashText</Text>
             <Text style={styles.subTitleText}>Version 2.0</Text>
           </View>
 
-          {/* Input Section */}
           <View style={styles.inputContainer}>
             <InputBox text={text} handleInput={handleInput} />
           </View>
 
-          {/* START Button Section */}
           <View style={styles.buttonContainer}>
             <CustomButton onPress={startPressed} style={{ marginTop: 2 }}>
               START
             </CustomButton>
           </View>
 
-          {/* Main Grid Section */}
           <View style={styles.gridContainer}>
             {[
-              {
-                name: 'fit-to-screen',
-                label: 'Plain',
-              },
+              { name: 'fit-to-screen', label: 'Plain' },
               { name: 'format-color-fill', label: 'Background' },
               { name: 'weather-windy', label: 'Swoosh' },
               { name: 'fast-forward', label: `Duration: ${duration / 1000}s` },
@@ -202,21 +269,10 @@ const Main = () => {
               <Pressable
                 key={index}
                 onPress={() => toggleItem(index)}
-                // style={[
-                //   styles.gridItem,
-                //   {
-                //     backgroundColor:
-                //       index === 1
-                //         ? availableColors[userBgColor]
-                //         : selectedItems[index]
-                //         ? '#28a745'
-                //         : '#27273b',
-                //   }, // Toggle between green and default
-                // ]}
                 style={[
                   styles.gridItem,
                   index === 1 && randomizeBgColor
-                    ? null // No background color when using image
+                    ? null
                     : {
                         backgroundColor:
                           index === 1
@@ -242,21 +298,20 @@ const Main = () => {
             ))}
           </View>
         </View>
-      )) ||
-        (currentScreen === 'flash' && (
-          <FlashScreen
-            returnTap={returnTap}
-            message={choppedMessage}
-            displayHeight={windowHeight}
-            displayWidth={windowWidth}
-            duration={duration}
-            flashType={flashType}
-            swooshDirection={'random'}
-            userBgColor={availableColors[userBgColor]}
-            randomizeBgColor={randomizeBgColor}
-            fontSizeFactor={0.7}
-          />
-        ))}
+      ) : (
+        <FlashScreen
+          returnTap={returnTap}
+          message={choppedMessage}
+          displayHeight={windowHeight}
+          displayWidth={windowWidth}
+          duration={duration}
+          flashType={flashType}
+          swooshDirection={'random'}
+          userBgColor={availableColors[userBgColor]}
+          randomizeBgColor={randomizeBgColor}
+          fontSizeFactor={0.7}
+        />
+      )}
     </PaperProvider>
   );
 };
@@ -334,5 +389,55 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: '85%',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    maxHeight: '70%',
+    backgroundColor: '#27273b',
+    borderRadius: 15,
+    padding: 20,
+    alignItems: 'center',
+  },
+  historyScrollView: {
+    width: '100%',
+    marginVertical: 20,
+  },
+  historyItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  historyItemText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  returnButton: {
+    backgroundColor: '#28a745',
+    padding: 12,
+    borderRadius: 8,
+    width: '50%',
+    alignItems: 'center',
+  },
+  returnButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  clearHistoryButton: {
+    backgroundColor: '#dc3545',
+    padding: 8,
+    borderRadius: 6,
+    marginBottom: 10,
+  },
+  clearHistoryText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });
