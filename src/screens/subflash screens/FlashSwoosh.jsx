@@ -52,6 +52,7 @@ export default function FlashSwoosh({
   randomizeBgColor = false,
   userBgColor = '#000000',
   swooshDirection = 'top-bottom',
+  userFont = 'Arial',
 }) {
   const [currentWord, setCurrentWord] = useState(0);
   const position = useSharedValue({ x: 0, y: 0 });
@@ -208,7 +209,10 @@ export default function FlashSwoosh({
         style={[
           animatedStyle,
           animatedTextStyle,
-          { fontSize: calculateFontSize(message[currentWord]) }, // Calculate font size for current word
+          {
+            fontSize: calculateFontSize(message[currentWord]),
+            fontFamily: userFont,
+          }, // Calculate font size for current word
         ]}
       >
         {message[currentWord]}

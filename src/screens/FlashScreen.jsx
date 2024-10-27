@@ -16,6 +16,7 @@ export default function FlashScreen({
   flashType,
   swooshDirection,
   randomizeBgColor,
+  userFont,
 }) {
   useEffect(() => {
     StatusBar.setHidden(true);
@@ -29,6 +30,7 @@ export default function FlashScreen({
           duration={duration}
           userBgColor={userBgColor}
           randomizeBgColor={randomizeBgColor}
+          userFont={userFont}
         />
       )}
       {flashType === 'plain' && (
@@ -37,6 +39,7 @@ export default function FlashScreen({
           duration={duration}
           randomizeBgColor={randomizeBgColor}
           userBgColor={userBgColor}
+          userFont={userFont}
         />
       )}
       {flashType === 'swoosh' && (
@@ -47,6 +50,7 @@ export default function FlashScreen({
           userBgColor={userBgColor}
           swooshDirection={swooshDirection}
           fontSizeFactor={0.3}
+          userFont={userFont}
         />
       )}
     </TouchableOpacity>

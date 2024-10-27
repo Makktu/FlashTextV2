@@ -30,6 +30,7 @@ export default function FlashPlain({
   duration = 2000,
   randomizeBgColor = false,
   userBgColor = '#000000',
+  userFont = 'Arial',
 }) {
   const [currentWord, setCurrentWord] = useState(0);
   const [fontSize, setFontSize] = useState(30); // Default font size
@@ -118,7 +119,7 @@ export default function FlashPlain({
       <Animated.Text
         style={[
           styles.messageText,
-          { fontSize },
+          { fontSize, fontFamily: userFont },
           animatedStyle,
           animatedTextStyle,
         ]}

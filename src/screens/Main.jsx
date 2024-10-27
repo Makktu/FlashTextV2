@@ -57,6 +57,7 @@ const Main = () => {
   const [randomizeBgColor, setRandomizeBgColor] = useState(false);
   const [text, setText] = useState('This is FlashText!');
   const [messageHistory, setMessageHistory] = useState([]);
+  const [userFont, setUserFont] = useState('Kablammo');
   const [selectedItems, setSelectedItems] = useState([
     true,
     false,
@@ -310,6 +311,7 @@ const Main = () => {
           userBgColor={availableColors[userBgColor]}
           randomizeBgColor={randomizeBgColor}
           fontSizeFactor={0.7}
+          userFont={userFont}
         />
       )}
     </PaperProvider>
@@ -334,6 +336,7 @@ const styles = StyleSheet.create({
     fontSize: 58,
     fontWeight: 'bold',
     color: '#fefcfb',
+    fontFamily: 'Kablammo',
   },
   subTitleText: {
     fontSize: 28,
