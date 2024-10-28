@@ -30,6 +30,7 @@ export default function FlashStretch({
   duration = 2000,
   randomizeBgColor = false,
   userBgColor = '#000000',
+  userFont,
 }) {
   const [currentWord, setCurrentWord] = useState(0);
   const [fontSize, setFontSize] = useState(30);
@@ -144,7 +145,7 @@ export default function FlashStretch({
       <Animated.Text
         style={[
           styles.messageText,
-          { fontSize },
+          { fontSize, fontFamily: userFont },
           animatedStyle,
           animatedTextStyle,
         ]}

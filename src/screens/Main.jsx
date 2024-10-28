@@ -71,6 +71,15 @@ const Main = () => {
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
 
+  // Define the available fonts
+  const availableFonts = [
+    'Kablammo',
+    'Bubblegum',
+    'Caveat',
+    'Fascinate',
+    'Russo',
+  ];
+
   /**
    * Handler for when the user presses the "Start" button.
    * If there is no text entered, alert the user.
@@ -113,6 +122,13 @@ const Main = () => {
   const handleHistoryItemPress = (message) => {
     setText(message);
     setIsHistoryModalVisible(false);
+  };
+
+  // Function to handle font change
+  const handleFontChange = () => {
+    const currentIndex = availableFonts.indexOf(userFont);
+    const nextIndex = (currentIndex + 1) % availableFonts.length;
+    setUserFont(availableFonts[nextIndex]);
   };
 
   const handleClearHistory = () => {
@@ -244,9 +260,15 @@ const Main = () => {
           </Modal>
 
           <View style={styles.titleContainer}>
-            <Text style={styles.titleText}>FlashText</Text>
-            <Text style={styles.subTitleText}>Version 2.0</Text>
+            <Text style={[styles.titleText, { fontFamily: userFont }]}>
+              FlashText
+            </Text>
+            <Text style={styles.subTitleText}>2.0</Text>
           </View>
+
+          <Pressable style={styles.fontButton} onPress={handleFontChange}>
+            <Text style={styles.fontButtonText}>Change Font</Text>
+          </Pressable>
 
           <View style={styles.inputContainer}>
             <InputBox text={text} handleInput={handleInput} />
@@ -336,10 +358,9 @@ const styles = StyleSheet.create({
     fontSize: 58,
     fontWeight: 'bold',
     color: '#fefcfb',
-    fontFamily: 'Kablammo',
   },
   subTitleText: {
-    fontSize: 28,
+    fontSize: 14,
     color: '#ffffff6e',
   },
   gridContainer: {
@@ -441,6 +462,17 @@ const styles = StyleSheet.create({
   clearHistoryText: {
     color: '#fff',
     fontSize: 14,
+    fontWeight: 'bold',
+  },
+  fontButton: {
+    padding: 10,
+    backgroundColor: '#ccc',
+    borderRadius: 5,
+    margin: 10,
+  },
+
+  fontButtonText: {
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });
