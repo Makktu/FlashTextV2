@@ -5,6 +5,7 @@ import COLORS from '../values/COLORS';
 import FlashStretch from './subflash screens/FlashStretch';
 import FlashPlain from './subflash screens/FlashPlain';
 import FlashSwoosh from './subflash screens/FlashSwoosh';
+import { fontScalingFactors } from '../values/fontScalingFactors';
 
 export default function FlashScreen({
   returnTap,
@@ -17,6 +18,7 @@ export default function FlashScreen({
   swooshDirection,
   randomizeBgColor,
   userFont,
+  fontSizeAdjustment = 0,
 }) {
   useEffect(() => {
     StatusBar.setHidden(true);

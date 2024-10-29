@@ -6,6 +6,7 @@ import Animated, {
   useAnimatedStyle,
   runOnJS,
 } from 'react-native-reanimated';
+import { fontScalingFactors } from '../../values/fontScalingFactors';
 
 const getContrastingColor = (bgColor = '#000000') => {
   const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
@@ -25,43 +26,69 @@ const availableColors = [
   '#000000',
 ];
 
+// Font scaling factors for different font families
+// const fontScalingFactors = {
+//   Roboto: 1,
+//   JollyLodger: 1.5, // Example: JollyLodger needs more space
+//   default: 1.2, // Default scaling factor for unknown fonts
+//   Kablammo: 1, // Example: Kablammo needs more space
+//   Russo: 1.1, // Example: Russo needs less space
+//   Monofett: 1.5, // Example: Monofett needs more space
+//   Monoton: 1.1, // Example: Monoton needs more space
+//   Grenze: 1, // Example: Grenze needs more space
+//   Caveat: 1.5, // POTENTIALLY GONE
+//   Fascinate: 1.1, // Example: Fascinate needs more space
+//   Bubblegum: 0.9, // Example: Bubblegum needs more space
+// };
+
 export default function FlashPlain({
   message = ['No', 'Message', 'Passed'],
   duration = 2000,
   randomizeBgColor = false,
   userBgColor = '#000000',
-  userFont = 'Arial',
+  userFont = 'Roboto',
 }) {
   const [currentWord, setCurrentWord] = useState(0);
-  const [fontSize, setFontSize] = useState(30); // Default font size
+  const [fontSize, setFontSize] = useState(30);
   const opacity = useSharedValue(1);
   const bgColor = useSharedValue(
     randomizeBgColor ? availableColors[0] : userBgColor
   );
   const textColor = useSharedValue(getContrastingColor(bgColor.value));
 
-  // print value of randomizeBgColor
-  console.log(randomizeBgColor);
+  console.log(userFont);
 
-  const calculateFontSize = useCallback((text) => {
-    const screenData = {
-      width: Dimensions.get('window').width,
-      height: Dimensions.get('window').height,
-    };
-    const minScreenDimension = Math.min(screenData.width, screenData.height);
-    const availableWidth = screenData.width * 0.97;
-    const MIN_FONT_SIZE = 12;
-    let newFontSize = minScreenDimension * 0.8;
+  const calculateFontSize = useCallback(
+    (text) => {
+      const screenData = {
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height,
+      };
 
-    while (
-      newFontSize > MIN_FONT_SIZE &&
-      text.length * (newFontSize / 2) > availableWidth
-    ) {
-      newFontSize -= 1;
-    }
+      const minScreenDimension = Math.min(screenData.width, screenData.height);
+      const availableWidth = screenData.width * 0.9; // Reduced from 0.97 to provide more margin
+      const MIN_FONT_SIZE = 12;
 
-    return newFontSize;
-  }, []);
+      // Get the scaling factor for the current font
+      const fontScale =
+        fontScalingFactors[userFont] || fontScalingFactors.default;
+
+      // Start with a smaller initial font size
+      let newFontSize = minScreenDimension * 0.6; // Reduced from 0.8
+
+      // Apply the font scaling factor to the calculation
+      while (
+        newFontSize > MIN_FONT_SIZE &&
+        text.length * (newFontSize / 2) * fontScale > availableWidth
+      ) {
+        newFontSize -= 1;
+      }
+
+      // Apply an additional safety margin for certain fonts
+      return Math.floor(newFontSize / fontScale);
+    },
+    [userFont]
+  );
 
   // Update font size when word changes
   useEffect(() => {
@@ -110,7 +137,6 @@ export default function FlashPlain({
       animateBackgroundColor();
       animate();
     }, duration);
-
     return () => clearTimeout(timer);
   }, [animate, animateBackgroundColor, duration, currentWord]);
 
@@ -123,6 +149,7 @@ export default function FlashPlain({
           animatedStyle,
           animatedTextStyle,
         ]}
+        numberOfLines={1}
       >
         {message[currentWord]}
       </Animated.Text>

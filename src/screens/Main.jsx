@@ -57,7 +57,7 @@ const Main = () => {
   const [randomizeBgColor, setRandomizeBgColor] = useState(false);
   const [text, setText] = useState('This is FlashText!');
   const [messageHistory, setMessageHistory] = useState([]);
-  const [userFont, setUserFont] = useState('Kablammo');
+  const [userFont, setUserFont] = useState('Roboto');
   const [selectedItems, setSelectedItems] = useState([
     true,
     false,
@@ -72,13 +72,21 @@ const Main = () => {
   const windowHeight = Dimensions.get('window').height;
 
   // Define the available fonts
+  /*************  ✨ Codeium Command 🌟  *************/
   const availableFonts = [
     'Kablammo',
     'Bubblegum',
     'Caveat',
     'Fascinate',
     'Russo',
+    'Grenze',
+    'Jollylodger',
+    'Monofett',
+    'Roboto',
+    'Monoton',
   ];
+
+  /******  3e111db0-7247-47e5-b714-6b4486d9b74f  *******/
 
   /**
    * Handler for when the user presses the "Start" button.
@@ -266,9 +274,12 @@ const Main = () => {
             <Text style={styles.subTitleText}>2.0</Text>
           </View>
 
-          <Pressable style={styles.fontButton} onPress={handleFontChange}>
-            <Text style={styles.fontButtonText}>Change Font</Text>
-          </Pressable>
+          <View style={styles.fontButtonContainer}>
+            <Pressable style={styles.fontButton} onPress={handleFontChange}>
+              <Icon name='format-font' size={24} color={COLORS.white} />
+              <Text style={styles.fontButtonText}>Change the Font</Text>
+            </Pressable>
+          </View>
 
           <View style={styles.inputContainer}>
             <InputBox text={text} handleInput={handleInput} />
@@ -352,7 +363,11 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     alignItems: 'center',
-    paddingBottom: 20,
+    alignSelf: 'stretch',
+    width: '100%',
+    height: 75,
+    overflow: 'hidden',
+    // backgroundColor: 'green',
   },
   titleText: {
     fontSize: 58,
@@ -362,6 +377,9 @@ const styles = StyleSheet.create({
   subTitleText: {
     fontSize: 14,
     color: '#ffffff6e',
+    position: 'absolute',
+    right: 10,
+    top: 10,
   },
   gridContainer: {
     flexDirection: 'row',
@@ -464,11 +482,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
+  fontButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    width: '100%',
+  },
   fontButton: {
     padding: 10,
     backgroundColor: '#ccc',
     borderRadius: 5,
     margin: 10,
+    alignItems: 'center',
   },
 
   fontButtonText: {

@@ -10,9 +10,14 @@ const AppLoader = () => {
   const [loaded] = useFonts({
     Kablammo: require('../../assets/fonts/Kablammo-regular.ttf'),
     Bubblegum: require('../../assets/fonts/Bubblegum-regular.ttf'),
-    Caveat: require('../../assets/fonts/Caveat.ttf'),
+    Caveat: require('../../assets/fonts/Caveat.ttf'), // ! MIGHT HAVE TO GO
     Fascinate: require('../../assets/fonts/Fascinate-regular.ttf'),
     Russo: require('../../assets/fonts/Russo-regular.ttf'),
+    Grenze: require('../../assets/fonts/Grenze.ttf'),
+    Jollylodger: require('../../assets/fonts/JollyLodger-Regular.ttf'),
+    Monofett: require('../../assets/fonts/Monofett-Regular.ttf'),
+    Roboto: require('../../assets/fonts/Roboto-Regular.ttf'),
+    Monoton: require('../../assets/fonts/Monoton-Regular.ttf'),
   });
 
   React.useEffect(() => {
