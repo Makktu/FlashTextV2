@@ -6,6 +6,7 @@ import Animated, {
   useAnimatedStyle,
   withSequence,
 } from 'react-native-reanimated';
+import { fontScalingFactors } from '../../values/fontScalingFactors';
 
 // Function to get a contrasting color for readability
 const getContrastingColor = (bgColor) => {
@@ -84,20 +85,37 @@ export default function FlashSwoosh({
   }, []);
 
   // Calculate dynamic font size based on screen dimensions
-  const calculateFontSize = (text) => {
-    const minScreenDimension = Math.min(screenData.width, screenData.height);
-    const availableWidth = screenData.width * 0.97; // Use 90% of the screen width for text
-    let fontSize = minScreenDimension * 0.8; // Starting at 50% of the screen size
-    let textWidth = text.length * (fontSize / 2); // Approximate text width
+  const calculateFontSize = useCallback(
+    (text) => {
+      const screenData = {
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height,
+      };
 
-    // Adjust font size until it fits within the available width
-    while (textWidth > availableWidth) {
-      fontSize -= 1; // Reduce font size
-      textWidth = text.length * (fontSize / 2); // Recalculate text width
-    }
+      const minScreenDimension = Math.min(screenData.width, screenData.height);
+      const availableWidth = screenData.width * 0.9; // Reduced from 0.97 to provide more margin
+      const MIN_FONT_SIZE = 12;
 
-    return fontSize;
-  };
+      // Get the scaling factor for the current font
+      const fontScale =
+        fontScalingFactors[userFont] || fontScalingFactors.default;
+
+      // Start with a smaller initial font size
+      let newFontSize = minScreenDimension * 0.6; // Reduced from 0.8
+
+      // Apply the font scaling factor to the calculation
+      while (
+        newFontSize > MIN_FONT_SIZE &&
+        text.length * (newFontSize / 2) * fontScale > availableWidth
+      ) {
+        newFontSize -= 1;
+      }
+
+      // Apply an additional safety margin for certain fonts
+      return Math.floor(newFontSize / fontScale);
+    },
+    [userFont]
+  );
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [

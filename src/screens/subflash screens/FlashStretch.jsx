@@ -6,6 +6,8 @@ import Animated, {
   useAnimatedStyle,
   runOnJS,
 } from 'react-native-reanimated';
+import { fontScalingFactors } from '../../values/fontScalingFactors';
+
 
 const getContrastingColor = (bgColor) => {
   const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;

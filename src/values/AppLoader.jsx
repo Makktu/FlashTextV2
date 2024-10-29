@@ -10,7 +10,7 @@ const AppLoader = () => {
   const [loaded] = useFonts({
     Kablammo: require('../../assets/fonts/Kablammo-regular.ttf'),
     Bubblegum: require('../../assets/fonts/Bubblegum-regular.ttf'),
-    Caveat: require('../../assets/fonts/Caveat.ttf'), // ! MIGHT HAVE TO GO
+    Coustard: require('../../assets/fonts/Coustard-Black.ttf'),
     Fascinate: require('../../assets/fonts/Fascinate-regular.ttf'),
     Russo: require('../../assets/fonts/Russo-regular.ttf'),
     Grenze: require('../../assets/fonts/Grenze.ttf'),

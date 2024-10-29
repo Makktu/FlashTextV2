@@ -52,3 +52,5 @@ Nothing today.
 ### Tue 15 October 2024
 
 Added Reanimation library and started to learn it.
+
+Background: Photo by Li Zhang on Unsplash

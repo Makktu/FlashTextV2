@@ -9,10 +9,9 @@ import {
   Modal,
   ScrollView,
   Alert,
+  ImageBackground,
 } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
-import { ImageBackground } from 'react-native';
 import InputBox from '../components/InputBox';
 import FlashScreen from './FlashScreen';
 import COLORS from '../values/COLORS';
@@ -29,6 +28,7 @@ const availableColors = [
 ];
 
 const randomImg = require('../../assets/img/randomImg.png');
+const backgroundImg = require('../../assets/img/flashtext_bg1.jpg');
 
 const CustomButton = ({ children, onPress, style }) => {
   return (
@@ -37,7 +37,7 @@ const CustomButton = ({ children, onPress, style }) => {
         <View style={[styles.customButton, style, pressed && styles.pressed]}>
           <Icon
             name='play-box'
-            size={44}
+            size={84}
             color={COLORS.white}
             style={{ marginRight: 8 }}
           />
@@ -70,13 +70,14 @@ const Main = () => {
 
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
+  const defaultGridButtonColor = '#ffffff00';
 
   // Define the available fonts
   /*************  ✨ Codeium Command 🌟  *************/
   const availableFonts = [
     'Kablammo',
     'Bubblegum',
-    'Caveat',
+    'Coustard',
     'Fascinate',
     'Russo',
     'Grenze',
@@ -219,119 +220,110 @@ const Main = () => {
     <PaperProvider>
       <StatusBar backgroundColor={COLORS.darkBg} barStyle='light-content' />
       {currentScreen === 'main' ? (
-        <View style={styles.container}>
-          <LinearGradient
-            colors={['#37222d', '#360e43']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-
-          <Modal
-            visible={isHistoryModalVisible}
-            transparent={true}
-            animationType='slide'
-            onRequestClose={() => setIsHistoryModalVisible(false)}
-          >
-            <Pressable
-              style={styles.modalOverlay}
-              onPress={() => setIsHistoryModalVisible(false)}
+        <ImageBackground source={backgroundImg} style={styles.background}>
+          <View style={styles.container}>
+            <Modal
+              visible={isHistoryModalVisible}
+              transparent={true}
+              animationType='slide'
+              onRequestClose={() => setIsHistoryModalVisible(false)}
             >
-              <View style={styles.modalContent}>
-                <Pressable
-                  style={styles.clearHistoryButton}
-                  onPress={handleClearHistory}
-                >
-                  <Text style={styles.clearHistoryText}>Clear History</Text>
-                </Pressable>
-
-                <ScrollView style={styles.historyScrollView}>
-                  {messageHistory.map((message, index) => (
-                    <Pressable
-                      key={index}
-                      style={styles.historyItem}
-                      onPress={() => handleHistoryItemPress(message)}
-                    >
-                      <Text style={styles.historyItemText}>{message}</Text>
-                    </Pressable>
-                  ))}
-                </ScrollView>
-
-                <Pressable
-                  style={styles.returnButton}
-                  onPress={() => setIsHistoryModalVisible(false)}
-                >
-                  <Text style={styles.returnButtonText}>Return</Text>
-                </Pressable>
-              </View>
-            </Pressable>
-          </Modal>
-
-          <View style={styles.titleContainer}>
-            <Text style={[styles.titleText, { fontFamily: userFont }]}>
-              FlashText
-            </Text>
-            <Text style={styles.subTitleText}>2.0</Text>
-          </View>
-
-          <View style={styles.fontButtonContainer}>
-            <Pressable style={styles.fontButton} onPress={handleFontChange}>
-              <Icon name='format-font' size={24} color={COLORS.white} />
-              <Text style={styles.fontButtonText}>Change the Font</Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <InputBox text={text} handleInput={handleInput} />
-          </View>
-
-          <View style={styles.buttonContainer}>
-            <CustomButton onPress={startPressed} style={{ marginTop: 2 }}>
-              START
-            </CustomButton>
-          </View>
-
-          <View style={styles.gridContainer}>
-            {[
-              { name: 'fit-to-screen', label: 'Plain' },
-              { name: 'format-color-fill', label: 'Background' },
-              { name: 'weather-windy', label: 'Swoosh' },
-              { name: 'fast-forward', label: `Duration: ${duration / 1000}s` },
-              { name: 'stretch-to-page', label: 'Stretch' },
-              { name: 'home-outline', label: 'History' },
-            ].map((item, index) => (
               <Pressable
-                key={index}
-                onPress={() => toggleItem(index)}
-                style={[
-                  styles.gridItem,
-                  index === 1 && randomizeBgColor
-                    ? null
-                    : {
-                        backgroundColor:
-                          index === 1
-                            ? availableColors[userBgColor]
-                            : selectedItems[index]
-                            ? '#28a745'
-                            : '#27273b',
-                      },
-                ]}
+                style={styles.modalOverlay}
+                onPress={() => setIsHistoryModalVisible(false)}
               >
-                {index === 1 && randomizeBgColor ? (
-                  <ImageBackground
-                    source={randomImg}
-                    style={[
-                      styles.gridItem,
-                      { position: 'absolute', width: '100%', height: '100%' },
-                    ]}
-                  />
-                ) : null}
-                <Icon name={item.name} size={40} color='#FFF' />
-                <Text style={styles.gridItemText}>{item.label}</Text>
+                <View style={styles.modalContent}>
+                  <Pressable
+                    style={styles.clearHistoryButton}
+                    onPress={handleClearHistory}
+                  >
+                    <Text style={styles.clearHistoryText}>Clear History</Text>
+                  </Pressable>
+
+                  <ScrollView style={styles.historyScrollView}>
+                    {messageHistory.map((message, index) => (
+                      <Pressable
+                        key={index}
+                        style={styles.historyItem}
+                        onPress={() => handleHistoryItemPress(message)}
+                      >
+                        <Text style={styles.historyItemText}>{message}</Text>
+                      </Pressable>
+                    ))}
+                  </ScrollView>
+
+                  <Pressable
+                    style={styles.returnButton}
+                    onPress={() => setIsHistoryModalVisible(false)}
+                  >
+                    <Text style={styles.returnButtonText}>Return</Text>
+                  </Pressable>
+                </View>
               </Pressable>
-            ))}
+            </Modal>
+            <View style={styles.titleContainer}>
+              <Text style={[styles.titleText, { fontFamily: userFont }]}>
+                FlashText
+              </Text>
+              <Text style={styles.subTitleText}>2.0</Text>
+            </View>
+            <View style={styles.fontButtonContainer}>
+              <Pressable style={styles.fontButton} onPress={handleFontChange}>
+                <Icon name='format-font' size={44} color={COLORS.white} />
+                <Text style={styles.fontButtonText}>Change the Font</Text>
+              </Pressable>
+            </View>
+            <View style={styles.inputContainer}>
+              <InputBox text={text} handleInput={handleInput} />
+            </View>
+            <View style={styles.buttonContainer}>
+              <CustomButton onPress={startPressed}>START</CustomButton>
+            </View>
+            <View style={styles.gridContainer}>
+              {[
+                { name: 'fit-to-screen', label: 'Plain' },
+                { name: 'format-color-fill', label: 'Background' },
+                { name: 'weather-windy', label: 'Swoosh' },
+                {
+                  name: 'fast-forward',
+                  label: `Duration: ${duration / 1000}s`,
+                },
+                { name: 'stretch-to-page', label: 'Stretch' },
+                { name: 'home-outline', label: 'History' },
+              ].map((item, index) => (
+                <Pressable
+                  key={index}
+                  onPress={() => toggleItem(index)}
+                  style={[
+                    styles.gridItem,
+                    index === 1 && randomizeBgColor
+                      ? null
+                      : {
+                          backgroundColor:
+                            index === 1
+                              ? availableColors[userBgColor]
+                              : selectedItems[index]
+                              ? '#28a745'
+                              : defaultGridButtonColor,
+                        },
+                  ]}
+                >
+                  {index === 1 && randomizeBgColor ? (
+                    <ImageBackground
+                      source={randomImg}
+                      style={[
+                        styles.gridItem,
+                        { position: 'absolute', width: '100%', height: '100%' },
+                      ]}
+                    />
+                  ) : null}
+                  <Icon name={item.name} size={100} color='#FFF' />
+                  <Text style={styles.gridItemText}>{item.label}</Text>
+                </Pressable>
+              ))}
+            </View>
           </View>
-        </View>
+        </ImageBackground>
       ) : (
         <FlashScreen
           returnTap={returnTap}
@@ -356,7 +348,6 @@ export default Main;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1e1e2d',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 40,
@@ -396,11 +387,12 @@ const styles = StyleSheet.create({
     margin: 10,
     overflow: 'hidden', // Add this to ensure image doesn't overflow
     position: 'relative', // Add this to help with image positioning
+    backgroundColor: '#0d0de9',
+    fontSize: 60,
   },
   gridItemText: {
     color: '#FFF',
-    marginTop: 10,
-    fontSize: 16,
+    fontSize: 22,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -417,7 +409,7 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 10,
     flexDirection: 'row',
-    backgroundColor: 'white',
+    // backgroundColor: '#058cd4F4d',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -426,7 +418,7 @@ const styles = StyleSheet.create({
   },
   customButtonText: {
     fontSize: 38,
-    color: COLORS.white,
+    // color: COLORS.white,
     fontWeight: 'bold',
   },
   inputContainer: {
@@ -498,5 +490,9 @@ const styles = StyleSheet.create({
   fontButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  background: {
+    flex: 1,
+    resizeMode: 'cover',
   },
 });
