@@ -28,7 +28,7 @@ const availableColors = [
 ];
 
 const randomImg = require('../../assets/img/randomImg.png');
-const backgroundImg = require('../../assets/img/flashtext_bg1.jpg');
+const backgroundImg = require('../../assets/img/flashtext_bg3.jpg');
 
 const CustomButton = ({ children, onPress, style }) => {
   return (
@@ -303,7 +303,7 @@ const Main = () => {
                             index === 1
                               ? availableColors[userBgColor]
                               : selectedItems[index]
-                              ? '#28a745'
+                              ? '#291c2d'
                               : defaultGridButtonColor,
                         },
                   ]}
@@ -317,7 +317,7 @@ const Main = () => {
                       ]}
                     />
                   ) : null}
-                  <Icon name={item.name} size={100} color='#FFF' />
+                  <Icon name={item.name} size={100} color='#874bac' />
                   <Text style={styles.gridItemText}>{item.label}</Text>
                 </Pressable>
               ))}
@@ -348,6 +348,7 @@ export default Main;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    // backgroundColor: COLORS.alt1Bg,
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 40,
@@ -493,6 +494,6 @@ const styles = StyleSheet.create({
   },
   background: {
     flex: 1,
-    resizeMode: 'cover',
+    resizeMode: 'contain',
   },
 });
