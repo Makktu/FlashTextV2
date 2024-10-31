@@ -8,7 +8,7 @@ export default function InputBox({ handleInput, text }) {
       <TextInput
         style={[styles.inputText, { width: '100%' }]}
         textColor='white'
-        mode='outlined'
+        // mode='outlined'
         placeholder='Enter Your Message!'
         selectionColor='#FFFFFF'
         placeholderTextColor='#8e9498'
@@ -27,15 +27,16 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    justifyContent: 'center',
     width: '100%',
   },
   inputText: {
     height: 60,
-    backgroundColor: '#263238', // Dark background matching the theme
-    fontSize: 20,
+    backgroundColor: '#830ec7', // Dark background matching the theme
+    fontSize: 24,
     color: '#FFFFFF',
     fontWeight: 'bold',
     textAlign: 'center',
+    // borderRadius: 60,
   },
 });

@@ -261,23 +261,25 @@ const Main = () => {
                 </View>
               </Pressable>
             </Modal>
-            <View style={styles.titleContainer}>
-              <Text style={[styles.titleText, { fontFamily: userFont }]}>
-                FlashText
-              </Text>
-              <Text style={styles.subTitleText}>2.0</Text>
-            </View>
-            <View style={styles.fontButtonContainer}>
-              <Pressable style={styles.fontButton} onPress={handleFontChange}>
-                <Icon name='format-font' size={44} color={COLORS.white} />
-                <Text style={styles.fontButtonText}>Change the Font</Text>
-              </Pressable>
-            </View>
-            <View style={styles.inputContainer}>
-              <InputBox text={text} handleInput={handleInput} />
-            </View>
-            <View style={styles.buttonContainer}>
-              <CustomButton onPress={startPressed}>START</CustomButton>
+            <View style={styles.upperScreenContainer}>
+              <View style={styles.titleContainer}>
+                <Text style={[styles.titleText, { fontFamily: userFont }]}>
+                  FlashText
+                </Text>
+                <Text style={styles.subTitleText}>2.0</Text>
+              </View>
+              <View style={styles.fontButtonContainer}>
+                <Pressable style={styles.fontButton} onPress={handleFontChange}>
+                  <Icon name='format-font' size={44} color={COLORS.white} />
+                  <Text style={styles.fontButtonText}>Change the Font</Text>
+                </Pressable>
+              </View>
+              <View style={styles.inputContainer}>
+                <InputBox text={text} handleInput={handleInput} />
+              </View>
+              <View style={styles.buttonContainer}>
+                <CustomButton onPress={startPressed}>START</CustomButton>
+              </View>
             </View>
             <View style={styles.gridContainer}>
               {[
@@ -364,7 +366,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 58,
     fontWeight: 'bold',
-    color: '#fefcfb',
+    color: '#a689b6',
   },
   subTitleText: {
     fontSize: 14,
@@ -424,6 +426,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: '85%',
+    height: 100,
   },
   modalOverlay: {
     flex: 1,
@@ -482,18 +485,24 @@ const styles = StyleSheet.create({
   },
   fontButton: {
     padding: 10,
-    backgroundColor: '#ccc',
+    backgroundColor: '#7b0ac1',
     borderRadius: 5,
     margin: 10,
     alignItems: 'center',
   },
 
   fontButtonText: {
-    fontSize: 16,
+    fontSize: 1,
     fontWeight: 'bold',
   },
   background: {
     flex: 1,
     resizeMode: 'contain',
+  },
+  upperScreenContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
 });
