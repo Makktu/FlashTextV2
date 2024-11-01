@@ -16,37 +16,9 @@ import InputBox from '../components/InputBox';
 import FlashScreen from './FlashScreen';
 import COLORS from '../values/COLORS';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import GridButtons from '../components/GridButtons';
 
-const availableColors = [
-  '#04eb04',
-  '#0606e7',
-  '#f2de07',
-  '#FF4500',
-  '#f203f2',
-  '#000000',
-  '#ffffff',
-];
-
-const randomImg = require('../../assets/img/randomImg.png');
 const backgroundImg = require('../../assets/img/flashtext_bg3.jpg');
-
-const CustomButton = ({ children, onPress, style }) => {
-  return (
-    <Pressable onPress={onPress}>
-      {({ pressed }) => (
-        <View style={[styles.customButton, style, pressed && styles.pressed]}>
-          <Icon
-            name='play-box'
-            size={84}
-            color={COLORS.white}
-            style={{ marginRight: 8 }}
-          />
-          <Text style={styles.customButtonText}>{children}</Text>
-        </View>
-      )}
-    </Pressable>
-  );
-};
 
 const Main = () => {
   const [currentScreen, setCurrentScreen] = useState('main');
@@ -67,10 +39,20 @@ const Main = () => {
     false,
   ]);
   const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false);
+  const [titleFontSize, setTitleFontSize] = useState(58);
 
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
-  const defaultGridButtonColor = '#ffffff00';
+
+  const availableColors = [
+    '#04eb04',
+    '#0606e7',
+    '#f2de07',
+    '#FF4500',
+    '#f203f2',
+    '#000000',
+    '#ffffff',
+  ];
 
   // Define the available fonts
   /*************  ✨ Codeium Command 🌟  *************/
@@ -216,113 +198,64 @@ const Main = () => {
     });
   };
 
+  const measureTitle = (event) => {
+    const containerWidth = event.nativeEvent.layout.width;
+    const containerHeight = event.nativeEvent.layout.height;
+
+    // Start with initial size and adjust down if needed
+    let fontSize = Math.min(containerWidth / 4, containerHeight * 0.8);
+    setTitleFontSize(fontSize);
+  };
+
   return (
     <PaperProvider>
-      <StatusBar backgroundColor={COLORS.darkBg} barStyle='light-content' />
+      <StatusBar
+        backgroundColor={COLORS.darkBg}
+        barStyle='light-content'
+        hidden={currentScreen !== 'main'}
+      />
       {currentScreen === 'main' ? (
         <ImageBackground source={backgroundImg} style={styles.background}>
-          <View style={styles.container}>
-            <Modal
-              visible={isHistoryModalVisible}
-              transparent={true}
-              animationType='slide'
-              onRequestClose={() => setIsHistoryModalVisible(false)}
-            >
-              <Pressable
-                style={styles.modalOverlay}
-                onPress={() => setIsHistoryModalVisible(false)}
-              >
-                <View style={styles.modalContent}>
-                  <Pressable
-                    style={styles.clearHistoryButton}
-                    onPress={handleClearHistory}
+          <View
+            style={[
+              styles.container,
+              { paddingTop: StatusBar.currentHeight + 40 },
+            ]}
+          >
+            <View style={styles.contentContainer}>
+              <View style={styles.upperScreenContainer}>
+                <View style={styles.titleContainer} onLayout={measureTitle}>
+                  <Text
+                    style={[
+                      styles.titleText,
+                      {
+                        fontFamily: userFont,
+                        fontSize: titleFontSize,
+                      },
+                    ]}
+                    adjustsFontSizeToFit={true}
+                    numberOfLines={1}
                   >
-                    <Text style={styles.clearHistoryText}>Clear History</Text>
-                  </Pressable>
-
-                  <ScrollView style={styles.historyScrollView}>
-                    {messageHistory.map((message, index) => (
-                      <Pressable
-                        key={index}
-                        style={styles.historyItem}
-                        onPress={() => handleHistoryItemPress(message)}
-                      >
-                        <Text style={styles.historyItemText}>{message}</Text>
-                      </Pressable>
-                    ))}
-                  </ScrollView>
-
-                  <Pressable
-                    style={styles.returnButton}
-                    onPress={() => setIsHistoryModalVisible(false)}
-                  >
-                    <Text style={styles.returnButtonText}>Return</Text>
-                  </Pressable>
+                    FlashText
+                  </Text>
+                  <Text style={styles.subTitleText}>2.0</Text>
                 </View>
-              </Pressable>
-            </Modal>
-            <View style={styles.upperScreenContainer}>
-              <View style={styles.titleContainer}>
-                <Text style={[styles.titleText, { fontFamily: userFont }]}>
-                  FlashText
-                </Text>
-                <Text style={styles.subTitleText}>2.0</Text>
+                <View style={styles.inputContainer}>
+                  <InputBox text={text} handleInput={handleInput} />
+                </View>
+                <GridButtons
+                  selectedItems={selectedItems}
+                  toggleItem={toggleItem}
+                  flashType={flashType}
+                  userBgColor={userBgColor}
+                  randomizeBgColor={randomizeBgColor}
+                  duration={duration}
+                  onHistoryPress={handleHistoryPress}
+                  onFontChange={handleFontChange}
+                  onStartPress={startPressed}
+                  hasText={text.length > 0}
+                />
               </View>
-              <View style={styles.fontButtonContainer}>
-                <Pressable style={styles.fontButton} onPress={handleFontChange}>
-                  <Icon name='format-font' size={44} color={COLORS.white} />
-                  <Text style={styles.fontButtonText}>Change the Font</Text>
-                </Pressable>
-              </View>
-              <View style={styles.inputContainer}>
-                <InputBox text={text} handleInput={handleInput} />
-              </View>
-              <View style={styles.buttonContainer}>
-                <CustomButton onPress={startPressed}>START</CustomButton>
-              </View>
-            </View>
-            <View style={styles.gridContainer}>
-              {[
-                { name: 'fit-to-screen', label: 'Plain' },
-                { name: 'format-color-fill', label: 'Background' },
-                { name: 'weather-windy', label: 'Swoosh' },
-                {
-                  name: 'fast-forward',
-                  label: `Duration: ${duration / 1000}s`,
-                },
-                { name: 'stretch-to-page', label: 'Stretch' },
-                { name: 'home-outline', label: 'History' },
-              ].map((item, index) => (
-                <Pressable
-                  key={index}
-                  onPress={() => toggleItem(index)}
-                  style={[
-                    styles.gridItem,
-                    index === 1 && randomizeBgColor
-                      ? null
-                      : {
-                          backgroundColor:
-                            index === 1
-                              ? availableColors[userBgColor]
-                              : selectedItems[index]
-                              ? '#291c2d'
-                              : defaultGridButtonColor,
-                        },
-                  ]}
-                >
-                  {index === 1 && randomizeBgColor ? (
-                    <ImageBackground
-                      source={randomImg}
-                      style={[
-                        styles.gridItem,
-                        { position: 'absolute', width: '100%', height: '100%' },
-                      ]}
-                    />
-                  ) : null}
-                  <Icon name={item.name} size={100} color='#874bac' />
-                  <Text style={styles.gridItemText}>{item.label}</Text>
-                </Pressable>
-              ))}
             </View>
           </View>
         </ImageBackground>
@@ -350,10 +283,18 @@ export default Main;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: COLORS.alt1Bg,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 40,
+    paddingBottom: 40,
+  },
+  contentContainer: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+  },
+  upperScreenContainer: {
+    width: '100%',
+    alignItems: 'center',
+    gap: 20,
   },
   titleContainer: {
     alignItems: 'center',
@@ -361,12 +302,14 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 75,
     overflow: 'hidden',
-    // backgroundColor: 'green',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
   },
   titleText: {
-    fontSize: 58,
     fontWeight: 'bold',
     color: '#a689b6',
+    width: '100%',
+    textAlign: 'center',
   },
   subTitleText: {
     fontSize: 14,
@@ -374,55 +317,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 10,
     top: 10,
-  },
-  gridContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    width: '90%',
-  },
-  gridItem: {
-    width: 120,
-    height: 120,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 10,
-    overflow: 'hidden', // Add this to ensure image doesn't overflow
-    position: 'relative', // Add this to help with image positioning
-    backgroundColor: '#0d0de9',
-    fontSize: 60,
-  },
-  gridItemText: {
-    color: '#FFF',
-    fontSize: 22,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    width: '100%',
-  },
-  mainButton: {
-    backgroundColor: '#5f4444',
-    marginVertical: 18,
-    paddingHorizontal: 30,
-  },
-  customButton: {
-    width: 300,
-    height: 80,
-    borderRadius: 10,
-    flexDirection: 'row',
-    // backgroundColor: '#058cd4F4d',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pressed: {
-    opacity: 0.5,
-  },
-  customButtonText: {
-    fontSize: 38,
-    // color: COLORS.white,
-    fontWeight: 'bold',
   },
   inputContainer: {
     width: '85%',
@@ -478,31 +372,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
-  fontButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    width: '100%',
-  },
-  fontButton: {
-    padding: 10,
-    backgroundColor: '#7b0ac1',
-    borderRadius: 5,
-    margin: 10,
-    alignItems: 'center',
-  },
-
-  fontButtonText: {
-    fontSize: 1,
-    fontWeight: 'bold',
-  },
   background: {
     flex: 1,
     resizeMode: 'contain',
-  },
-  upperScreenContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
   },
 });
