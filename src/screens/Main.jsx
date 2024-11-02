@@ -23,7 +23,7 @@ const backgroundImg = require('../../assets/img/flashtext_bg3.jpg');
 const Main = () => {
   const [currentScreen, setCurrentScreen] = useState('main');
   const [flashType, setFlashType] = useState('plain');
-  const [duration, setDuration] = useState(2000);
+  const [duration, setDuration] = useState(1500);
   const [choppedMessage, setChoppedMessage] = useState([]);
   const [userBgColor, setUserBgColor] = useState(0);
   const [randomizeBgColor, setRandomizeBgColor] = useState(false);
@@ -168,10 +168,10 @@ const Main = () => {
     }
 
     if (index == 3) {
-      if (duration < 5000) {
-        setDuration(duration + 1000);
+      if (duration < 4000) {
+        setDuration(duration + 500);
       } else {
-        setDuration(1000);
+        setDuration(500);
       }
       return;
     }
@@ -274,6 +274,41 @@ const Main = () => {
           userFont={userFont}
         />
       )}
+      <Modal
+        visible={isHistoryModalVisible}
+        transparent={true}
+        onRequestClose={() => setIsHistoryModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {messageHistory.length > 0 && (
+              <Pressable
+                onPress={handleClearHistory}
+                style={styles.clearHistoryButton}
+              >
+                <Text style={styles.clearHistoryText}>Clear History</Text>
+              </Pressable>
+            )}
+            <ScrollView style={styles.historyScrollView}>
+              {messageHistory.map((message, index) => (
+                <Pressable
+                  key={index}
+                  style={styles.historyItem}
+                  onPress={() => handleHistoryItemPress(message)}
+                >
+                  <Text style={styles.historyItemText}>{message}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+            <Pressable
+              onPress={() => setIsHistoryModalVisible(false)}
+              style={styles.returnButton}
+            >
+              <Text style={styles.returnButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </PaperProvider>
   );
 };

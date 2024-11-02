@@ -23,6 +23,10 @@ const availableColors = [
   '#ffffff',
 ];
 
+const plainBtnAnimSpeed = 2000; // 2 seconds for fade in/out cycle
+const stretchBtnAnimSpeed = 1500; // 1.5 seconds for stretch cycle
+const swooshBtnAnimSpeed = 2000; // 2 seconds for swoosh cycle
+
 const GridButtons = ({
   selectedItems,
   toggleItem,
@@ -37,6 +41,9 @@ const GridButtons = ({
 }) => {
   const pulseAnim = useRef(new Animated.Value(0)).current;
   const durationAnim = useRef(new Animated.Value(0)).current;
+  const plainAnim = useRef(new Animated.Value(0)).current;
+  const stretchAnim = useRef(new Animated.Value(0)).current;
+  const swooshAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (hasText) {
@@ -72,6 +79,54 @@ const GridButtons = ({
         }),
       ])
     ).start();
+
+    // Plain button animation
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(plainAnim, {
+          toValue: 1,
+          duration: plainBtnAnimSpeed / 2,
+          useNativeDriver: true,
+        }),
+        Animated.timing(plainAnim, {
+          toValue: 0,
+          duration: plainBtnAnimSpeed / 2,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Stretch button animation
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(stretchAnim, {
+          toValue: 1,
+          duration: stretchBtnAnimSpeed,
+          useNativeDriver: true,
+        }),
+        Animated.timing(stretchAnim, {
+          toValue: 0,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Swoosh button animation
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(swooshAnim, {
+          toValue: 1,
+          duration: swooshBtnAnimSpeed / 2,
+          useNativeDriver: true,
+        }),
+        Animated.timing(swooshAnim, {
+          toValue: 2,
+          duration: swooshBtnAnimSpeed / 2,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
   }, [hasText, duration]);
 
   const animatedStyle = {
@@ -94,9 +149,44 @@ const GridButtons = ({
     <View style={styles.gridContainer}>
       <View style={styles.row}>
         {[
-          { name: 'fit-to-screen', label: 'Plain' },
-          { name: 'stretch-to-page', label: 'Stretch' },
-          { name: 'weather-windy', label: 'Swoosh' },
+          {
+            name: 'fit-to-screen',
+            label: 'Plain',
+            anim: plainAnim,
+            style: {
+              opacity: plainAnim,
+            },
+          },
+          {
+            name: 'stretch-to-page',
+            label: 'Stretch',
+            anim: stretchAnim,
+            style: {
+              transform: [
+                {
+                  scale: stretchAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.5, 1.2],
+                  }),
+                },
+              ],
+            },
+          },
+          {
+            name: 'weather-windy',
+            label: 'Swoosh',
+            anim: swooshAnim,
+            style: {
+              transform: [
+                {
+                  translateX: swooshAnim.interpolate({
+                    inputRange: [0, 1, 2],
+                    outputRange: [-50, 0, 50],
+                  }),
+                },
+              ],
+            },
+          },
         ].map((item, index) => (
           <Pressable
             key={index}
@@ -108,24 +198,26 @@ const GridButtons = ({
                 styles.selected,
             ]}
           >
-            <Icon
-              name={item.name}
-              size={43}
-              color={
-                selectedItems[index === 0 ? 0 : index === 1 ? 4 : 2]
-                  ? '#fff'
-                  : '#874bac'
-              }
-            />
-            <Text
-              style={[
-                styles.gridItemText,
-                selectedItems[index === 0 ? 0 : index === 1 ? 4 : 2] &&
-                  styles.selectedText,
-              ]}
-            >
-              {item.label}
-            </Text>
+            <Animated.View style={item.style}>
+              <Icon
+                name={item.name}
+                size={43}
+                color={
+                  selectedItems[index === 0 ? 0 : index === 1 ? 4 : 2]
+                    ? '#fff'
+                    : '#874bac'
+                }
+              />
+              <Text
+                style={[
+                  styles.gridItemText,
+                  selectedItems[index === 0 ? 0 : index === 1 ? 4 : 2] &&
+                    styles.selectedText,
+                ]}
+              >
+                {item.label}
+              </Text>
+            </Animated.View>
           </Pressable>
         ))}
       </View>
@@ -204,10 +296,14 @@ const GridButtons = ({
         </Pressable>
 
         <Pressable
-          onPress={onHistoryPress}
-          style={({ pressed }) => [styles.gridItem, pressed && styles.pressed]}
+          onPress={() => toggleItem(5)}
+          style={({ pressed }) => [
+            styles.gridItem,
+            pressed && styles.pressed,
+            selectedItems[5] && styles.selected,
+          ]}
         >
-          <Icon name='home-outline' size={43} color='#874bac' />
+          <Icon name='history' size={43} color='#874bac' />
           <Text style={styles.gridItemText}>History</Text>
         </Pressable>
       </View>
