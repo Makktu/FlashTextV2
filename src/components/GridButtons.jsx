@@ -23,9 +23,9 @@ const availableColors = [
   '#ffffff',
 ];
 
-const plainBtnAnimSpeed = 2000; // 2 seconds for fade in/out cycle
-const stretchBtnAnimSpeed = 1500; // 1.5 seconds for stretch cycle
-const swooshBtnAnimSpeed = 2000; // 2 seconds for swoosh cycle
+const plainBtnAnimSpeed = 3000; // 2 seconds for fade in/out cycle
+const stretchBtnAnimSpeed = 3000; // 1.5 seconds for stretch cycle
+const swooshBtnAnimSpeed = 3000; // 2 seconds for swoosh cycle
 
 const GridButtons = ({
   selectedItems,
