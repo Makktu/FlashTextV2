@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -10,6 +10,7 @@ import {
   ScrollView,
   Alert,
   ImageBackground,
+  Keyboard,
 } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 import InputBox from '../components/InputBox';
@@ -318,8 +319,9 @@ export default Main;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingBottom: 40,
+    padding: 6,
   },
   contentContainer: {
     flex: 1,

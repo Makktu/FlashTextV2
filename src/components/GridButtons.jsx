@@ -148,6 +148,40 @@ const GridButtons = ({
   return (
     <View style={styles.gridContainer}>
       <View style={styles.row}>
+        <Pressable
+          onPress={onFontChange}
+          style={({ pressed }) => [styles.gridItem, pressed && styles.pressed]}
+        >
+          <Icon name='format-font' size={43} color='#874bac' />
+          <Text style={styles.gridItemText}>FONTS</Text>
+        </Pressable>
+
+        <Animated.View style={[styles.gridItemWide, animatedStyle]}>
+          <Pressable
+            onPress={onStartPress}
+            style={({ pressed }) => [
+              styles.startButtonInner,
+              pressed && styles.pressed,
+            ]}
+          >
+            <View style={styles.customButtonInner}>
+              <Icon
+                name='play'
+                size={43}
+                color={hasText ? '#04eb04' : '#874bac'}
+                style={{ marginRight: 14 }}
+              />
+              <Text
+                style={[styles.gridItemText, hasText && styles.activeStartText]}
+              >
+                START
+              </Text>
+            </View>
+          </Pressable>
+        </Animated.View>
+      </View>
+
+      <View style={styles.row}>
         {[
           {
             name: 'fit-to-screen',
@@ -232,25 +266,19 @@ const GridButtons = ({
           ]}
         >
           <View style={styles.durationContainer}>
-            <Animated.View
-              style={[
-                styles.durationIndicator,
-                {
-                  transform: [{ rotate: spinValue }],
-                },
-              ]}
-            >
+            <View style={styles.durationIndicator}>
               <Icon
                 name='clock-outline'
                 size={43}
-                color={selectedItems[3] ? '#fff' : '#874bac'}
+                color={selectedItems[3] ? '#fff' : '#fff'}
                 style={styles.durationIcon}
               />
-            </Animated.View>
+            </View>
             <Text
               style={[
                 styles.gridItemText,
                 selectedItems[3] && styles.selectedText,
+                { color: '#fff' },
               ]}
             >
               {`${duration / 1000}s`}
@@ -280,19 +308,25 @@ const GridButtons = ({
               ]}
             />
           )}
-          <Icon
-            name='format-color-fill'
-            size={43}
-            color={selectedItems[1] ? '#fff' : '#874bac'}
-          />
-          <Text
-            style={[
-              styles.gridItemText,
-              selectedItems[1] && styles.selectedText,
-            ]}
-          >
-            Background
-          </Text>
+
+          {!randomizeBgColor && (
+            <>
+              <Icon
+                name='format-color-fill'
+                size={43}
+                color={selectedItems[1] ? '#fff' : '#fff'}
+              />
+              <Text
+                style={[
+                  styles.gridItemText,
+                  selectedItems[1] && styles.selectedText,
+                  { color: '#fff' },
+                ]}
+              >
+                Background
+              </Text>
+            </>
+          )}
         </Pressable>
 
         <Pressable
@@ -303,43 +337,9 @@ const GridButtons = ({
             selectedItems[5] && styles.selected,
           ]}
         >
-          <Icon name='history' size={43} color='#874bac' />
-          <Text style={styles.gridItemText}>History</Text>
+          <Icon name='history' size={43} color='#fff' />
+          <Text style={[styles.gridItemText, { color: '#fff' }]}>History</Text>
         </Pressable>
-      </View>
-
-      <View style={styles.row}>
-        <Pressable
-          onPress={onFontChange}
-          style={({ pressed }) => [styles.gridItem, pressed && styles.pressed]}
-        >
-          <Icon name='format-font' size={43} color='#874bac' />
-          <Text style={styles.gridItemText}>FONTS</Text>
-        </Pressable>
-
-        <Animated.View style={[styles.gridItemWide, animatedStyle]}>
-          <Pressable
-            onPress={onStartPress}
-            style={({ pressed }) => [
-              styles.startButtonInner,
-              pressed && styles.pressed,
-            ]}
-          >
-            <View style={styles.customButtonInner}>
-              <Icon
-                name='play'
-                size={43}
-                color={hasText ? '#04eb04' : '#874bac'}
-                style={{ marginRight: 14 }}
-              />
-              <Text
-                style={[styles.gridItemText, hasText && styles.activeStartText]}
-              >
-                START
-              </Text>
-            </View>
-          </Pressable>
-        </Animated.View>
       </View>
     </View>
   );
