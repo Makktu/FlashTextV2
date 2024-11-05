@@ -20,9 +20,9 @@ export default function InputBox({ handleInput, cancelInput, text }) {
         activeOutlineColor='#546E7A'
         theme={{ colors: { text: '#FFFFFF', background: '#263238' } }}
       />
-      {/* <Button style={styles.cancelInput} onPress={cancelInput}>
+      <Button style={styles.cancelInput} onPress={cancelInput}>
         <Text style={styles.cancelInputText}>X</Text>
-      </Button> */}
+      </Button>
     </View>
   );
 }
