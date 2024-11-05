@@ -265,20 +265,18 @@ const GridButtons = ({
             selectedItems[3] && styles.selected,
           ]}
         >
-          <View style={styles.durationContainer}>
-            <View style={styles.durationIndicator}>
-              <Icon
-                name='clock-outline'
-                size={43}
-                color={selectedItems[3] ? '#fff' : '#fff'}
-                style={styles.durationIcon}
-              />
-            </View>
+          <View style={[styles.durationContainer, { flexDirection: 'column' }]}>
+            <Icon
+              name='clock-outline'
+              size={43}
+              color={selectedItems[3] ? '#fff' : '#fff'}
+              style={styles.durationIcon}
+            />
             <Text
               style={[
                 styles.gridItemText,
                 selectedItems[3] && styles.selectedText,
-                { color: '#fff' },
+                { color: '#fff', marginLeft: 10 },
               ]}
             >
               {`${duration / 1000}s`}
@@ -358,7 +356,7 @@ const styles = StyleSheet.create({
   },
   gridItem: {
     width: 106,
-    height: 106,
+    height: 116,
     borderRadius: 26,
     justifyContent: 'center',
     alignItems: 'center',
@@ -371,7 +369,7 @@ const styles = StyleSheet.create({
   },
   gridItemWide: {
     width: 227,
-    height: 106,
+    height: 116,
     borderRadius: 26,
     justifyContent: 'center',
     alignItems: 'center',
@@ -429,13 +427,13 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  durationIndicator: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  // durationIndicator: {
+  //   // position: 'absolute',
+  //   width: '100%',
+  //   height: '100%',
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  // },
   durationIcon: {
     position: 'absolute',
     top: 10,

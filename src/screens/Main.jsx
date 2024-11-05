@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
 import {
   StyleSheet,
   View,
@@ -22,6 +23,7 @@ import GridButtons from '../components/GridButtons';
 const backgroundImg = require('../../assets/img/flashtext_bg3.jpg');
 
 const Main = () => {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [currentScreen, setCurrentScreen] = useState('main');
   const [flashType, setFlashType] = useState('plain');
   const [duration, setDuration] = useState(1500);
@@ -70,6 +72,20 @@ const Main = () => {
     'Monoton',
   ];
 
+  useEffect(() => {
+    const loadBackgroundImage = async () => {
+      await SplashScreen.preventAutoHideAsync();
+      const backgroundImg = require('../../assets/img/flashtext_bg3.jpg');
+      setIsLoaded(true);
+      await SplashScreen.hideAsync();
+    };
+    loadBackgroundImage();
+  }, []);
+
+  if (!isLoaded) {
+    return null;
+  }
+
   /******  3e111db0-7247-47e5-b714-6b4486d9b74f  *******/
 
   /**
@@ -101,6 +117,10 @@ const Main = () => {
   const handleInput = (enteredText) => {
     console.log(text);
     setText(enteredText);
+  };
+
+  const cancelInput = () => {
+    setText('');
   };
 
   const handleHistoryPress = () => {
@@ -242,7 +262,11 @@ const Main = () => {
                   <Text style={styles.subTitleText}>2.0</Text>
                 </View>
                 <View style={styles.inputContainer}>
-                  <InputBox text={text} handleInput={handleInput} />
+                  <InputBox
+                    text={text}
+                    handleInput={handleInput}
+                    cancelInput={cancelInput}
+                  />
                 </View>
                 <GridButtons
                   selectedItems={selectedItems}
@@ -331,7 +355,7 @@ const styles = StyleSheet.create({
   upperScreenContainer: {
     width: '100%',
     alignItems: 'center',
-    gap: 20,
+    gap: 2,
   },
   titleContainer: {
     alignItems: 'center',
@@ -357,7 +381,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: '85%',
-    height: 100,
+    height: 70,
   },
   modalOverlay: {
     flex: 1,
