@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Dimensions } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { StyleSheet, Dimensions, Text } from 'react-native';
 import Animated, {
   useSharedValue,
   withTiming,
   useAnimatedStyle,
   runOnJS,
 } from 'react-native-reanimated';
-import { fontScalingFactors } from '../../values/fontScalingFactors';
 
 const getContrastingColor = (bgColor) => {
   const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
@@ -34,27 +33,24 @@ export default function FlashStretch({
   userFont,
 }) {
   const [currentWord, setCurrentWord] = useState(0);
-  const [fontSize, setFontSize] = useState(
-    fontScalingFactors[userFont] || fontScalingFactors.default
-  );
+  const [fontSize, setFontSize] = useState(30);
+  const [textDimensions, setTextDimensions] = useState({ width: 0, height: 0 });
   const scale = useSharedValue(0.1);
   const opacity = useSharedValue(0);
   const bgColor = useSharedValue(
     randomizeBgColor ? availableColors[0] : userBgColor
   );
   const textColor = useSharedValue(getContrastingColor(bgColor.value));
+  const textRef = useRef(null);
 
   const calculateInitialFontSize = useCallback((text) => {
     const screenData = {
       width: Dimensions.get('window').width,
       height: Dimensions.get('window').height,
     };
-    // Set initial font size to be readable but small enough to show dramatic scaling
     const minScreenDimension = Math.min(screenData.width, screenData.height);
-    return minScreenDimension * 0.15; // Reduced from 0.8 to make initial size smaller
+    return minScreenDimension * 0.15;
   }, []);
-
-  console.log(userFont);
 
   useEffect(() => {
     const updateFontSize = () => {
@@ -72,15 +68,15 @@ export default function FlashStretch({
   }, [currentWord, message, calculateInitialFontSize]);
 
   const calculateScale = useCallback(() => {
-    // Calculate a much larger scale factor to ensure text expands beyond screen
     const screenData = {
       width: Dimensions.get('window').width,
       height: Dimensions.get('window').height,
     };
-    const maxScreenDimension = Math.max(screenData.width, screenData.height);
-    // Scale up to 3x the screen size for dramatic effect
-    return (maxScreenDimension * 0.3) / fontSize;
-  }, [fontSize]);
+    const maxScaleWidth = screenData.width / textDimensions.width;
+    const maxScaleHeight = screenData.height / textDimensions.height;
+
+    return Math.min(maxScaleWidth, maxScaleHeight);
+  }, [textDimensions]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -114,10 +110,8 @@ export default function FlashStretch({
     scale.value = 0.1;
     opacity.value = 0;
 
-    // Start with fade in
     opacity.value = withTiming(1, { duration: duration / 4 });
 
-    // Expand beyond screen boundaries
     scale.value = withTiming(
       calculateScale(),
       {
@@ -125,7 +119,6 @@ export default function FlashStretch({
       },
       (finished) => {
         if (finished) {
-          // Start fade out when maximum scale is reached
           opacity.value = withTiming(
             0,
             { duration: duration / 4 },
@@ -145,15 +138,22 @@ export default function FlashStretch({
     animateStretch();
   }, [animateBackgroundColor, animateStretch, currentWord]);
 
+  const handleTextLayout = useCallback((event) => {
+    const { width, height } = event.nativeEvent.layout;
+    setTextDimensions({ width, height });
+  }, []);
+
   return (
     <Animated.View style={[styles.container, animatedBgStyle]}>
       <Animated.Text
+        ref={textRef}
         style={[
           styles.messageText,
           { fontSize, fontFamily: userFont },
           animatedStyle,
           animatedTextStyle,
         ]}
+        onLayout={handleTextLayout}
       >
         {message[currentWord]}
       </Animated.Text>
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    overflow: 'hidden', // Remove this to allow content to expand beyond boundaries
+    overflow: 'hidden',
   },
   messageText: {
     fontWeight: 'bold',
