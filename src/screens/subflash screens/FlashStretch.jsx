@@ -8,7 +8,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { fontScalingFactors } from '../../values/fontScalingFactors';
 
-
 const getContrastingColor = (bgColor) => {
   const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
   const r = parseInt(color.substring(0, 2), 16);
@@ -35,7 +34,9 @@ export default function FlashStretch({
   userFont,
 }) {
   const [currentWord, setCurrentWord] = useState(0);
-  const [fontSize, setFontSize] = useState(30);
+  const [fontSize, setFontSize] = useState(
+    fontScalingFactors[userFont] || fontScalingFactors.default
+  );
   const scale = useSharedValue(0.1);
   const opacity = useSharedValue(0);
   const bgColor = useSharedValue(
@@ -52,6 +53,8 @@ export default function FlashStretch({
     const minScreenDimension = Math.min(screenData.width, screenData.height);
     return minScreenDimension * 0.15; // Reduced from 0.8 to make initial size smaller
   }, []);
+
+  console.log(userFont);
 
   useEffect(() => {
     const updateFontSize = () => {
