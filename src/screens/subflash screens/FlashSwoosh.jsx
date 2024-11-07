@@ -7,6 +7,7 @@ import Animated, {
   withSequence,
 } from 'react-native-reanimated';
 import { fontScalingFactors } from '../../values/fontScalingFactors';
+import availableColors from '../../values/COLORS';
 
 // Function to get a contrasting color for readability
 const getContrastingColor = (bgColor) => {
@@ -17,15 +18,6 @@ const getContrastingColor = (bgColor) => {
   const brightness = (r * 299 + g * 587 + b * 114) / 1000;
   return brightness > 186 ? '#000000' : '#FFFFFF';
 };
-
-const availableColors = [
-  '#02a402',
-  '#0606e7',
-  '#f2de07',
-  '#a42e03',
-  '#f203f2',
-  '#000000',
-];
 
 // Function to get random color different from the last one
 const getRandomColor = (previousColor) => {

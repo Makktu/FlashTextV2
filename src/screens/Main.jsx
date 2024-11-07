@@ -19,6 +19,7 @@ import FlashScreen from './FlashScreen';
 import COLORS from '../values/COLORS';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import GridButtons from '../components/GridButtons';
+import availableColors from '../values/COLORS';
 
 const backgroundImg = require('../../assets/img/flashtext_bg3.jpg');
 
@@ -46,16 +47,6 @@ const Main = () => {
 
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
-
-  const availableColors = [
-    '#04eb04',
-    '#0606e7',
-    '#f2de07',
-    '#FF4500',
-    '#f203f2',
-    '#000000',
-    '#ffffff',
-  ];
 
   // Define the available fonts
   /*************  ✨ Codeium Command 🌟  *************/

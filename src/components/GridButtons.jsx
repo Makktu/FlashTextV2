@@ -8,20 +8,11 @@ import {
   Animated,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import availableColors from '../values/COLORS';
 
 const randomImg = require('../../assets/img/randomImg.png');
 
 const defaultGridButtonColor = '#ffffff00';
-
-const availableColors = [
-  '#04eb04',
-  '#0606e7',
-  '#f2de07',
-  '#FF4500',
-  '#f203f2',
-  '#000000',
-  '#ffffff',
-];
 
 const plainBtnAnimSpeed = 3000; // 2 seconds for fade in/out cycle
 const stretchBtnAnimSpeed = 3000; // 1.5 seconds for stretch cycle

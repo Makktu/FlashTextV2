@@ -11,8 +11,6 @@ export default function FlashScreen({
   returnTap,
   message = ['no', 'message', 'was', 'passed'],
   userBgColor,
-  displayHeight,
-  displayWidth,
   duration = 2000,
   flashType,
   swooshDirection,

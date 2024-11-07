@@ -6,6 +6,7 @@ import Animated, {
   useAnimatedStyle,
   runOnJS,
 } from 'react-native-reanimated';
+import availableColors from '../../values/COLORS';
 
 const getContrastingColor = (bgColor) => {
   const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
@@ -15,15 +16,6 @@ const getContrastingColor = (bgColor) => {
   const brightness = (r * 299 + g * 587 + b * 114) / 1000;
   return brightness > 186 ? '#000000' : '#FFFFFF';
 };
-
-const availableColors = [
-  '#04eb04',
-  '#0606e7',
-  '#f2de07',
-  '#FF4500',
-  '#f203f2',
-  '#000000',
-];
 
 export default function FlashStretch({
   message,
@@ -79,7 +71,7 @@ export default function FlashStretch({
   }, [textDimensions]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [{ scale: isNaN(scale.value) ? 1 : scale.value }],
     opacity: opacity.value,
   }));
 
