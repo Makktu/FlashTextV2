@@ -158,15 +158,10 @@ const GridButtons = ({
             <View style={styles.customButtonInner}>
               <Icon
                 name='play'
-                size={43}
+                size={104}
                 color={hasText ? '#04eb04' : '#874bac'}
                 style={{ marginRight: 14 }}
               />
-              <Text
-                style={[styles.gridItemText, hasText && styles.activeStartText]}
-              >
-                START
-              </Text>
             </View>
           </Pressable>
         </Animated.View>
@@ -261,13 +256,12 @@ const GridButtons = ({
               name='clock-outline'
               size={43}
               color={selectedItems[3] ? '#fff' : '#fff'}
-              style={styles.durationIcon}
             />
             <Text
               style={[
                 styles.gridItemText,
                 selectedItems[3] && styles.selectedText,
-                { color: '#fff', marginLeft: 10 },
+                { color: '#fff' },
               ]}
             >
               {`${duration / 1000}s`}
@@ -351,7 +345,7 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(126, 68, 151, 0.685)',
     backdropFilter: 'blur(10px)',
     position: 'relative',
     overflow: 'hidden',
@@ -364,7 +358,7 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.582)',
     backdropFilter: 'blur(10px)',
     position: 'relative',
     overflow: 'hidden',
@@ -376,7 +370,7 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.95 }],
   },
   selected: {
-    backgroundColor: '#874bac',
+    backgroundColor: '#4bac50',
     borderColor: '#fff',
   },
   randomBackground: {
@@ -410,24 +404,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activeStartText: {
-    color: '#04eb04',
+    color: '#09ff09',
   },
   durationContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
     height: '100%',
-  },
-  // durationIndicator: {
-  //   // position: 'absolute',
-  //   width: '100%',
-  //   height: '100%',
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  // },
-  durationIcon: {
-    position: 'absolute',
-    top: 10,
   },
 });
 

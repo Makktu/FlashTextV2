@@ -54,3 +54,7 @@ Nothing today.
 Added Reanimation library and started to learn it.
 
 Background: Photo by Li Zhang on Unsplash
+
+Photo by Camille Couvez on Unsplash
+
+Main screen Background Image by Maxim Berg on Unsplash

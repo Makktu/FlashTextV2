@@ -11,7 +11,6 @@ import {
   ScrollView,
   Alert,
   ImageBackground,
-  Keyboard,
 } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 import InputBox from '../components/InputBox';
@@ -21,13 +20,13 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import GridButtons from '../components/GridButtons';
 import availableColors from '../values/COLORS';
 
-const backgroundImg = require('../../assets/img/flashtext_bg3.jpg');
+const backgroundImg = require('../../assets/img/flashtext_bg1.jpg');
 
 const Main = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentScreen, setCurrentScreen] = useState('main');
   const [flashType, setFlashType] = useState('plain');
-  const [duration, setDuration] = useState(1500);
+  const [duration, setDuration] = useState(1000);
   const [choppedMessage, setChoppedMessage] = useState([]);
   const [userBgColor, setUserBgColor] = useState(0);
   const [randomizeBgColor, setRandomizeBgColor] = useState(false);
@@ -66,7 +65,7 @@ const Main = () => {
   useEffect(() => {
     const loadBackgroundImage = async () => {
       await SplashScreen.preventAutoHideAsync();
-      const backgroundImg = require('../../assets/img/flashtext_bg3.jpg');
+      const backgroundImg = require('../../assets/img/flashtext_bg9.jpg');
       setIsLoaded(true);
       await SplashScreen.hideAsync();
     };
@@ -169,7 +168,7 @@ const Main = () => {
         setUserBgColor(0);
         setRandomizeBgColor(false);
         return;
-      } else if (userBgColor < availableColors.length - 2) {
+      } else if (userBgColor < availableColors.length - 1) {
         setUserBgColor(userBgColor + 1);
         return;
       } else {
@@ -359,7 +358,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontWeight: 'bold',
-    color: '#a689b6',
+    color: '#e2dae8',
     width: '100%',
     textAlign: 'center',
   },

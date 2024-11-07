@@ -50,9 +50,9 @@ const styles = StyleSheet.create({
   },
   inputText: {
     height: 60,
-    backgroundColor: '#830ec7', // Dark background matching the theme
+    backgroundColor: '#cc13cf6c', // Dark background matching the theme
     fontSize: 24,
-    color: '#FFFFFF',
+    color: '#000000',
     fontWeight: 'bold',
     textAlign: 'center',
     borderRadius: 12, // Optional: Add border radius for a smoother look
