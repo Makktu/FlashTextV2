@@ -330,8 +330,9 @@ const GridButtons = ({
 
 const styles = StyleSheet.create({
   gridContainer: {
+    marginTop: 30,
     width: '90%',
-    gap: 15,
+    gap: 18,
   },
   row: {
     flexDirection: 'row',
@@ -345,7 +346,7 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(126, 68, 151, 0.685)',
+    backgroundColor: '#9b67cbb8',
     backdropFilter: 'blur(10px)',
     position: 'relative',
     overflow: 'hidden',
@@ -358,7 +359,7 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.582)',
+    backgroundColor: 'rgb(67, 22, 22)',
     backdropFilter: 'blur(10px)',
     position: 'relative',
     overflow: 'hidden',

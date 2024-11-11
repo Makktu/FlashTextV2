@@ -16,9 +16,9 @@ import { PaperProvider } from 'react-native-paper';
 import InputBox from '../components/InputBox';
 import FlashScreen from './FlashScreen';
 import COLORS from '../values/COLORS';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import GridButtons from '../components/GridButtons';
 import availableColors from '../values/COLORS';
+import FunButton from '../components/FunButton';
 
 const backgroundImg = require('../../assets/img/flashtext_bg1.jpg');
 
@@ -271,6 +271,7 @@ const Main = () => {
                   hasText={text.length > 0}
                 />
               </View>
+              <FunButton />
             </View>
           </View>
         </ImageBackground>
@@ -346,6 +347,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     gap: 2,
+    marginVertical: 10,
   },
   titleContainer: {
     alignItems: 'center',
