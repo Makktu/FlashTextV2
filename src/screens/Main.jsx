@@ -31,7 +31,7 @@ const Main = () => {
   const [randomizeBgColor, setRandomizeBgColor] = useState(false);
   const [text, setText] = useState('This is FlashText!');
   const [messageHistory, setMessageHistory] = useState([]);
-  const [userFont, setUserFont] = useState('Roboto');
+  const [userFont, setUserFont] = useState('Russo');
   const [selectedItems, setSelectedItems] = useState([
     true,
     false,
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontWeight: 'bold',
-    color: '#e2dae8',
+    color: '#8f027c',
     width: '100%',
     textAlign: 'center',
   },

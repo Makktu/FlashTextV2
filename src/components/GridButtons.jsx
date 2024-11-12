@@ -11,12 +11,10 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import availableColors from '../values/COLORS';
 
 const randomImg = require('../../assets/img/randomImg.png');
-
 const defaultGridButtonColor = '#ffffff00';
-
-const plainBtnAnimSpeed = 3000; // 2 seconds for fade in/out cycle
-const stretchBtnAnimSpeed = 3000; // 1.5 seconds for stretch cycle
-const swooshBtnAnimSpeed = 3000; // 2 seconds for swoosh cycle
+const plainBtnAnimSpeed = 3000;
+const stretchBtnAnimSpeed = 3000;
+const swooshBtnAnimSpeed = 3000;
 
 const GridButtons = ({
   selectedItems,
@@ -71,7 +69,8 @@ const GridButtons = ({
       ])
     ).start();
 
-    // Plain button animation
+    console.log(flashType);
+
     Animated.loop(
       Animated.sequence([
         Animated.timing(plainAnim, {
@@ -87,7 +86,6 @@ const GridButtons = ({
       ])
     ).start();
 
-    // Stretch button animation
     Animated.loop(
       Animated.sequence([
         Animated.timing(stretchAnim, {
@@ -103,7 +101,6 @@ const GridButtons = ({
       ])
     ).start();
 
-    // Swoosh button animation
     Animated.loop(
       Animated.sequence([
         Animated.timing(swooshAnim, {
@@ -143,8 +140,10 @@ const GridButtons = ({
           onPress={onFontChange}
           style={({ pressed }) => [styles.gridItem, pressed && styles.pressed]}
         >
-          <Icon name='format-font' size={43} color='#874bac' />
-          <Text style={styles.gridItemText}>FONTS</Text>
+          <View style={styles.buttonInner}>
+            <Icon name='format-font' size={43} color='#FFFFFF' />
+            <Text style={styles.gridItemText}>FONTS</Text>
+          </View>
         </Pressable>
 
         <Animated.View style={[styles.gridItemWide, animatedStyle]}>
@@ -159,7 +158,7 @@ const GridButtons = ({
               <Icon
                 name='play'
                 size={104}
-                color={hasText ? '#04eb04' : '#874bac'}
+                color={hasText ? '#04eb04' : '#FFFFFF'}
                 style={{ marginRight: 14 }}
               />
             </View>
@@ -218,26 +217,28 @@ const GridButtons = ({
                 styles.selected,
             ]}
           >
-            <Animated.View style={item.style}>
-              <Icon
-                name={item.name}
-                size={43}
-                color={
-                  selectedItems[index === 0 ? 0 : index === 1 ? 4 : 2]
-                    ? '#fff'
-                    : '#874bac'
-                }
-              />
-              <Text
-                style={[
-                  styles.gridItemText,
-                  selectedItems[index === 0 ? 0 : index === 1 ? 4 : 2] &&
-                    styles.selectedText,
-                ]}
-              >
-                {item.label}
-              </Text>
-            </Animated.View>
+            <View style={styles.buttonInner}>
+              <Animated.View style={item.style}>
+                <Icon
+                  name={item.name}
+                  size={43}
+                  color={
+                    selectedItems[index === 0 ? 0 : index === 1 ? 4 : 2]
+                      ? '#FFFFFF'
+                      : '#FFFFFF'
+                  }
+                />
+                <Text
+                  style={[
+                    styles.gridItemText,
+                    selectedItems[index === 0 ? 0 : index === 1 ? 4 : 2] &&
+                      styles.selectedText,
+                  ]}
+                >
+                  {item.label}
+                </Text>
+              </Animated.View>
+            </View>
           </Pressable>
         ))}
       </View>
@@ -251,21 +252,24 @@ const GridButtons = ({
             selectedItems[3] && styles.selected,
           ]}
         >
-          <View style={[styles.durationContainer, { flexDirection: 'column' }]}>
-            <Icon
-              name='clock-outline'
-              size={43}
-              color={selectedItems[3] ? '#fff' : '#fff'}
-            />
-            <Text
-              style={[
-                styles.gridItemText,
-                selectedItems[3] && styles.selectedText,
-                { color: '#fff' },
-              ]}
+          <View style={styles.buttonInner}>
+            <View
+              style={[styles.durationContainer, { flexDirection: 'column' }]}
             >
-              {`${duration / 1000}s`}
-            </Text>
+              <Icon
+                name='clock-outline'
+                size={43}
+                color={selectedItems[3] ? '#FFFFFF' : '#FFFFFF'}
+              />
+              <Text
+                style={[
+                  styles.gridItemText,
+                  selectedItems[3] && styles.selectedText,
+                ]}
+              >
+                {`${duration / 1000}s`}
+              </Text>
+            </View>
           </View>
         </Pressable>
 
@@ -277,39 +281,40 @@ const GridButtons = ({
             selectedItems[1] && styles.selected,
           ]}
         >
-          {randomizeBgColor ? (
-            <ImageBackground
-              source={randomImg}
-              style={styles.randomBackground}
-              imageStyle={styles.randomBackgroundImage}
-            />
-          ) : (
-            <View
-              style={[
-                styles.colorIndicator,
-                { backgroundColor: availableColors[userBgColor] },
-              ]}
-            />
-          )}
-
-          {!randomizeBgColor && (
-            <>
-              <Icon
-                name='format-color-fill'
-                size={43}
-                color={selectedItems[1] ? '#fff' : '#fff'}
+          <View style={styles.buttonInner}>
+            {randomizeBgColor ? (
+              <ImageBackground
+                source={randomImg}
+                style={styles.randomBackground}
+                imageStyle={styles.randomBackgroundImage}
               />
-              <Text
+            ) : (
+              <View
                 style={[
-                  styles.gridItemText,
-                  selectedItems[1] && styles.selectedText,
-                  { color: '#fff' },
+                  styles.colorIndicator,
+                  { backgroundColor: availableColors[userBgColor] },
                 ]}
-              >
-                Background
-              </Text>
-            </>
-          )}
+              />
+            )}
+
+            {!randomizeBgColor && (
+              <>
+                <Icon
+                  name='format-color-fill'
+                  size={43}
+                  color={selectedItems[1] ? '#FFFFFF' : '#FFFFFF'}
+                />
+                <Text
+                  style={[
+                    styles.gridItemText,
+                    selectedItems[1] && styles.selectedText,
+                  ]}
+                >
+                  Background
+                </Text>
+              </>
+            )}
+          </View>
         </Pressable>
 
         <Pressable
@@ -320,8 +325,10 @@ const GridButtons = ({
             selectedItems[5] && styles.selected,
           ]}
         >
-          <Icon name='history' size={43} color='#fff' />
-          <Text style={[styles.gridItemText, { color: '#fff' }]}>History</Text>
+          <View style={styles.buttonInner}>
+            <Icon name='history' size={43} color='#FFFFFF' />
+            <Text style={styles.gridItemText}>History</Text>
+          </View>
         </Pressable>
       </View>
     </View>
@@ -344,35 +351,56 @@ const styles = StyleSheet.create({
     width: 106,
     height: 116,
     borderRadius: 26,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#9b67cbb8',
-    backdropFilter: 'blur(10px)',
+    // backgroundColor: '#FF69B4', // Hot pink color
+    backgroundColor: '#e006ec44',
     position: 'relative',
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 4,
+    borderColor: '#000000',
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 8,
+  },
+  buttonInner: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f3097ea9',
+    borderRadius: 22,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    margin: 2,
   },
   gridItemWide: {
     width: 227,
     height: 116,
     borderRadius: 26,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgb(67, 22, 22)',
-    backdropFilter: 'blur(10px)',
+    backgroundColor: '#FF69B4',
     position: 'relative',
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 4,
+    borderColor: '#000000',
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 8,
   },
   pressed: {
-    opacity: 0.7,
     transform: [{ scale: 0.95 }],
+    opacity: 0.9,
   },
   selected: {
-    backgroundColor: '#4bac50',
-    borderColor: '#fff',
+    backgroundColor: '#3d0523', // Darker pink (#ff1493)
+    borderColor: '#ffffff',
   },
   randomBackground: {
     position: 'absolute',
@@ -390,22 +418,31 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   gridItemText: {
-    color: '#874bac',
+    color: '#FFFFFF',
     fontSize: 13,
     marginTop: 6,
     fontWeight: '600',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   selectedText: {
-    color: '#fff',
+    color: '#FFFFFF',
   },
   startButtonInner: {
     width: '100%',
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#d26fe1',
+    borderRadius: 22,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255,, 0.3)',
+    margin: 2,
   },
-  activeStartText: {
-    color: '#09ff09',
+  customButtonInner: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   durationContainer: {
     alignItems: 'center',
