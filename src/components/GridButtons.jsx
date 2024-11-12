@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import availableColors from '../values/COLORS';
-import FunButton from './FunButton';
 
 const randomImg = require('../../assets/img/randomImg.png');
 

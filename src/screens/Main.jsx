@@ -18,7 +18,6 @@ import FlashScreen from './FlashScreen';
 import COLORS from '../values/COLORS';
 import GridButtons from '../components/GridButtons';
 import availableColors from '../values/COLORS';
-import FunButton from '../components/FunButton';
 
 const backgroundImg = require('../../assets/img/flashtext_bg1.jpg');
 
@@ -271,7 +270,6 @@ const Main = () => {
                   hasText={text.length > 0}
                 />
               </View>
-              <FunButton />
             </View>
           </View>
         </ImageBackground>
