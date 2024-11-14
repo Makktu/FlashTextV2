@@ -6,6 +6,7 @@ import FlashStretch from './subflash screens/FlashStretch';
 import FlashPlain from './subflash screens/FlashPlain';
 import FlashSwoosh from './subflash screens/FlashSwoosh';
 import { fontScalingFactors } from '../values/fontScalingFactors';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 export default function FlashScreen({
   returnTap,
@@ -19,6 +20,11 @@ export default function FlashScreen({
   fontSizeAdjustment = 0,
 }) {
   useEffect(() => {
+    async function unlockOrientation() {
+      await ScreenOrientation.unlockAsync();
+    }
+    unlockOrientation();
+
     StatusBar.setHidden(true);
   }, []);
 

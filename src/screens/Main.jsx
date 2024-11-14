@@ -12,6 +12,7 @@ import {
   Alert,
   ImageBackground,
 } from 'react-native';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { PaperProvider } from 'react-native-paper';
 import InputBox from '../components/InputBox';
 import FlashScreen from './FlashScreen';
@@ -62,6 +63,16 @@ const Main = () => {
   ];
 
   useEffect(() => {
+    const lockOrientation = async () => {
+      try {
+        await ScreenOrientation.lockAsync(
+          ScreenOrientation.OrientationLock.PORTRAIT_UP
+        );
+      } catch (error) {
+        console.error('Failed to lock orientation:', error);
+      }
+    };
+    lockOrientation();
     const loadBackgroundImage = async () => {
       await SplashScreen.preventAutoHideAsync();
       const backgroundImg = require('../../assets/img/flashtext_bg9.jpg');
@@ -101,7 +112,21 @@ const Main = () => {
     setCurrentScreen('flash');
   };
 
-  const returnTap = () => setCurrentScreen('main');
+  const returnTap = () => {
+    // lock orientation to portrait
+    const lockOrientation = async () => {
+      try {
+        await ScreenOrientation.lockAsync(
+          ScreenOrientation.OrientationLock.PORTRAIT_UP
+        );
+      } catch (error) {
+        console.error('Failed to lock orientation:', error);
+      }
+    };
+    lockOrientation();
+
+    setCurrentScreen('main');
+  };
 
   const handleInput = (enteredText) => {
     console.log(text);
@@ -351,7 +376,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'stretch',
     width: '100%',
-    height: 75,
+    height: 100,
     overflow: 'hidden',
     justifyContent: 'center',
     paddingHorizontal: 10,

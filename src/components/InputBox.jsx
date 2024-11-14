@@ -7,7 +7,7 @@ export default function InputBox({ handleInput, cancelInput, text }) {
     <View>
       <View style={styles.inputContainer}>
         <Searchbar
-          autoFocus={true}
+          // autoFocus={true}
           style={styles.inputText}
           inputStyle={{ fontSize: 26, textAlign: 'left' }}
           textColor='white'
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     height: 88,
     width: '100%',
     textAlign: 'center',
-    marginVertical: 12,
+    marginVertical: 4,
   },
   inputText: {
     height: 60,
