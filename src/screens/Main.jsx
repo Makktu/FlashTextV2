@@ -11,6 +11,11 @@ import {
   ScrollView,
   Alert,
   ImageBackground,
+  Keyboard,
+  TextInput,
+  Platform,
+  InputAccessoryView,
+  Button,
 } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { PaperProvider } from 'react-native-paper';
@@ -19,6 +24,7 @@ import FlashScreen from './FlashScreen';
 import COLORS from '../values/COLORS';
 import GridButtons from '../components/GridButtons';
 import availableColors from '../values/COLORS';
+import PreviewWindow from '../components/PreviewWindow';
 
 const backgroundImg = require('../../assets/img/flashtext_bg1.jpg');
 
@@ -43,6 +49,7 @@ const Main = () => {
   ]);
   const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false);
   const [titleFontSize, setTitleFontSize] = useState(58);
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
@@ -80,6 +87,26 @@ const Main = () => {
       await SplashScreen.hideAsync();
     };
     loadBackgroundImage();
+  }, []);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
   }, []);
 
   if (!isLoaded) {
@@ -242,6 +269,8 @@ const Main = () => {
     setTitleFontSize(fontSize);
   };
 
+  const inputAccessoryViewID = 'uniqueID';
+
   return (
     <PaperProvider>
       <StatusBar
@@ -276,11 +305,25 @@ const Main = () => {
                   <Text style={styles.subTitleText}>2.0</Text>
                 </View>
                 <View style={styles.inputContainer}>
-                  <InputBox
-                    text={text}
-                    handleInput={handleInput}
-                    cancelInput={cancelInput}
+                  <TextInput
+                    style={styles.input}
+                    onChangeText={handleInput}
+                    value={text}
+                    placeholder="Enter your text here..."
+                    placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                    multiline={true}
+                    inputAccessoryViewID={inputAccessoryViewID}
                   />
+                  {Platform.OS === 'ios' && (
+                    <InputAccessoryView nativeID={inputAccessoryViewID}>
+                      <View style={styles.inputAccessory}>
+                        <Button
+                          onPress={() => Keyboard.dismiss()}
+                          title="Done"
+                        />
+                      </View>
+                    </InputAccessoryView>
+                  )}
                 </View>
                 <GridButtons
                   selectedItems={selectedItems}
@@ -293,6 +336,14 @@ const Main = () => {
                   onFontChange={handleFontChange}
                   onStartPress={startPressed}
                   hasText={text.length > 0}
+                />
+                <PreviewWindow
+                  text={text}
+                  selectedAnimation={flashType}
+                  selectedFont={userFont}
+                  selectedColor={randomizeBgColor ? 'random' : availableColors[userBgColor]}
+                  isKeyboardVisible={isKeyboardVisible}
+                  randomImg={backgroundImg}
                 />
               </View>
             </View>
@@ -376,9 +427,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'stretch',
     width: '100%',
-    height: 100,
+    height: 80,
     overflow: 'hidden',
     justifyContent: 'center',
+    marginBottom: 8,
     paddingHorizontal: 10,
   },
   titleText: {
@@ -397,6 +449,50 @@ const styles = StyleSheet.create({
   inputContainer: {
     width: '85%',
     height: 70,
+    marginBottom: 14,
+  },
+  input: {
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    color: 'rgba(255, 255, 255, 0.95)',
+    padding: 15,
+    borderRadius: 15,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderWidth: 1.5,
+    height: 70,
+    width: '100%',
+    fontSize: 24,
+    textAlignVertical: 'top',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    elevation: 5,
+    shadowColor: 'rgba(255, 255, 255, 0.5)',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    placeholderTextColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  inputAccessory: {
+    backgroundColor: 'rgba(248, 248, 248, 0.98)',
+    padding: 8,
+    paddingHorizontal: 15,
+    alignItems: 'flex-end',
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(0, 0, 0, 0.1)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
   },
   modalOverlay: {
     flex: 1,

@@ -6,6 +6,8 @@ import {
   Pressable,
   ImageBackground,
   Animated,
+  Easing,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import availableColors from '../values/COLORS';
@@ -33,6 +35,7 @@ const GridButtons = ({
   const plainAnim = useRef(new Animated.Value(0)).current;
   const stretchAnim = useRef(new Animated.Value(0)).current;
   const swooshAnim = useRef(new Animated.Value(0)).current;
+  const startButtonAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (hasText) {
@@ -115,12 +118,36 @@ const GridButtons = ({
         }),
       ])
     ).start();
+
+    if (hasText) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(startButtonAnim, {
+            toValue: 1,
+            duration: 600,
+            easing: Easing.inOut(Easing.cubic),
+            useNativeDriver: true,
+          }),
+          Animated.timing(startButtonAnim, {
+            toValue: 0.7,
+            duration: 600,
+            easing: Easing.inOut(Easing.cubic),
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    } else {
+      startButtonAnim.setValue(0.4);
+    }
   }, [hasText, duration]);
 
   const animatedStyle = {
     backgroundColor: pulseAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: ['rgba(255, 255, 255, 0.1)', 'rgba(4, 235, 4, 0.2)'],
+      outputRange: [
+        hasText ? 'rgba(0, 144, 255, 0.4)' : 'rgba(40, 40, 40, 0.3)',
+        hasText ? 'rgba(0, 144, 255, 0.9)' : 'rgba(40, 40, 40, 0.3)',
+      ],
     }),
     borderColor: pulseAnim.interpolate({
       inputRange: [0, 1],
@@ -133,6 +160,13 @@ const GridButtons = ({
     outputRange: ['0deg', '360deg'],
   });
 
+  const startButtonStyle = {
+    transform: [{ scale: startButtonAnim }],
+    backgroundColor: hasText
+      ? 'rgba(0, 144, 255, 0.9)'
+      : 'rgba(40, 40, 40, 0.3)',
+  };
+
   return (
     <View style={styles.gridContainer}>
       <View style={styles.row}>
@@ -141,14 +175,28 @@ const GridButtons = ({
           style={({ pressed }) => [styles.gridItem, pressed && styles.pressed]}
         >
           <View style={styles.buttonInner}>
-            <Icon name='format-font' size={43} color='#FFFFFF' />
+            <Icon
+              name="format-font"
+              size={44}
+              color="rgba(44, 62, 80, 0.9)"
+            />
             <Text style={styles.gridItemText}>FONTS</Text>
           </View>
         </Pressable>
 
-        <Animated.View style={[styles.gridItemWide, animatedStyle]}>
+        <Animated.View style={[styles.startButton, animatedStyle]}>
           <Pressable
-            onPress={onStartPress}
+            onPress={() => {
+              if (!hasText) {
+                Alert.alert(
+                  'No Text',
+                  'Please enter some text before starting the animation.',
+                  [{ text: 'OK' }]
+                );
+                return;
+              }
+              onStartPress();
+            }}
             style={({ pressed }) => [
               styles.startButtonInner,
               pressed && styles.pressed,
@@ -156,9 +204,9 @@ const GridButtons = ({
           >
             <View style={styles.customButtonInner}>
               <Icon
-                name='play'
-                size={104}
-                color={hasText ? '#04eb04' : '#FFFFFF'}
+                name="play"
+                size={52}
+                color={hasText ? 'rgba(255, 255, 255, 0.95)' : 'rgba(20, 20, 40, 0.3)'}
                 style={{ marginRight: 14 }}
               />
             </View>
@@ -174,6 +222,8 @@ const GridButtons = ({
             anim: plainAnim,
             style: {
               opacity: plainAnim,
+              alignItems: 'center',
+              width: '100%',
             },
           },
           {
@@ -183,12 +233,14 @@ const GridButtons = ({
             style: {
               transform: [
                 {
-                  scale: stretchAnim.interpolate({
+                  scaleX: stretchAnim.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [0.5, 1.2],
+                    outputRange: [1, 1.5],
                   }),
                 },
               ],
+              alignItems: 'center',
+              width: '100%',
             },
           },
           {
@@ -204,6 +256,8 @@ const GridButtons = ({
                   }),
                 },
               ],
+              alignItems: 'center',
+              width: '100%',
             },
           },
         ].map((item, index) => (
@@ -221,11 +275,11 @@ const GridButtons = ({
               <Animated.View style={item.style}>
                 <Icon
                   name={item.name}
-                  size={43}
+                  size={44}
                   color={
                     selectedItems[index === 0 ? 0 : index === 1 ? 4 : 2]
-                      ? '#FFFFFF'
-                      : '#FFFFFF'
+                      ? 'rgba(0, 144, 255, 0.95)'
+                      : 'rgba(44, 62, 80, 0.85)'
                   }
                 />
                 <Text
@@ -257,9 +311,9 @@ const GridButtons = ({
               style={[styles.durationContainer, { flexDirection: 'column' }]}
             >
               <Icon
-                name='clock-outline'
-                size={43}
-                color={selectedItems[3] ? '#FFFFFF' : '#FFFFFF'}
+                name="clock-outline"
+                size={44}
+                color="rgba(44, 62, 80, 0.85)"
               />
               <Text
                 style={[
@@ -282,37 +336,25 @@ const GridButtons = ({
           ]}
         >
           <View style={styles.buttonInner}>
-            {randomizeBgColor ? (
-              <ImageBackground
-                source={randomImg}
-                style={styles.randomBackground}
-                imageStyle={styles.randomBackgroundImage}
-              />
-            ) : (
-              <View
-                style={[
-                  styles.colorIndicator,
-                  { backgroundColor: availableColors[userBgColor] },
-                ]}
-              />
-            )}
-
             {!randomizeBgColor && (
-              <>
+              <View style={styles.colorButtonContent}>
                 <Icon
-                  name='format-color-fill'
-                  size={43}
-                  color={selectedItems[1] ? '#FFFFFF' : '#FFFFFF'}
+                  name="palette"
+                  size={44}
+                  color={availableColors[userBgColor]}
                 />
-                <Text
-                  style={[
-                    styles.gridItemText,
-                    selectedItems[1] && styles.selectedText,
-                  ]}
-                >
-                  Background
-                </Text>
-              </>
+                <Text style={styles.gridItemText}>COLORS</Text>
+              </View>
+            )}
+            {randomizeBgColor && (
+              <View style={styles.colorButtonContent}>
+                <Icon
+                  name="shuffle-variant"
+                  size={44}
+                  color="rgba(44, 62, 80, 0.9)"
+                />
+                <Text style={styles.gridItemText}>RANDOM</Text>
+              </View>
             )}
           </View>
         </Pressable>
@@ -326,8 +368,12 @@ const GridButtons = ({
           ]}
         >
           <View style={styles.buttonInner}>
-            <Icon name='history' size={43} color='#FFFFFF' />
-            <Text style={styles.gridItemText}>History</Text>
+            <Icon
+              name="history"
+              size={44}
+              color="rgba(44, 62, 80, 0.9)"
+            />
+            <Text style={styles.gridItemText}>HISTORY</Text>
           </View>
         </Pressable>
       </View>
@@ -348,101 +394,107 @@ const styles = StyleSheet.create({
     gap: 15,
   },
   gridItem: {
-    width: 106,
-    height: 116,
-    borderRadius: 26,
-    // backgroundColor: '#FF69B4', // Hot pink color
-    backgroundColor: '#e006ec44',
+    width: 99,
+    height: 108,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     position: 'relative',
     overflow: 'hidden',
-    borderWidth: 4,
-    borderColor: '#000000',
-    shadowColor: '#000000',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 2,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 8,
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 5,
   },
   buttonInner: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f309d0a9',
-    borderRadius: 22,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    margin: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 19,
+    backdropFilter: 'blur(10px)',
+    margin: 0,
+    paddingVertical: 12,
+    overflow: 'hidden',
   },
-  gridItemWide: {
-    width: 227,
-    height: 116,
-    borderRadius: 26,
-    backgroundColor: '#ff69b444',
+  startButton: {
+    width: 211,
+    height: 108,
+    borderRadius: 20,
     position: 'relative',
     overflow: 'hidden',
-    // borderWidth: 4,
-    // borderColor: '#000000',
-    // shadowColor: '#000000',
-    // shadowOffset: {
-    //   width: 0,
-    //   height: 4,
-    // },
-    // shadowOpacity: 0.25,
-    // shadowRadius: 4,
-    // elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 5,
   },
   pressed: {
-    transform: [{ scale: 0.95 }],
-    opacity: 0.9,
+    transform: [{ scale: 0.98 }],
+    opacity: 0.95,
   },
   selected: {
-    backgroundColor: '#3d0523', // Darker pink (#ff1493)
-    borderColor: '#ffffff',
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    borderColor: 'rgba(0, 180, 85, 0.6)',
   },
-  randomBackground: {
-    position: 'absolute',
+  colorButtonContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
     width: '100%',
-    height: '100%',
-  },
-  randomBackgroundImage: {
-    borderRadius: 23,
   },
   colorIndicator: {
     position: 'absolute',
-    width: '100%',
-    height: '100%',
-    borderRadius: 23,
-    opacity: 0.5,
+    top: -8,
+    right: -8,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 12,
+    padding: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
   },
   gridItemText: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    marginTop: 6,
+    color: 'rgba(44, 62, 80, 0.9)',
+    fontSize: 14,
+    marginTop: 10,
     fontWeight: '600',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
+    letterSpacing: 0.6,
   },
   selectedText: {
-    color: '#FFFFFF',
+    color: 'rgba(0, 144, 255, 0.95)',
+    fontWeight: '700',
   },
   startButtonInner: {
     width: '100%',
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#d26fe1',
-    borderRadius: 22,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255,, 0.3)',
-    margin: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 19,
+    backdropFilter: 'blur(10px)',
+    margin: 0,
+    transition: '0.3s',
   },
   customButtonInner: {
     justifyContent: 'center',
     alignItems: 'center',
+    width: '100%',
   },
   durationContainer: {
     alignItems: 'center',
