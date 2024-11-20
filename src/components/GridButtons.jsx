@@ -151,7 +151,7 @@ const GridButtons = ({
     }),
     borderColor: pulseAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: ['rgba(255, 255, 255, 0.2)', 'rgba(4, 235, 4, 0.5)'],
+      outputRange: ['rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.5)'],
     }),
   };
 
@@ -175,12 +175,14 @@ const GridButtons = ({
           style={({ pressed }) => [styles.gridItem, pressed && styles.pressed]}
         >
           <View style={styles.buttonInner}>
-            <Icon
-              name="format-font"
-              size={44}
-              color="rgba(44, 62, 80, 0.9)"
-            />
-            <Text style={styles.gridItemText}>FONTS</Text>
+            <View style={styles.buttonContent}>
+              <Icon
+                name="format-font"
+                size={44}
+                color="rgba(40, 50, 65, 1.0)"
+              />
+              <Text style={styles.gridItemText}>FONTS</Text>
+            </View>
           </View>
         </Pressable>
 
@@ -205,9 +207,17 @@ const GridButtons = ({
             <View style={styles.customButtonInner}>
               <Icon
                 name="play"
-                size={52}
+                size={96}
                 color={hasText ? 'rgba(255, 255, 255, 0.95)' : 'rgba(20, 20, 40, 0.3)'}
-                style={{ marginRight: 14 }}
+                style={[
+                  { marginRight: 14 },
+                  hasText && {
+                    shadowColor: 'rgba(255, 255, 255, 0.95)',
+                    shadowOffset: { width: 0, height: 0 },
+                    shadowOpacity: 0.5,
+                    shadowRadius: 10,
+                  }
+                ]}
               />
             </View>
           </Pressable>
@@ -222,8 +232,6 @@ const GridButtons = ({
             anim: plainAnim,
             style: {
               opacity: plainAnim,
-              alignItems: 'center',
-              width: '100%',
             },
           },
           {
@@ -239,8 +247,6 @@ const GridButtons = ({
                   }),
                 },
               ],
-              alignItems: 'center',
-              width: '100%',
             },
           },
           {
@@ -256,8 +262,6 @@ const GridButtons = ({
                   }),
                 },
               ],
-              alignItems: 'center',
-              width: '100%',
             },
           },
         ].map((item, index) => (
@@ -272,16 +276,18 @@ const GridButtons = ({
             ]}
           >
             <View style={styles.buttonInner}>
-              <Animated.View style={item.style}>
-                <Icon
-                  name={item.name}
-                  size={44}
-                  color={
-                    selectedItems[index === 0 ? 0 : index === 1 ? 4 : 2]
-                      ? 'rgba(0, 144, 255, 0.95)'
-                      : 'rgba(44, 62, 80, 0.85)'
-                  }
-                />
+              <View style={styles.buttonContent}>
+                <Animated.View style={item.style}>
+                  <Icon
+                    name={item.name}
+                    size={44}
+                    color={
+                      selectedItems[index === 0 ? 0 : index === 1 ? 4 : 2]
+                        ? 'rgba(0, 90, 180, 0.95)'
+                        : 'rgba(40, 50, 65, 1.0)'
+                    }
+                  />
+                </Animated.View>
                 <Text
                   style={[
                     styles.gridItemText,
@@ -291,7 +297,7 @@ const GridButtons = ({
                 >
                   {item.label}
                 </Text>
-              </Animated.View>
+              </View>
             </View>
           </Pressable>
         ))}
@@ -313,7 +319,7 @@ const GridButtons = ({
               <Icon
                 name="clock-outline"
                 size={44}
-                color="rgba(44, 62, 80, 0.85)"
+                color="rgba(40, 50, 65, 1.0)"
               />
               <Text
                 style={[
@@ -342,6 +348,7 @@ const GridButtons = ({
                   name="palette"
                   size={44}
                   color={availableColors[userBgColor]}
+                  style={{ opacity: 1.0 }}
                 />
                 <Text style={styles.gridItemText}>COLORS</Text>
               </View>
@@ -351,7 +358,7 @@ const GridButtons = ({
                 <Icon
                   name="shuffle-variant"
                   size={44}
-                  color="rgba(44, 62, 80, 0.9)"
+                  color="rgba(40, 50, 65, 1.0)"
                 />
                 <Text style={styles.gridItemText}>RANDOM</Text>
               </View>
@@ -371,7 +378,7 @@ const GridButtons = ({
             <Icon
               name="history"
               size={44}
-              color="rgba(44, 62, 80, 0.9)"
+              color="rgba(40, 50, 65, 1.0)"
             />
             <Text style={styles.gridItemText}>HISTORY</Text>
           </View>
@@ -385,51 +392,58 @@ const styles = StyleSheet.create({
   gridContainer: {
     marginTop: 30,
     width: '90%',
-    gap: 18,
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    gap: 15,
+    justifyContent: 'space-between',
+    marginBottom: 12,
   },
   gridItem: {
-    width: 99,
-    height: 108,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    position: 'relative',
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    width: '31%',
+    aspectRatio: 1,
+    backgroundColor: 'rgba(140, 150, 170, 0.25)',
+    borderRadius: 15,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderWidth: 1.5,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 3,
     },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
     elevation: 5,
+    overflow: 'hidden',
   },
   buttonInner: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 19,
-    backdropFilter: 'blur(10px)',
-    margin: 0,
-    paddingVertical: 12,
-    overflow: 'hidden',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  buttonContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  gridItemText: {
+    color: 'rgba(40, 50, 65, 0.9)',
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 4,
   },
   startButton: {
-    width: 211,
+    width: '64.5%',  // Spans two grid items (31% * 2) plus the gap between them
     height: 108,
     borderRadius: 20,
+    backgroundColor: 'rgba(140, 150, 170, 0.25)',
     position: 'relative',
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
+    backdropFilter: 'blur(10px)',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -469,15 +483,8 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 3,
   },
-  gridItemText: {
-    color: 'rgba(44, 62, 80, 0.9)',
-    fontSize: 14,
-    marginTop: 10,
-    fontWeight: '600',
-    letterSpacing: 0.6,
-  },
   selectedText: {
-    color: 'rgba(0, 144, 255, 0.95)',
+    color: 'rgba(0, 90, 180, 0.95)',
     fontWeight: '700',
   },
   startButtonInner: {

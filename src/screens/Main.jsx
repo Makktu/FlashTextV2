@@ -305,15 +305,25 @@ const Main = () => {
                   <Text style={styles.subTitleText}>2.0</Text>
                 </View>
                 <View style={styles.inputContainer}>
-                  <TextInput
-                    style={styles.input}
-                    onChangeText={handleInput}
-                    value={text}
-                    placeholder="Enter your text here..."
-                    placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                    multiline={true}
-                    inputAccessoryViewID={inputAccessoryViewID}
-                  />
+                  <View style={styles.inputWrapper}>
+                    <TextInput
+                      style={styles.input}
+                      onChangeText={handleInput}
+                      value={text}
+                      placeholder="Enter your text here..."
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      multiline={true}
+                      inputAccessoryViewID={inputAccessoryViewID}
+                    />
+                    {text.length > 0 && (
+                      <Pressable
+                        style={styles.clearButton}
+                        onPress={() => handleInput('')}
+                      >
+                        <Text style={styles.clearButtonText}>✕</Text>
+                      </Pressable>
+                    )}
+                  </View>
                   {Platform.OS === 'ios' && (
                     <InputAccessoryView nativeID={inputAccessoryViewID}>
                       <View style={styles.inputAccessory}>
@@ -447,14 +457,19 @@ const styles = StyleSheet.create({
     top: 10,
   },
   inputContainer: {
-    width: '85%',
+    width: '90%',
     height: 70,
     marginBottom: 14,
+  },
+  inputWrapper: {
+    position: 'relative',
+    width: '100%',
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
     color: 'rgba(255, 255, 255, 0.95)',
     padding: 15,
+    paddingRight: 50,
     borderRadius: 15,
     borderColor: 'rgba(255, 255, 255, 0.25)',
     borderWidth: 1.5,
@@ -478,6 +493,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 12,
     placeholderTextColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  clearButton: {
+    position: 'absolute',
+    right: 12,
+    top: '50%',
+    transform: [{ translateY: -15 }],
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  clearButtonText: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 28,
+    fontWeight: '400',
+    lineHeight: 30,
   },
   inputAccessory: {
     backgroundColor: 'rgba(248, 248, 248, 0.98)',

@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { Searchbar } from 'react-native-paper';
 import React from 'react';
 
@@ -19,6 +19,13 @@ export default function InputBox({ handleInput, cancelInput, text }) {
           underlineColor='transparent'
           outlineColor='#37474F'
           activeOutlineColor='#546E7A'
+          clearButtonMode="while-editing"
+          clearIcon={() => (
+            <View style={styles.clearButton}>
+              <Text style={styles.clearButtonText}>✕</Text>
+            </View>
+          )}
+          onClearIconPress={() => handleInput('')}
         />
       </View>
     </View>
@@ -50,5 +57,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 15, // Position the icon inside the TextInput
     top: 15, // Center vertically
+  },
+  clearButton: {
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  clearButtonText: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });

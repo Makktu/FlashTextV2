@@ -37,7 +37,7 @@ const PreviewWindow = ({
     }
   }, [text]);
 
-  // Reset animation values when animation type changes
+  // Reset animation values when animation type or color changes
   useEffect(() => {
     fadeAnim.setValue(1);
     scaleAnim.setValue(1);
@@ -45,7 +45,14 @@ const PreviewWindow = ({
     setCurrentWordIndex(0);
     setPreviewCount(0);
     isAnimating.current = false;
-  }, [selectedAnimation]);
+
+    // Cleanup animations when component unmounts or animation type changes
+    return () => {
+      if (animationRef.current) {
+        animationRef.current.stop();
+      }
+    };
+  }, [selectedAnimation, selectedColor]);
 
   const animate = useCallback(() => {
     if (!words.length || isKeyboardVisible || previewCount >= 2 || isAnimating.current) {
@@ -54,7 +61,7 @@ const PreviewWindow = ({
 
     isAnimating.current = true;
     
-    // Reset animations
+    // Reset animations with safety checks
     fadeAnim.setValue(1);
     scaleAnim.setValue(1);
     moveAnim.setValue(0);
@@ -104,6 +111,11 @@ const PreviewWindow = ({
         });
     }
 
+    // Stop any existing animation
+    if (animationRef.current) {
+      animationRef.current.stop();
+    }
+
     // Run animation sequence
     animationRef.current = Animated.sequence([
       wordAnimation,
@@ -114,7 +126,9 @@ const PreviewWindow = ({
       }),
     ]);
 
-    animationRef.current.start(() => {
+    animationRef.current.start(({ finished }) => {
+      if (!finished) return;
+      
       isAnimating.current = false;
       const nextIndex = (currentWordIndex + 1) % words.length;
       if (nextIndex === 0) {
@@ -201,26 +215,26 @@ const PreviewWindow = ({
     ];
   };
 
-  const animatedStyle = {
-    opacity: fadeAnim,
-    transform: [
-      { scale: scaleAnim },
-      { translateX: moveAnim },
-    ],
-  };
-
   const renderPreviewContent = () => {
     if (words.length > 0 && previewCount < 2) {
+      const safeScale = isNaN(scaleAnim.__getValue()) ? 1 : scaleAnim;
+      const safeMove = isNaN(moveAnim.__getValue()) ? 0 : moveAnim;
+      const safeFade = isNaN(fadeAnim.__getValue()) ? 1 : fadeAnim;
+      
       return (
         <Animated.Text
           style={[
             styles.previewText,
-            { 
+            {
               fontFamily: selectedFont,
               fontSize: textSize,
               color: getTextColor(selectedColor),
+              opacity: safeFade,
+              transform: [
+                { scale: safeScale },
+                { translateX: safeMove },
+              ],
             },
-            animatedStyle,
           ]}
         >
           {words[currentWordIndex]}
@@ -234,47 +248,36 @@ const PreviewWindow = ({
           styles.placeholderText,
           { color: getTextColor(selectedColor) }
         ]}>
-          {words.length > 0 ? 'Ready to Start' : selectedColor === 'random' ? 'Random Colors' : 'Preview Area'}
+          {words.length > 0 ? 'Preview Complete' : selectedColor === 'random' ? 'Random Colors' : 'Preview Area'}
         </Text>
-        {words.length > 0 && (
-          <View style={styles.startIconContainer}>
-            <MaterialCommunityIcons 
-              name="dots-horizontal" 
-              size={36} 
-              color={getTextColor(selectedColor)} 
-            />
-          </View>
-        )}
       </View>
     );
-  }
+  };
 
   return (
     <View style={styles.container}>
-      {selectedColor === 'random' ? (
-        <LinearGradient
-          colors={getRandomGradient()}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.gradient, styles.previewArea]}
-        >
-          <View style={styles.previewContent}>
-            {renderPreviewContent()}
-          </View>
-        </LinearGradient>
-      ) : (
-        <View 
-          style={[
-            styles.previewArea,
-            getBackgroundStyle(),
-            styles.solidColorPreview
-          ]}
-        >
-          <View style={styles.previewContent}>
-            {renderPreviewContent()}
-          </View>
+      <View 
+        style={[
+          styles.previewArea,
+          selectedColor === 'random' ? styles.gradient : getBackgroundStyle(),
+          styles.solidColorPreview
+        ]}
+      >
+        {selectedColor === 'random' && (
+          <LinearGradient
+            colors={getRandomGradient()}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+        )}
+        <Text style={[styles.previewLabel, { color: getTextColor(selectedColor) }]}>
+          Preview
+        </Text>
+        <View style={styles.previewContent}>
+          {renderPreviewContent()}
         </View>
-      )}
+      </View>
     </View>
   );
 };
@@ -332,6 +335,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  previewLabel: {
+    position: 'absolute',
+    top: 4,
+    alignSelf: 'center',
+    fontSize: 14,
+    fontWeight: '500',
+    opacity: 0.7,
   },
 });
 
