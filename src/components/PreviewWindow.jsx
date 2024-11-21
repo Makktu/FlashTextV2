@@ -1,9 +1,45 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { StyleSheet, View, Text, Animated, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, Animated, Dimensions, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+/*
+ * PreviewWindow Responsive Layout Notes
+ * -----------------------------------
+ * Challenge: Adapt the preview window for iPad landscape mode while maintaining
+ * proper display in all other orientations
+ * 
+ * Attempted Solutions:
+ * 1. Dynamic Dimensions:
+ *    - Portrait: 75% of window width, 35% of window height
+ *    - Landscape: 90% of window width, 50% of window height
+ *    - Non-iPad: 90% width, fixed 180px height
+ * 
+ * 2. Margin Adjustments:
+ *    - Tried removing top margin in landscape
+ *    - Adjusted bottom margin for iPad vs non-iPad
+ *    - Attempted to maintain proper spacing in all orientations
+ * 
+ * 3. Size Calculations:
+ *    - Used window.width and window.height for responsive calculations
+ *    - Attempted to maintain proper aspect ratio
+ *    - Adjusted preview area based on orientation
+ * 
+ * Known Issues:
+ *    - Preview might be cut off in some orientations
+ *    - Text sizing calculations may need refinement
+ *    - Container dimensions might need different approach for landscape
+ */
+
+// Get dimensions from window
+const window = Dimensions.get('window');
+const isIPad = Platform.isPad;
+const isPortrait = window.height > window.width;
+const isLandscape = window.width > window.height;
+
+// Modify dimensions for iPad in both portrait and landscape mode
+const PREVIEW_WIDTH = isIPad ? (isLandscape ? window.width * 0.9 : window.width * 0.75) : window.width * 0.9;
+const PREVIEW_HEIGHT = isIPad ? (isLandscape ? window.height * 0.5 : window.height * 0.35) : 180;
 
 const PreviewWindow = ({
   text,
@@ -150,8 +186,8 @@ const PreviewWindow = ({
   // Calculate appropriate text size based on word length
   const calculateTextSize = useCallback((word) => {
     if (!word) return 24;
-    const PREVIEW_WIDTH = SCREEN_WIDTH * 0.8; // 80% of preview width for padding
-    const PREVIEW_HEIGHT = 100; // Preview height minus padding
+    const PREVIEW_WIDTH = (isIPad && isPortrait) ? window.width * 0.75 : window.width * 0.8; // 80% of preview width for padding
+    const PREVIEW_HEIGHT = (isIPad && isPortrait) ? window.height * 0.7 : 100; // Preview height minus padding
     const BASE_SIZE = 24;
     
     // Estimate width per character (varies by font)
@@ -284,11 +320,11 @@ const PreviewWindow = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: SCREEN_WIDTH * 0.9,
-    height: 120,
+    width: PREVIEW_WIDTH,
+    height: PREVIEW_HEIGHT,
     alignSelf: 'center',
     marginTop: 20,
-    marginBottom: 20,
+    marginBottom: isIPad ? 40 : 20,
     borderRadius: 15,
     overflow: 'hidden',
   },

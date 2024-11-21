@@ -8,15 +8,35 @@ import {
   Animated,
   Easing,
   Alert,
+  Dimensions,
+  Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import availableColors from '../values/COLORS';
 
-const randomImg = require('../../assets/img/randomImg.png');
-const defaultGridButtonColor = '#ffffff00';
+// const randomImg = require('../../assets/img/randomImg.png');
+// const defaultGridButtonColor = '#ffffff00';
 const plainBtnAnimSpeed = 3000;
 const stretchBtnAnimSpeed = 3000;
 const swooshBtnAnimSpeed = 3000;
+
+// Add responsive styling constants
+const window = Dimensions.get('window');
+const isIPad = Platform.isPad;
+const IPAD_MAX_CONTAINER_WIDTH = 500;
+const IPAD_MAX_BUTTON_SIZE = 120;
+const IPAD_MAX_START_BUTTON_WIDTH = Math.min(window.width * 0.645, IPAD_MAX_BUTTON_SIZE * 2.1); // Make it proportional to two buttons
+
+const getResponsiveStyles = {
+  containerWidth: isIPad ? Math.min(window.width * 0.85, IPAD_MAX_CONTAINER_WIDTH) : '90%',  // Slightly narrower container on iPad
+  gridItemWidth: isIPad ? Math.min(window.width * 0.27, IPAD_MAX_BUTTON_SIZE) : '31%',      // Slightly smaller buttons for tighter spacing
+  startButtonWidth: isIPad ? IPAD_MAX_START_BUTTON_WIDTH : '64.5%',
+  startButtonHeight: isIPad ? IPAD_MAX_BUTTON_SIZE : 108,                                   // Match height with other buttons on iPad
+  borderRadius: isIPad ? 20 : 15,
+  marginBottom: isIPad ? 12 : 12,                                                           // Same spacing as iPhone
+  rowJustify: isIPad ? 'center' : 'space-between',                                         // Center buttons on iPad
+  rowGap: isIPad ? 16 : undefined                                                          // Explicit gap between buttons on iPad
+};
 
 const GridButtons = ({
   selectedItems,
@@ -391,18 +411,20 @@ const GridButtons = ({
 const styles = StyleSheet.create({
   gridContainer: {
     marginTop: 30,
-    width: '90%',
+    width: getResponsiveStyles.containerWidth,
+    alignSelf: 'center',
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
+    justifyContent: getResponsiveStyles.rowJustify,
+    marginBottom: getResponsiveStyles.marginBottom,
+    gap: getResponsiveStyles.rowGap,
   },
   gridItem: {
-    width: '31%',
+    width: getResponsiveStyles.gridItemWidth,
     aspectRatio: 1,
     backgroundColor: 'rgba(140, 150, 170, 0.25)',
-    borderRadius: 15,
+    borderRadius: getResponsiveStyles.borderRadius,
     borderColor: 'rgba(255, 255, 255, 0.25)',
     borderWidth: 1.5,
     shadowColor: '#000',
@@ -435,9 +457,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   startButton: {
-    width: '64.5%',  // Spans two grid items (31% * 2) plus the gap between them
-    height: 108,
-    borderRadius: 20,
+    width: getResponsiveStyles.startButtonWidth,
+    height: getResponsiveStyles.startButtonHeight,
+    borderRadius: getResponsiveStyles.borderRadius,
     backgroundColor: 'rgba(140, 150, 170, 0.25)',
     position: 'relative',
     overflow: 'hidden',
@@ -452,6 +474,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 10,
     elevation: 5,
+    alignSelf: isIPad ? 'center' : undefined,  // Center the START button on iPad
   },
   pressed: {
     transform: [{ scale: 0.98 }],
@@ -493,7 +516,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 19,
+    borderRadius: getResponsiveStyles.borderRadius - 1,
     backdropFilter: 'blur(10px)',
     margin: 0,
     transition: '0.3s',

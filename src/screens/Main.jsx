@@ -415,6 +415,35 @@ const Main = () => {
 
 export default Main;
 
+/*
+ * iPad Landscape Layout Implementation Notes
+ * ----------------------------------------
+ * Challenge: Create a side-by-side layout specifically for iPad in landscape mode
+ * 
+ * Attempted Solutions:
+ * 1. Two-Column Layout:
+ *    - Tried splitting screen into two equal columns (45% width each)
+ *    - Left column: Title, Input, and GridButtons
+ *    - Right column: PreviewWindow
+ *    - Added horizontal padding between columns
+ * 
+ * 2. Container Structure:
+ *    - mainContent: Wrapper for entire content area
+ *    - controlsSection: Groups input and grid buttons
+ *    - previewSection: Contains the preview window
+ *    - Used flexDirection: 'row' in landscape mode only
+ * 
+ * 3. Responsive Considerations:
+ *    - Added isIPad check using Platform.isPad
+ *    - Added isLandscape check using window dimensions
+ *    - Attempted to maintain proper spacing with paddingHorizontal
+ * 
+ * Known Issues:
+ *    - Layout may not maintain proper proportions on all iPad sizes
+ *    - Spacing between components needs refinement
+ *    - Component scaling might need adjustment for different iPad models
+ */
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
