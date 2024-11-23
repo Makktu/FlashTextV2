@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Dimensions, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import Animated, {
   useSharedValue,
   withTiming,
@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { fontScalingFactors } from '../../values/fontScalingFactors';
 import availableColors from '../../values/COLORS';
+import { getFlashScreenDimensions } from '../../utils/screenDimensions';
 
 // Function to get a contrasting color for readability
 const getContrastingColor = (bgColor) => {
@@ -49,53 +50,24 @@ export default function FlashSwoosh({
 }) {
   const [currentWord, setCurrentWord] = useState(0);
   const position = useSharedValue({ x: 0, y: 0 });
-  const opacity = useSharedValue(1);
-  const bgColor = useSharedValue(userBgColor);
+  const [fontSize, setFontSize] = useState(30);
+  const bgColor = useSharedValue(
+    randomizeBgColor ? availableColors[0] : userBgColor
+  );
   const textColor = useSharedValue(getContrastingColor(bgColor.value));
 
-  const [screenData, setScreenData] = useState({
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-  });
-
-  console.log(randomizeBgColor);
-
-  // Listener for screen orientation changes (detect screen rotation)
-  useEffect(() => {
-    const onChange = () => {
-      setScreenData({
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').height,
-      });
-    };
-
-    const subscription = Dimensions.addEventListener('change', onChange);
-
-    return () => {
-      subscription?.remove(); // Correctly remove the event listener
-    };
-  }, []);
-
-  // Calculate dynamic font size based on screen dimensions
   const calculateFontSize = useCallback(
     (text) => {
-      const screenData = {
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').height,
-      };
-
+      const screenData = getFlashScreenDimensions();
       const minScreenDimension = Math.min(screenData.width, screenData.height);
-      const availableWidth = screenData.width * 0.9; // Reduced from 0.97 to provide more margin
+      const availableWidth = screenData.width * 0.9;
       const MIN_FONT_SIZE = 12;
 
-      // Get the scaling factor for the current font
       const fontScale =
         fontScalingFactors[userFont] || fontScalingFactors.default;
 
-      // Start with a smaller initial font size
-      let newFontSize = minScreenDimension * 0.6; // Reduced from 0.8
+      let newFontSize = minScreenDimension * 0.6;
 
-      // Apply the font scaling factor to the calculation
       while (
         newFontSize > MIN_FONT_SIZE &&
         text.length * (newFontSize / 2) * fontScale > availableWidth
@@ -103,7 +75,6 @@ export default function FlashSwoosh({
         newFontSize -= 1;
       }
 
-      // Apply an additional safety margin for certain fonts
       return Math.floor(newFontSize / fontScale);
     },
     [userFont]
@@ -114,7 +85,7 @@ export default function FlashSwoosh({
       { translateX: position.value.x },
       { translateY: position.value.y },
     ],
-    opacity: opacity.value,
+    opacity: 1,
   }));
 
   const animatedBgStyle = useAnimatedStyle(() => ({
@@ -137,9 +108,9 @@ export default function FlashSwoosh({
         textColor.value = withTiming(getContrastingColor(newColor), {
           duration: duration / 4,
         });
-        return newColor; // Return the new color to store locally
+        return newColor;
       }
-      return previousColor; // If not random, keep the same color
+      return previousColor;
     },
     [randomizeBgColor, bgColor, textColor, duration]
   );
@@ -152,6 +123,7 @@ export default function FlashSwoosh({
           : swooshDirection;
 
       let start, middle, end;
+      const screenData = getFlashScreenDimensions();
       switch (direction) {
         case 'left-right':
           start = { x: -screenData.width, y: 0 };
@@ -181,16 +153,9 @@ export default function FlashSwoosh({
         withTiming(end, { duration: duration / 2 })
       );
 
-      opacity.value = withSequence(
-        withTiming(0, { duration: 0 }),
-        withTiming(1, { duration: duration / 4 }),
-        withTiming(1, { duration: duration / 2 }),
-        withTiming(0, { duration: duration / 4 })
-      );
-
-      return direction; // Return the new direction to store locally
+      return direction;
     },
-    [position, opacity, screenData, duration, swooshDirection]
+    [position, duration, swooshDirection]
   );
 
   useEffect(() => {
@@ -222,7 +187,7 @@ export default function FlashSwoosh({
           {
             fontSize: calculateFontSize(message[currentWord]),
             fontFamily: userFont,
-          }, // Calculate font size for current word
+          },
         ]}
       >
         {message[currentWord]}

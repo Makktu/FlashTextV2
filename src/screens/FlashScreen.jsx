@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import COLORS from '../values/COLORS';
 // import FlashMessage from '../components/FlashMessage';
 import FlashStretch from './subflash screens/FlashStretch';
@@ -7,6 +7,7 @@ import FlashPlain from './subflash screens/FlashPlain';
 import FlashSwoosh from './subflash screens/FlashSwoosh';
 import { fontScalingFactors } from '../values/fontScalingFactors';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import { Platform } from 'react-native';
 
 export default function FlashScreen({
   returnTap,
@@ -19,14 +20,43 @@ export default function FlashScreen({
   userFont,
   fontSizeAdjustment = 0,
 }) {
-  useEffect(() => {
-    async function unlockOrientation() {
-      await ScreenOrientation.unlockAsync();
-    }
-    unlockOrientation();
+  const [isOrientationSet, setIsOrientationSet] = useState(false);
 
+  // Force orientation change before rendering content
+  useEffect(() => {
+    async function setOrientation() {
+      if (Platform.isPad) {
+        try {
+          await ScreenOrientation.lockAsync(
+            ScreenOrientation.OrientationLock.LANDSCAPE
+          );
+          // Small delay to ensure orientation change is complete
+          await new Promise(resolve => setTimeout(resolve, 50));
+        } catch (error) {
+          console.error('Failed to lock orientation:', error);
+        }
+      } else {
+        await ScreenOrientation.unlockAsync();
+      }
+      setIsOrientationSet(true);
+    }
+    
+    setOrientation();
     StatusBar.setHidden(true);
+
+    return () => {
+      if (Platform.isPad) {
+        ScreenOrientation.lockAsync(
+          ScreenOrientation.OrientationLock.PORTRAIT_UP
+        ).catch(console.error);
+      }
+    };
   }, []);
+
+  // Don't render content until orientation is set
+  if (!isOrientationSet && Platform.isPad) {
+    return null;
+  }
 
   return (
     <TouchableOpacity style={styles.container} onPress={returnTap}>
@@ -51,11 +81,10 @@ export default function FlashScreen({
       {flashType === 'swoosh' && (
         <FlashSwoosh
           message={message}
-          duration={duration + 500}
+          duration={duration}
           randomizeBgColor={randomizeBgColor}
           userBgColor={userBgColor}
           swooshDirection={swooshDirection}
-          fontSizeFactor={0.3}
           userFont={userFont}
         />
       )}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   withTiming,
@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { fontScalingFactors } from '../../values/fontScalingFactors';
 import availableColors from '../../values/COLORS';
+import { getFlashScreenDimensions } from '../../utils/screenDimensions';
 
 const getContrastingColor = (bgColor = '#000000') => {
   const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
@@ -37,11 +38,7 @@ export default function FlashPlain({
 
   const calculateFontSize = useCallback(
     (text) => {
-      const screenData = {
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').height,
-      };
-
+      const screenData = getFlashScreenDimensions();
       const minScreenDimension = Math.min(screenData.width, screenData.height);
       const availableWidth = screenData.width * 0.9; // Reduced from 0.97 to provide more margin
       const MIN_FONT_SIZE = 12;

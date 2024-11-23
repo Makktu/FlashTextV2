@@ -1,12 +1,14 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { StyleSheet, Dimensions, Text } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   withTiming,
   useAnimatedStyle,
-  runOnJS,
+  withSequence,
 } from 'react-native-reanimated';
+import { fontScalingFactors } from '../../values/fontScalingFactors';
 import availableColors from '../../values/COLORS';
+import { getFlashScreenDimensions } from '../../utils/screenDimensions';
 
 const getContrastingColor = (bgColor) => {
   const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
@@ -35,18 +37,29 @@ export default function FlashStretch({
   const textColor = useSharedValue(getContrastingColor(bgColor.value));
   const textRef = useRef(null);
 
-  const calculateInitialFontSize = useCallback((text) => {
-    const screenData = {
-      width: Dimensions.get('window').width,
-      height: Dimensions.get('window').height,
-    };
-    const minScreenDimension = Math.min(screenData.width, screenData.height);
-    return minScreenDimension * 0.15;
-  }, []);
+  const calculateFontSize = useCallback(
+    (text) => {
+      const screenData = getFlashScreenDimensions();
+      const minScreenDimension = Math.min(screenData.width, screenData.height);
+      const availableWidth = screenData.width * 0.9;
+      const MIN_FONT_SIZE = 12;
+
+      const fontScale =
+        fontScalingFactors[userFont] || fontScalingFactors.default;
+
+      const fontSize = Math.min(
+        Math.max(MIN_FONT_SIZE, (availableWidth / text.length) * fontScale),
+        minScreenDimension * 0.15
+      );
+
+      return fontSize;
+    },
+    [userFont]
+  );
 
   useEffect(() => {
     const updateFontSize = () => {
-      const newSize = calculateInitialFontSize(message[currentWord]);
+      const newSize = calculateFontSize(message[currentWord]);
       setFontSize(newSize);
     };
 
@@ -57,13 +70,10 @@ export default function FlashStretch({
     return () => {
       subscription.remove();
     };
-  }, [currentWord, message, calculateInitialFontSize]);
+  }, [currentWord, message, calculateFontSize]);
 
   const calculateScale = useCallback(() => {
-    const screenData = {
-      width: Dimensions.get('window').width,
-      height: Dimensions.get('window').height,
-    };
+    const screenData = getFlashScreenDimensions();
     const maxScaleWidth = screenData.width / textDimensions.width;
     const maxScaleHeight = screenData.height / textDimensions.height;
 
