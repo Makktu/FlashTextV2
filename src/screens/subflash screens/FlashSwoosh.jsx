@@ -59,26 +59,43 @@ export default function FlashSwoosh({
   const calculateFontSize = useCallback(
     (text) => {
       const screenData = getFlashScreenDimensions();
-      const minScreenDimension = Math.min(screenData.width, screenData.height);
-      const availableWidth = screenData.width * 0.9;
+      
+      // Calculate available width based on device and orientation
+      const widthFactor = screenData.isPad
+        ? (screenData.isLandscape ? 0.7 : 0.8)  // iPad uses more conservative width
+        : (screenData.isLandscape ? 0.8 : 0.9); // Other devices
+      
+      const availableWidth = screenData.width * widthFactor;
       const MIN_FONT_SIZE = 12;
 
-      const fontScale =
-        fontScalingFactors[userFont] || fontScalingFactors.default;
+      // Calculate max font size based on screen dimensions and orientation
+      const MAX_FONT_SIZE = screenData.isLandscape
+        ? screenData.height * 0.4  // Use height for landscape to ensure text fills vertical space
+        : screenData.width * (screenData.isPad ? 0.15 : 0.2);
 
-      let newFontSize = minScreenDimension * 0.6;
+      // Get the scaling factor for the current font
+      const fontScale = fontScalingFactors[userFont] || fontScalingFactors.default;
 
-      while (
-        newFontSize > MIN_FONT_SIZE &&
-        text.length * (newFontSize / 2) * fontScale > availableWidth
-      ) {
-        newFontSize -= 1;
-      }
+      // Calculate initial font size based on available width and text length
+      let newFontSize = Math.min(
+        (availableWidth / (text.length * fontScale)) * (screenData.isLandscape ? 1.5 : 1),
+        MAX_FONT_SIZE
+      );
 
-      return Math.floor(newFontSize / fontScale);
+      // Ensure font size is not smaller than minimum
+      newFontSize = Math.max(MIN_FONT_SIZE, newFontSize);
+
+      return Math.floor(newFontSize);
     },
     [userFont]
   );
+
+  useEffect(() => {
+    // Cleanup function to reset animations when component unmounts
+    return () => {
+      position.value = { x: 0, y: 0 };
+    };
+  }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [

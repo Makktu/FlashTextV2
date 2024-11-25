@@ -39,27 +39,33 @@ export default function FlashPlain({
   const calculateFontSize = useCallback(
     (text) => {
       const screenData = getFlashScreenDimensions();
-      const minScreenDimension = Math.min(screenData.width, screenData.height);
-      const availableWidth = screenData.width * 0.9; // Reduced from 0.97 to provide more margin
+      
+      // Calculate available width based on device and orientation
+      const widthFactor = screenData.isPad
+        ? (screenData.isLandscape ? 0.7 : 0.8)  // iPad uses more conservative width
+        : (screenData.isLandscape ? 0.8 : 0.9); // Other devices
+      
+      const availableWidth = screenData.width * widthFactor;
       const MIN_FONT_SIZE = 12;
 
+      // Calculate max font size based on screen dimensions and orientation
+      const MAX_FONT_SIZE = screenData.isLandscape
+        ? screenData.height * 0.4  // Use height for landscape to ensure text fills vertical space
+        : screenData.width * (screenData.isPad ? 0.15 : 0.2);
+
       // Get the scaling factor for the current font
-      const fontScale =
-        fontScalingFactors[userFont] || fontScalingFactors.default;
+      const fontScale = fontScalingFactors[userFont] || fontScalingFactors.default;
 
-      // Start with a smaller initial font size
-      let newFontSize = minScreenDimension * 0.6; // Reduced from 0.8
+      // Calculate initial font size based on available width and text length
+      let newFontSize = Math.min(
+        (availableWidth / (text.length * fontScale)) * (screenData.isLandscape ? 1.5 : 1),
+        MAX_FONT_SIZE
+      );
 
-      // Apply the font scaling factor to the calculation
-      while (
-        newFontSize > MIN_FONT_SIZE &&
-        text.length * (newFontSize / 2) * fontScale > availableWidth
-      ) {
-        newFontSize -= 1;
-      }
+      // Ensure font size is not smaller than minimum
+      newFontSize = Math.max(MIN_FONT_SIZE, newFontSize);
 
-      // Apply an additional safety margin for certain fonts
-      return Math.floor(newFontSize / fontScale);
+      return Math.floor(newFontSize);
     },
     [userFont]
   );
@@ -69,6 +75,13 @@ export default function FlashPlain({
     const newSize = calculateFontSize(message[currentWord]);
     setFontSize(newSize);
   }, [currentWord, message, calculateFontSize]);
+
+  useEffect(() => {
+    // Cleanup function to reset animations when component unmounts
+    return () => {
+      opacity.value = 1;
+    };
+  }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

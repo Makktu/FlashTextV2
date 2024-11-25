@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { StyleSheet, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
   withTiming,
   useAnimatedStyle,
   withSequence,
+  runOnJS,
 } from 'react-native-reanimated';
 import { fontScalingFactors } from '../../values/fontScalingFactors';
 import availableColors from '../../values/COLORS';
@@ -71,6 +72,14 @@ export default function FlashStretch({
       subscription.remove();
     };
   }, [currentWord, message, calculateFontSize]);
+
+  useEffect(() => {
+    // Cleanup function to reset animations when component unmounts
+    return () => {
+      scale.value = 0.1;
+      opacity.value = 0;
+    };
+  }, []);
 
   const calculateScale = useCallback(() => {
     const screenData = getFlashScreenDimensions();

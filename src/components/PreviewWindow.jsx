@@ -35,6 +35,7 @@ const PreviewWindow = ({
   selectedColor,
   isKeyboardVisible,
   randomImg,
+  triggerAnimation
 }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -180,6 +181,14 @@ const PreviewWindow = ({
       animate();
     }
   }, [currentWordIndex, isKeyboardVisible, animate]);
+
+  // Trigger animation when triggerAnimation prop changes
+  useEffect(() => {
+    if (triggerAnimation) {
+      setPreviewCount(0); // Reset preview count to allow animation
+      animate();
+    }
+  }, [triggerAnimation]);
 
   // Calculate appropriate text size based on word length
   const calculateTextSize = useCallback((word) => {

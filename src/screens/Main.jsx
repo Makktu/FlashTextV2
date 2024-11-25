@@ -50,6 +50,7 @@ const Main = () => {
   const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false);
   const [titleFontSize, setTitleFontSize] = useState(58);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [animationTrigger, setAnimationTrigger] = useState(0);
 
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
@@ -182,6 +183,7 @@ const Main = () => {
     const currentIndex = availableFonts.indexOf(userFont);
     const nextIndex = (currentIndex + 1) % availableFonts.length;
     setUserFont(availableFonts[nextIndex]);
+    setAnimationTrigger(prev => prev + 1); // Increment to trigger animation
   };
 
   const handleClearHistory = () => {
@@ -354,6 +356,7 @@ const Main = () => {
                   selectedColor={randomizeBgColor ? 'random' : availableColors[userBgColor]}
                   isKeyboardVisible={isKeyboardVisible}
                   randomImg={backgroundImg}
+                  triggerAnimation={animationTrigger}
                 />
               </View>
             </View>
