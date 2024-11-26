@@ -29,13 +29,14 @@ export default function FlashStretch({
 }) {
   const [currentWord, setCurrentWord] = useState(0);
   const [fontSize, setFontSize] = useState(30);
-  const [textDimensions, setTextDimensions] = useState({ width: 0, height: 0 });
+  const [textDimensions, setTextDimensions] = useState({ width: 1, height: 1 });
   const scale = useSharedValue(0.1);
   const opacity = useSharedValue(0);
   const bgColor = useSharedValue(
     randomizeBgColor ? availableColors[0] : userBgColor
   );
   const textColor = useSharedValue(getContrastingColor(bgColor.value));
+  const isComponentMounted = useSharedValue(true);
   const textRef = useRef(null);
 
   const calculateFontSize = useCallback(
@@ -74,25 +75,49 @@ export default function FlashStretch({
   }, [currentWord, message, calculateFontSize]);
 
   useEffect(() => {
-    // Cleanup function to reset animations when component unmounts
+    isComponentMounted.value = true;
     return () => {
+      isComponentMounted.value = false;
       scale.value = 0.1;
       opacity.value = 0;
+      bgColor.value = userBgColor;
+      textColor.value = getContrastingColor(userBgColor);
+      setCurrentWord(0);
     };
   }, []);
 
   const calculateScale = useCallback(() => {
-    const screenData = getFlashScreenDimensions();
-    const maxScaleWidth = screenData.width / textDimensions.width;
-    const maxScaleHeight = screenData.height / textDimensions.height;
+    if (!textDimensions.width || !textDimensions.height) {
+      return 1;
+    }
 
-    return Math.min(maxScaleWidth, maxScaleHeight);
+    const screenData = getFlashScreenDimensions();
+    const availableWidth = screenData.width * 0.9;
+    const availableHeight = screenData.height * 0.9;
+
+    const maxScaleWidth = textDimensions.width > 0 ? availableWidth / textDimensions.width : 1;
+    const maxScaleHeight = textDimensions.height > 0 ? availableHeight / textDimensions.height : 1;
+
+    const calculatedScale = Math.min(maxScaleWidth, maxScaleHeight);
+    
+    const MAX_SCALE = 10;
+    
+    return Math.min(
+      Math.max(
+        isFinite(calculatedScale) ? calculatedScale : 1,
+        0.1
+      ),
+      MAX_SCALE
+    );
   }, [textDimensions]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: isNaN(scale.value) ? 1 : scale.value }],
-    opacity: opacity.value,
-  }));
+  const animatedStyle = useAnimatedStyle(() => {
+    const safeScale = isFinite(scale.value) && scale.value > 0 ? scale.value : 1;
+    return {
+      transform: [{ scale: safeScale }],
+      opacity: opacity.value,
+    };
+  });
 
   const animatedBgStyle = useAnimatedStyle(() => ({
     backgroundColor: bgColor.value,
@@ -118,23 +143,28 @@ export default function FlashStretch({
   }, [randomizeBgColor, bgColor, textColor, duration]);
 
   const animateStretch = useCallback(() => {
+    if (!isComponentMounted.value) return;
+
+    const targetScale = calculateScale();
+    if (!isFinite(targetScale) || targetScale <= 0) return;
+
     scale.value = 0.1;
     opacity.value = 0;
 
     opacity.value = withTiming(1, { duration: duration / 4 });
 
     scale.value = withTiming(
-      calculateScale(),
+      targetScale,
       {
         duration: (duration * 3) / 4,
       },
       (finished) => {
-        if (finished) {
+        if (finished && isComponentMounted.value) {
           opacity.value = withTiming(
             0,
             { duration: duration / 4 },
             (finished) => {
-              if (finished) {
+              if (finished && isComponentMounted.value) {
                 runOnJS(changeWord)();
               }
             }
@@ -142,17 +172,20 @@ export default function FlashStretch({
         }
       }
     );
-  }, [calculateScale, scale, opacity, duration, changeWord]);
+  }, [calculateScale, scale, opacity, duration, changeWord, isComponentMounted]);
+
+  const handleTextLayout = useCallback((event) => {
+    const { width, height } = event.nativeEvent.layout;
+    setTextDimensions({ 
+      width: Math.max(width, 1),
+      height: Math.max(height, 1)
+    });
+  }, []);
 
   useEffect(() => {
     animateBackgroundColor();
     animateStretch();
   }, [animateBackgroundColor, animateStretch, currentWord]);
-
-  const handleTextLayout = useCallback((event) => {
-    const { width, height } = event.nativeEvent.layout;
-    setTextDimensions({ width, height });
-  }, []);
 
   return (
     <Animated.View style={[styles.container, animatedBgStyle]}>

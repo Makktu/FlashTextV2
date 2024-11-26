@@ -19,7 +19,6 @@ import {
 } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { PaperProvider } from 'react-native-paper';
-import InputBox from '../components/InputBox';
 import FlashScreen from './FlashScreen';
 import COLORS from '../values/COLORS';
 import GridButtons from '../components/GridButtons';
@@ -51,9 +50,44 @@ const Main = () => {
   const [titleFontSize, setTitleFontSize] = useState(58);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [animationTrigger, setAnimationTrigger] = useState(0);
+  const [isIpadAndLandscape, setIsIpadAndLandscape] = useState(false);
 
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
+
+  // check if platform is ipad
+  const isIPad = Platform.isPad;
+  console.log(isIPad ? 'IPAD!' : 'NOT IPAD!');
+
+  // check if ipad is in landscape mode
+  // make this happen on each component render
+  const isLandscape = windowWidth > windowHeight;
+  console.log(isLandscape ? 'LANDSCAPE!' : 'PORTRAIT!');
+
+  let iPadOrientation = '';
+
+  // if Ipad, sense when the user has changed to another orientation
+  useEffect(() => {
+    if (isIPad) {
+      const subscription = ScreenOrientation.addOrientationChangeListener(
+        ({ orientationInfo }) => {
+          console.log('User changed to', orientationInfo.orientation);
+          if (
+            orientationInfo.orientation === 3 ||
+            orientationInfo.orientation === 4
+          ) {
+            console.log('User changed to LANDSCAPE');
+            setIsIpadAndLandscape(true);
+          } else {
+            console.log('User changed to PORTRAIT');
+            setIsIpadAndLandscape(false);
+          }
+        }
+      );
+
+      return () => subscription.remove();
+    }
+  }, [isIPad]);
 
   // Define the available fonts
   /*************  ✨ Codeium Command 🌟  *************/
@@ -183,7 +217,7 @@ const Main = () => {
     const currentIndex = availableFonts.indexOf(userFont);
     const nextIndex = (currentIndex + 1) % availableFonts.length;
     setUserFont(availableFonts[nextIndex]);
-    setAnimationTrigger(prev => prev + 1); // Increment to trigger animation
+    setAnimationTrigger((prev) => prev + 1); // Increment to trigger animation
   };
 
   const handleClearHistory = () => {
@@ -312,8 +346,8 @@ const Main = () => {
                       style={styles.input}
                       onChangeText={handleInput}
                       value={text}
-                      placeholder="Enter your text here..."
-                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      placeholder='Enter your text here...'
+                      placeholderTextColor='rgba(255, 255, 255, 0.5)'
                       multiline={true}
                       inputAccessoryViewID={inputAccessoryViewID}
                     />
@@ -331,33 +365,46 @@ const Main = () => {
                       <View style={styles.inputAccessory}>
                         <Button
                           onPress={() => Keyboard.dismiss()}
-                          title="Done"
+                          title='Done'
                         />
                       </View>
                     </InputAccessoryView>
                   )}
                 </View>
-                <GridButtons
-                  selectedItems={selectedItems}
-                  toggleItem={toggleItem}
-                  flashType={flashType}
-                  userBgColor={userBgColor}
-                  randomizeBgColor={randomizeBgColor}
-                  duration={duration}
-                  onHistoryPress={handleHistoryPress}
-                  onFontChange={handleFontChange}
-                  onStartPress={startPressed}
-                  hasText={text.length > 0}
-                />
-                <PreviewWindow
-                  text={text}
-                  selectedAnimation={flashType}
-                  selectedFont={userFont}
-                  selectedColor={randomizeBgColor ? 'random' : availableColors[userBgColor]}
-                  isKeyboardVisible={isKeyboardVisible}
-                  randomImg={backgroundImg}
-                  triggerAnimation={animationTrigger}
-                />
+                {isIpadAndLandscape && (
+                  <View style={styles.ipadLandscapeBuffer}></View>
+                )}
+                <View
+                  style={
+                    isIpadAndLandscape
+                      ? styles.buttonsAndPreviewContainerLandscape
+                      : styles.buttonsAndPreviewContainer
+                  }
+                >
+                  <GridButtons
+                    selectedItems={selectedItems}
+                    toggleItem={toggleItem}
+                    flashType={flashType}
+                    userBgColor={userBgColor}
+                    randomizeBgColor={randomizeBgColor}
+                    duration={duration}
+                    onHistoryPress={handleHistoryPress}
+                    onFontChange={handleFontChange}
+                    onStartPress={startPressed}
+                    hasText={text.length > 0}
+                  />
+                  <PreviewWindow
+                    text={text}
+                    selectedAnimation={flashType}
+                    selectedFont={userFont}
+                    selectedColor={
+                      randomizeBgColor ? 'random' : availableColors[userBgColor]
+                    }
+                    isKeyboardVisible={isKeyboardVisible}
+                    randomImg={backgroundImg}
+                    triggerAnimation={animationTrigger}
+                  />
+                </View>
               </View>
             </View>
           </View>
@@ -422,25 +469,25 @@ export default Main;
  * iPad Landscape Layout Implementation Notes
  * ----------------------------------------
  * Challenge: Create a side-by-side layout specifically for iPad in landscape mode
- * 
+ *
  * Attempted Solutions:
  * 1. Two-Column Layout:
  *    - Tried splitting screen into two equal columns (45% width each)
  *    - Left column: Title, Input, and GridButtons
  *    - Right column: PreviewWindow
  *    - Added horizontal padding between columns
- * 
+ *
  * 2. Container Structure:
  *    - mainContent: Wrapper for entire content area
  *    - controlsSection: Groups input and grid buttons
  *    - previewSection: Contains the preview window
  *    - Used flexDirection: 'row' in landscape mode only
- * 
+ *
  * 3. Responsive Considerations:
  *    - Added isIPad check using Platform.isPad
  *    - Added isLandscape check using window dimensions
  *    - Attempted to maintain proper spacing with paddingHorizontal
- * 
+ *
  * Known Issues:
  *    - Layout may not maintain proper proportions on all iPad sizes
  *    - Spacing between components needs refinement
@@ -610,5 +657,12 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     resizeMode: 'contain',
+  },
+  buttonsAndPreviewContainerLandscape: {
+    flexDirection: 'row',
+    // justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 10,
   },
 });

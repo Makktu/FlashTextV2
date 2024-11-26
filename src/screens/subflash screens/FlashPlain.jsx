@@ -27,12 +27,13 @@ export default function FlashPlain({
   userFont = 'Roboto',
 }) {
   const [currentWord, setCurrentWord] = useState(0);
-  const [fontSize, setFontSize] = useState(30);
   const opacity = useSharedValue(1);
+  const [fontSize, setFontSize] = useState(30);
   const bgColor = useSharedValue(
     randomizeBgColor ? availableColors[0] : userBgColor
   );
   const textColor = useSharedValue(getContrastingColor(bgColor.value));
+  const isComponentMounted = useSharedValue(true);
 
   console.log(userFont);
 
@@ -42,30 +43,34 @@ export default function FlashPlain({
       
       // Calculate available width based on device and orientation
       const widthFactor = screenData.isPad
-        ? (screenData.isLandscape ? 0.7 : 0.8)  // iPad uses more conservative width
-        : (screenData.isLandscape ? 0.8 : 0.9); // Other devices
+        ? (screenData.isLandscape ? 0.95 : 0.95)  // Increased iPad utilization
+        : (screenData.isLandscape ? 0.92 : 0.95); // Increased width utilization
       
       const availableWidth = screenData.width * widthFactor;
-      const MIN_FONT_SIZE = 12;
+      const MIN_FONT_SIZE = 20; // Increased minimum font size
 
       // Calculate max font size based on screen dimensions and orientation
       const MAX_FONT_SIZE = screenData.isLandscape
-        ? screenData.height * 0.4  // Use height for landscape to ensure text fills vertical space
-        : screenData.width * (screenData.isPad ? 0.15 : 0.2);
+        ? screenData.height * 0.65  // Significantly increased for landscape
+        : screenData.width * (screenData.isPad ? 0.25 : 0.3); // Increased for portrait
 
       // Get the scaling factor for the current font
-      const fontScale = fontScalingFactors[userFont] || fontScalingFactors.default;
+      const fontScale = (fontScalingFactors[userFont] || fontScalingFactors.default) * 0.65; // Reduced font scale factor
 
-      // Calculate initial font size based on available width and text length
+      // Calculate initial font size with improved scaling
       let newFontSize = Math.min(
-        (availableWidth / (text.length * fontScale)) * (screenData.isLandscape ? 1.5 : 1),
+        (availableWidth / (text.length * fontScale)) * 
+        (screenData.isLandscape ? 1.3 : 1.1) * // Increased multipliers
+        (text.length <= 3 ? 1.3 : 
+         text.length <= 5 ? 1.2 : 
+         text.length <= 8 ? 1.1 : 1), // Progressive boost for shorter words
         MAX_FONT_SIZE
       );
 
       // Ensure font size is not smaller than minimum
-      newFontSize = Math.max(MIN_FONT_SIZE, newFontSize);
+      newFontSize = Math.max(MIN_FONT_SIZE, Math.floor(newFontSize));
 
-      return Math.floor(newFontSize);
+      return newFontSize;
     },
     [userFont]
   );
@@ -76,10 +81,15 @@ export default function FlashPlain({
     setFontSize(newSize);
   }, [currentWord, message, calculateFontSize]);
 
+  // Reset all animations and states when unmounting
   useEffect(() => {
-    // Cleanup function to reset animations when component unmounts
+    isComponentMounted.value = true;
     return () => {
+      isComponentMounted.value = false;
       opacity.value = 1;
+      bgColor.value = userBgColor;
+      textColor.value = getContrastingColor(userBgColor);
+      setCurrentWord(0);
     };
   }, []);
 
@@ -100,6 +110,8 @@ export default function FlashPlain({
   }, [message.length]);
 
   const animateBackgroundColor = useCallback(() => {
+    if (!isComponentMounted.value) return;
+
     if (randomizeBgColor) {
       const newColor =
         availableColors[Math.floor(Math.random() * availableColors.length)];
@@ -108,24 +120,37 @@ export default function FlashPlain({
         duration: duration / 4,
       });
     }
-  }, [randomizeBgColor, bgColor, textColor, duration]);
+  }, [randomizeBgColor, bgColor, textColor, duration, isComponentMounted]);
 
   const animate = useCallback(() => {
+    if (!isComponentMounted.value) return;
+
     opacity.value = withTiming(0, { duration: duration / 4 }, (finished) => {
-      if (finished) {
+      if (finished && isComponentMounted.value) {
         runOnJS(changeWord)();
         opacity.value = withTiming(1, { duration: duration / 4 });
       }
     });
-  }, [opacity, duration, changeWord]);
+  }, [opacity, duration, changeWord, isComponentMounted]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      animateBackgroundColor();
-      animate();
-    }, duration);
-    return () => clearTimeout(timer);
-  }, [animate, animateBackgroundColor, duration, currentWord]);
+    let timerId;
+
+    if (isComponentMounted.value) {
+      timerId = setTimeout(() => {
+        if (isComponentMounted.value) {
+          animateBackgroundColor();
+          animate();
+        }
+      }, duration);
+    }
+
+    return () => {
+      if (timerId) {
+        clearTimeout(timerId);
+      }
+    };
+  }, [animate, animateBackgroundColor, duration, currentWord, isComponentMounted]);
 
   return (
     <Animated.View style={[styles.container, animatedBgStyle]}>
