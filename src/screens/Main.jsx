@@ -64,8 +64,6 @@ const Main = () => {
   const isLandscape = windowWidth > windowHeight;
   console.log(isLandscape ? 'LANDSCAPE!' : 'PORTRAIT!');
 
-  let iPadOrientation = '';
-
   // if Ipad, sense when the user has changed to another orientation
   useEffect(() => {
     if (isIPad) {
@@ -302,6 +300,9 @@ const Main = () => {
 
     // Start with initial size and adjust down if needed
     let fontSize = Math.min(containerWidth / 4, containerHeight * 0.8);
+    if (isIPad) {
+      fontSize *= 2;
+    }
     setTitleFontSize(fontSize);
   };
 
@@ -324,7 +325,16 @@ const Main = () => {
           >
             <View style={styles.contentContainer}>
               <View style={styles.upperScreenContainer}>
-                <View style={styles.titleContainer} onLayout={measureTitle}>
+                <View
+                  style={
+                    (styles.titleContainer,
+                    {
+                      width: '100%',
+                      height: isIPad ? 180 : 80,
+                    })
+                  }
+                  onLayout={measureTitle}
+                >
                   <Text
                     style={[
                       styles.titleText,
@@ -381,6 +391,9 @@ const Main = () => {
                       : styles.buttonsAndPreviewContainer
                   }
                 >
+                  {isIpadAndLandscape && (
+                    <View style={styles.ipadLandscapeBuffer}></View>
+                  )}
                   <GridButtons
                     selectedItems={selectedItems}
                     toggleItem={toggleItem}
@@ -393,17 +406,27 @@ const Main = () => {
                     onStartPress={startPressed}
                     hasText={text.length > 0}
                   />
-                  <PreviewWindow
-                    text={text}
-                    selectedAnimation={flashType}
-                    selectedFont={userFont}
-                    selectedColor={
-                      randomizeBgColor ? 'random' : availableColors[userBgColor]
+                  <View
+                    style={
+                      isIpadAndLandscape
+                        ? styles.previewContainerLandscape
+                        : null
                     }
-                    isKeyboardVisible={isKeyboardVisible}
-                    randomImg={backgroundImg}
-                    triggerAnimation={animationTrigger}
-                  />
+                  >
+                    <PreviewWindow
+                      text={text}
+                      selectedAnimation={flashType}
+                      selectedFont={userFont}
+                      selectedColor={
+                        randomizeBgColor
+                          ? 'random'
+                          : availableColors[userBgColor]
+                      }
+                      isKeyboardVisible={isKeyboardVisible}
+                      randomImg={backgroundImg}
+                      triggerAnimation={animationTrigger}
+                    />
+                  </View>
                 </View>
               </View>
             </View>
@@ -516,11 +539,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'stretch',
     width: '100%',
-    height: 80,
     overflow: 'hidden',
     justifyContent: 'center',
-    marginBottom: 8,
+    // marginBottom: 8,
     paddingHorizontal: 10,
+    backgroundColor: 'blue',
   },
   titleText: {
     fontWeight: 'bold',
@@ -664,5 +687,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: 10,
+  },
+  ipadLandscapeBuffer: {
+    height: 30,
+  },
+  previewContainerLandscape: {
+    marginBottom: -136, // Move the item itself 30px lower without affecting parent
   },
 });
