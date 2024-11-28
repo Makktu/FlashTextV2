@@ -1,18 +1,23 @@
 {
   "expo": {
-    "name": "Flashtext",
-    "slug": "Flashtext",
+    "name": "FlashText",
+    "slug": "flashtext",
     "version": "2.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.flashtext.mcnamara",
+      "supportsTablet": true,
+      "buildNumber": "7",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app does not require access to your microphone."
+      }
     },
     "android": {
       "adaptiveIcon": {
