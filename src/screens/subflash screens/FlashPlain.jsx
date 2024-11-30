@@ -43,19 +43,20 @@ export default function FlashPlain({
       
       // Calculate available width based on device and orientation
       const widthFactor = screenData.isPad
-        ? (screenData.isLandscape ? 0.95 : 0.95)  // Increased iPad utilization
-        : (screenData.isLandscape ? 0.92 : 0.95); // Increased width utilization
+        ? (screenData.isLandscape ? 0.85 : 0.9)  // Reduced iPad factors to leave more margin
+        : (screenData.isLandscape ? 0.92 : 0.95);
       
       const availableWidth = screenData.width * widthFactor;
-      const MIN_FONT_SIZE = 20; // Increased minimum font size
+      const MIN_FONT_SIZE = screenData.isPad ? 24 : 20; // Slightly larger minimum for iPad
 
       // Calculate max font size based on screen dimensions and orientation
       const MAX_FONT_SIZE = screenData.isLandscape
-        ? screenData.height * 0.65  // Significantly increased for landscape
-        : screenData.width * (screenData.isPad ? 0.25 : 0.3); // Increased for portrait
+        ? screenData.height * (screenData.isPad ? 0.45 : 0.65)  // Reduced multiplier for iPad landscape
+        : screenData.width * (screenData.isPad ? 0.28 : 0.3); // Slightly increased iPad portrait
 
       // Get the scaling factor for the current font
-      const fontScale = (fontScalingFactors[userFont] || fontScalingFactors.default) * 0.65; // Reduced font scale factor
+      const fontScale = (fontScalingFactors[userFont] || fontScalingFactors.default) * 
+        (screenData.isPad ? 0.75 : 0.65); // Separate scaling reduction for iPad
 
       // Calculate initial font size with improved scaling
       let newFontSize = Math.min(
