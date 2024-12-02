@@ -20,6 +20,8 @@ export default function FlashScreen({
 }) {
   const [isOrientationSet, setIsOrientationSet] = useState(false);
 
+  console.log(userFont);
+
   // Force orientation change before rendering content
   useEffect(() => {
     async function setOrientation() {
@@ -29,7 +31,7 @@ export default function FlashScreen({
             ScreenOrientation.OrientationLock.LANDSCAPE
           );
           // Small delay to ensure orientation change is complete
-          await new Promise(resolve => setTimeout(resolve, 50));
+          await new Promise((resolve) => setTimeout(resolve, 50));
         } catch (error) {
           console.error('Failed to lock orientation:', error);
         }
@@ -38,7 +40,7 @@ export default function FlashScreen({
       }
       setIsOrientationSet(true);
     }
-    
+
     setOrientation();
     StatusBar.setHidden(true);
 

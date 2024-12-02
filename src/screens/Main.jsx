@@ -51,6 +51,11 @@ const Main = () => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [animationTrigger, setAnimationTrigger] = useState(0);
   const [isIpadAndLandscape, setIsIpadAndLandscape] = useState(false);
+  const [orientation, setOrientation] = useState(
+    Dimensions.get('window').width > Dimensions.get('window').height
+      ? 'landscape'
+      : 'portrait'
+  );
 
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
@@ -61,15 +66,15 @@ const Main = () => {
 
   // check if ipad is in landscape mode
   // make this happen on each component render
-  const isLandscape = windowWidth > windowHeight;
-  console.log(isLandscape ? 'LANDSCAPE!' : 'PORTRAIT!');
+  // const isLandscape = windowWidth > windowHeight;
+  // console.log(isLandscape ? 'LANDSCAPE!' : 'PORTRAIT!');
 
   // if Ipad, sense when the user has changed to another orientation
   useEffect(() => {
     if (isIPad) {
       const subscription = ScreenOrientation.addOrientationChangeListener(
         ({ orientationInfo }) => {
-          console.log('User changed to', orientationInfo.orientation);
+          console.log(orientationInfo.orientation);
           if (
             orientationInfo.orientation === 3 ||
             orientationInfo.orientation === 4
@@ -86,6 +91,18 @@ const Main = () => {
       return () => subscription.remove();
     }
   }, [isIPad]);
+
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener('change', ({ screen }) => {
+      const newOrientation =
+        screen.width > screen.height ? 'landscape' : 'portrait';
+      setOrientation(newOrientation);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   // Define the available fonts
   /*************  ✨ Codeium Command 🌟  *************/
@@ -434,6 +451,7 @@ const Main = () => {
         </ImageBackground>
       ) : (
         <FlashScreen
+          key={orientation}
           returnTap={returnTap}
           message={choppedMessage}
           displayHeight={windowHeight}
@@ -487,35 +505,6 @@ const Main = () => {
 };
 
 export default Main;
-
-/*
- * iPad Landscape Layout Implementation Notes
- * ----------------------------------------
- * Challenge: Create a side-by-side layout specifically for iPad in landscape mode
- *
- * Attempted Solutions:
- * 1. Two-Column Layout:
- *    - Tried splitting screen into two equal columns (45% width each)
- *    - Left column: Title, Input, and GridButtons
- *    - Right column: PreviewWindow
- *    - Added horizontal padding between columns
- *
- * 2. Container Structure:
- *    - mainContent: Wrapper for entire content area
- *    - controlsSection: Groups input and grid buttons
- *    - previewSection: Contains the preview window
- *    - Used flexDirection: 'row' in landscape mode only
- *
- * 3. Responsive Considerations:
- *    - Added isIPad check using Platform.isPad
- *    - Added isLandscape check using window dimensions
- *    - Attempted to maintain proper spacing with paddingHorizontal
- *
- * Known Issues:
- *    - Layout may not maintain proper proportions on all iPad sizes
- *    - Spacing between components needs refinement
- *    - Component scaling might need adjustment for different iPad models
- */
 
 const styles = StyleSheet.create({
   container: {
@@ -692,6 +681,6 @@ const styles = StyleSheet.create({
     height: 30,
   },
   previewContainerLandscape: {
-    marginBottom: -136, // Move the item itself 30px lower without affecting parent
+    // marginBottom: -136, // Move the item itself 30px lower without affecting parent
   },
 });
