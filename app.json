@@ -14,7 +14,7 @@
     "ios": {
       "bundleIdentifier": "com.flashtext.mcnamara",
       "supportsTablet": true,
-      "buildNumber": "7",
+      "buildNumber": "8",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app does not require access to your microphone."
       }
@@ -28,6 +28,13 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-font"]
+    "plugins": [
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "a0242b8a-7123-4a97-abff-1d8d22ffea18"
+      }
+    }
   }
 }

@@ -62,12 +62,7 @@ const Main = () => {
 
   // check if platform is ipad
   const isIPad = Platform.isPad;
-  console.log(isIPad ? 'IPAD!' : 'NOT IPAD!');
-
-  // check if ipad is in landscape mode
-  // make this happen on each component render
-  // const isLandscape = windowWidth > windowHeight;
-  // console.log(isLandscape ? 'LANDSCAPE!' : 'PORTRAIT!');
+  console.log(isIPad ? 'IPAD' : 'NOT IPAD');
 
   // if Ipad, sense when the user has changed to another orientation
   useEffect(() => {
