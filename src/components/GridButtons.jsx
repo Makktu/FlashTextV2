@@ -31,7 +31,7 @@ const getResponsiveStyles = {
   containerWidth: isIPad ? Math.min(window.width * 0.85, IPAD_MAX_CONTAINER_WIDTH) : '90%',  // Slightly narrower container on iPad
   gridItemWidth: isIPad ? Math.min(window.width * 0.27, IPAD_MAX_BUTTON_SIZE) : '31%',      // Slightly smaller buttons for tighter spacing
   startButtonWidth: isIPad ? IPAD_MAX_START_BUTTON_WIDTH : '64.5%',
-  startButtonHeight: isIPad ? IPAD_MAX_BUTTON_SIZE : 108,                                   // Match height with other buttons on iPad
+  startButtonHeight: isIPad ? IPAD_MAX_BUTTON_SIZE : 105,                                   // Exactly match square grid item height
   borderRadius: isIPad ? 20 : 15,
   marginBottom: isIPad ? 12 : 12,                                                           // Same spacing as iPhone
   rowJustify: isIPad ? 'center' : 'space-between',                                         // Center buttons on iPad

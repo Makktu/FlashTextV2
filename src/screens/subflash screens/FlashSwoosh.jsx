@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
   withTiming,
   useAnimatedStyle,
-  withSequence,
+  runOnJS,
 } from 'react-native-reanimated';
 import { fontScalingFactors } from '../../values/fontScalingFactors';
 import availableColors from '../../values/COLORS';
-import { getFlashScreenDimensions } from '../../utils/screenDimensions';
+import { calculateFontSize, getFlashScreenDimensions } from '../../utils/textUtils';
 
 // Function to get a contrasting color for readability
 const getContrastingColor = (bgColor) => {
@@ -41,78 +41,70 @@ const getRandomDirection = (previousDirection) => {
 };
 
 export default function FlashSwoosh({
-  message,
+  message = ['No', 'Message', 'Passed'],
   duration = 2000,
   randomizeBgColor = false,
   userBgColor = '#000000',
-  swooshDirection = 'top-bottom',
-  userFont = 'Arial',
+  userFont = 'Roboto',
+  swooshDirection = 'left',
 }) {
   const [currentWord, setCurrentWord] = useState(0);
-  const position = useSharedValue({ x: 0, y: 0 });
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const opacity = useSharedValue(1);
   const [fontSize, setFontSize] = useState(30);
-  const bgColor = useSharedValue(
-    randomizeBgColor ? availableColors[0] : userBgColor
-  );
+  const bgColor = useSharedValue(randomizeBgColor ? availableColors[0] : userBgColor);
   const textColor = useSharedValue(getContrastingColor(bgColor.value));
   const isComponentMounted = useSharedValue(true);
+  const [isCalculatingSize, setIsCalculatingSize] = useState(false);
 
-  // Reset all animations and states when unmounting
+  // Font size calculation and orientation handling
   useEffect(() => {
-    isComponentMounted.value = true;
-    return () => {
-      isComponentMounted.value = false;
-      position.value = { x: 0, y: 0 };
-      bgColor.value = userBgColor;
-      textColor.value = getContrastingColor(userBgColor);
-      setCurrentWord(0);
+    let isMounted = true;
+    
+    const updateFontSize = () => {
+      if (!isMounted || isCalculatingSize) return;
+      
+      setIsCalculatingSize(true);
+      try {
+        const newSize = calculateFontSize(
+          message[currentWord],
+          userFont,
+          fontScalingFactors
+        );
+        if (isMounted) {
+          setFontSize(newSize);
+        }
+      } catch (error) {
+        console.error('Error calculating font size:', error);
+      } finally {
+        setIsCalculatingSize(false);
+      }
     };
-  }, []);
 
-  const calculateFontSize = useCallback(
-    (text) => {
-      const screenData = getFlashScreenDimensions();
-      
-      // Calculate available width based on device and orientation
-      const widthFactor = screenData.isPad
-        ? (screenData.isLandscape ? 0.95 : 0.95)  // Increased iPad utilization
-        : (screenData.isLandscape ? 0.92 : 0.95); // Increased width utilization
-      
-      const availableWidth = screenData.width * widthFactor;
-      const MIN_FONT_SIZE = 20; // Increased minimum font size
+    const handleOrientationChange = () => {
+      setTimeout(() => {
+        if (isMounted) {
+          updateFontSize();
+        }
+      }, 50);
+    };
 
-      // Calculate max font size based on screen dimensions and orientation
-      const MAX_FONT_SIZE = screenData.isLandscape
-        ? screenData.height * 0.65  // Significantly increased for landscape
-        : screenData.width * (screenData.isPad ? 0.25 : 0.3); // Increased for portrait
-
-      // Get the scaling factor for the current font
-      const fontScale = (fontScalingFactors[userFont] || fontScalingFactors.default) * 0.65; // Reduced font scale factor
-
-      // Calculate initial font size with improved scaling
-      let newFontSize = Math.min(
-        (availableWidth / (text.length * fontScale)) * 
-        (screenData.isLandscape ? 1.3 : 1.1) * // Increased multipliers
-        (text.length <= 3 ? 1.3 : 
-         text.length <= 5 ? 1.2 : 
-         text.length <= 8 ? 1.1 : 1), // Progressive boost for shorter words
-        MAX_FONT_SIZE
-      );
-
-      // Ensure font size is not smaller than minimum
-      newFontSize = Math.max(MIN_FONT_SIZE, Math.floor(newFontSize));
-
-      return newFontSize;
-    },
-    [userFont]
-  );
+    updateFontSize();
+    const subscription = Dimensions.addEventListener('change', handleOrientationChange);
+    
+    return () => {
+      isMounted = false;
+      subscription.remove();
+    };
+  }, [currentWord, message, userFont, isCalculatingSize]);
 
   const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
     transform: [
-      { translateX: position.value.x },
-      { translateY: position.value.y },
+      { translateX: translateX.value },
+      { translateY: translateY.value }
     ],
-    opacity: 1,
   }));
 
   const animatedBgStyle = useAnimatedStyle(() => ({
@@ -123,74 +115,87 @@ export default function FlashSwoosh({
     color: textColor.value,
   }));
 
-  const changeWord = useCallback(() => {
+  const changeWord = () => {
     setCurrentWord((prev) => (prev + 1) % message.length);
-  }, [message.length]);
+  };
 
-  const animateSwoosh = useCallback(
-    (prevDirection) => {
-      if (!isComponentMounted.value) return prevDirection;
+  const animateSwoosh = (prevDirection) => {
+    if (!isComponentMounted.value) return prevDirection;
 
-      const direction =
-        swooshDirection === 'random'
-          ? getRandomDirection(prevDirection)
-          : swooshDirection;
+    const direction =
+      swooshDirection === 'random'
+        ? getRandomDirection(prevDirection)
+        : swooshDirection;
 
-      let start, middle, end;
-      const screenData = getFlashScreenDimensions();
-      switch (direction) {
-        case 'left-right':
-          start = { x: -screenData.width, y: 0 };
-          middle = { x: 0, y: 0 };
-          end = { x: screenData.width, y: 0 };
-          break;
-        case 'right-left':
-          start = { x: screenData.width, y: 0 };
-          middle = { x: 0, y: 0 };
-          end = { x: -screenData.width, y: 0 };
-          break;
-        case 'top-bottom':
-          start = { x: 0, y: -screenData.height };
-          middle = { x: 0, y: 0 };
-          end = { x: 0, y: screenData.height };
-          break;
-        case 'bottom-top':
-        default:
-          start = { x: 0, y: screenData.height };
-          middle = { x: 0, y: 0 };
-          end = { x: 0, y: -screenData.height };
-          break;
-      }
+    let start, middle, end;
+    const screenData = getFlashScreenDimensions();
+    
+    // Reset both translations at the start
+    translateX.value = 0;
+    translateY.value = 0;
 
-      if (isComponentMounted.value) {
-        position.value = withSequence(
-          withTiming(start, { duration: 0 }),
-          withTiming(middle, { duration: duration / 2 }),
-          withTiming(end, { duration: duration / 2 })
-        );
-      }
+    switch (direction) {
+      case 'left-right':
+        start = { x: -screenData.width, y: 0 };
+        middle = { x: 0, y: 0 };
+        end = { x: screenData.width, y: 0 };
+        break;
+      case 'right-left':
+        start = { x: screenData.width, y: 0 };
+        middle = { x: 0, y: 0 };
+        end = { x: -screenData.width, y: 0 };
+        break;
+      case 'top-bottom':
+        start = { x: 0, y: -screenData.height };
+        middle = { x: 0, y: 0 };
+        end = { x: 0, y: screenData.height };
+        break;
+      case 'bottom-top':
+      default:
+        start = { x: 0, y: screenData.height };
+        middle = { x: 0, y: 0 };
+        end = { x: 0, y: -screenData.height };
+        break;
+    }
 
-      return direction;
-    },
-    [position, duration, swooshDirection, isComponentMounted]
-  );
+    if (isComponentMounted.value) {
+      // Set initial position and make visible
+      translateX.value = start.x;
+      translateY.value = start.y;
+      opacity.value = 0;
 
-  const animateBackgroundColor = useCallback(
-    (previousColor) => {
-      if (!isComponentMounted.value) return previousColor;
+      // Animate in
+      translateX.value = withTiming(middle.x, { duration: duration * 0.3 });
+      translateY.value = withTiming(middle.y, { duration: duration * 0.3 });
+      opacity.value = withTiming(1, { duration: duration * 0.3 });
 
-      if (randomizeBgColor) {
-        const newColor = getRandomColor(previousColor);
-        bgColor.value = withTiming(newColor, { duration: duration / 4 });
-        textColor.value = withTiming(getContrastingColor(newColor), {
-          duration: duration / 4,
-        });
-        return newColor;
-      }
-      return previousColor;
-    },
-    [randomizeBgColor, bgColor, textColor, duration, isComponentMounted]
-  );
+      // Hold in middle
+      setTimeout(() => {
+        if (isComponentMounted.value) {
+          // Animate out
+          translateX.value = withTiming(end.x, { duration: duration * 0.3 });
+          translateY.value = withTiming(end.y, { duration: duration * 0.3 });
+          opacity.value = withTiming(0, { duration: duration * 0.3 });
+        }
+      }, duration * 0.4);
+    }
+
+    return direction;
+  };
+
+  const animateBackgroundColor = (previousColor) => {
+    if (!isComponentMounted.value) return previousColor;
+
+    if (randomizeBgColor) {
+      const newColor = getRandomColor(previousColor);
+      bgColor.value = withTiming(newColor, { duration: duration / 4 });
+      textColor.value = withTiming(getContrastingColor(newColor), {
+        duration: duration / 4,
+      });
+      return newColor;
+    }
+    return previousColor;
+  };
 
   useEffect(() => {
     let lastDirection = swooshDirection;
@@ -226,13 +231,19 @@ export default function FlashSwoosh({
     <Animated.View style={[styles.container, animatedBgStyle]}>
       <Animated.Text
         style={[
+          styles.messageText,
+          {
+            fontSize,
+            fontFamily: userFont,
+            maxWidth: '90%',
+            textAlign: 'center',
+          },
           animatedStyle,
           animatedTextStyle,
-          {
-            fontSize: calculateFontSize(message[currentWord]),
-            fontFamily: userFont,
-          },
         ]}
+        numberOfLines={1}
+        adjustsFontSizeToFit={true}
+        minimumFontScale={0.5}
       >
         {message[currentWord]}
       </Animated.Text>

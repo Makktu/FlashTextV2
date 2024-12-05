@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
   withTiming,
   useAnimatedStyle,
-  withSequence,
   runOnJS,
+  Easing,
 } from 'react-native-reanimated';
 import { fontScalingFactors } from '../../values/fontScalingFactors';
 import availableColors from '../../values/COLORS';
-import { getFlashScreenDimensions } from '../../utils/screenDimensions';
+import { calculateFontSize, getFlashScreenDimensions } from '../../utils/textUtils';
 
 const getContrastingColor = (bgColor) => {
   const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
@@ -21,64 +21,74 @@ const getContrastingColor = (bgColor) => {
 };
 
 export default function FlashStretch({
-  message,
+  message = ['No', 'Message', 'Passed'],
   duration = 2000,
   randomizeBgColor = false,
   userBgColor = '#000000',
-  userFont,
+  userFont = 'Roboto',
 }) {
   const [currentWord, setCurrentWord] = useState(0);
+  const scale = useSharedValue(0.1);  // Start small
+  const opacity = useSharedValue(0);   // Start invisible
   const [fontSize, setFontSize] = useState(30);
-  const [textDimensions, setTextDimensions] = useState({ width: 1, height: 1 });
-  const scale = useSharedValue(0.1);
-  const opacity = useSharedValue(0);
-  const bgColor = useSharedValue(
-    randomizeBgColor ? availableColors[0] : userBgColor
-  );
+  const bgColor = useSharedValue(randomizeBgColor ? availableColors[0] : userBgColor);
   const textColor = useSharedValue(getContrastingColor(bgColor.value));
   const isComponentMounted = useSharedValue(true);
-  const textRef = useRef(null);
+  const [isCalculatingSize, setIsCalculatingSize] = useState(false);
 
-  const calculateFontSize = useCallback(
-    (text) => {
-      const screenData = getFlashScreenDimensions();
-      const minScreenDimension = Math.min(screenData.width, screenData.height);
-      const availableWidth = screenData.width * 0.9;
-      const MIN_FONT_SIZE = 12;
-
-      const fontScale =
-        fontScalingFactors[userFont] || fontScalingFactors.default;
-
-      const fontSize = Math.min(
-        Math.max(MIN_FONT_SIZE, (availableWidth / text.length) * fontScale),
-        minScreenDimension * 0.15
-      );
-
-      return fontSize;
-    },
-    [userFont]
-  );
-
+  // Font size calculation and orientation handling
   useEffect(() => {
+    let isMounted = true;
+    
     const updateFontSize = () => {
-      const newSize = calculateFontSize(message[currentWord]);
-      setFontSize(newSize);
+      if (!isMounted || isCalculatingSize) return;
+      
+      setIsCalculatingSize(true);
+      try {
+        const newSize = calculateFontSize(
+          message[currentWord],
+          userFont,
+          fontScalingFactors
+        );
+        if (isMounted) {
+          setFontSize(newSize);
+        }
+      } catch (error) {
+        console.error('Error calculating font size:', error);
+      } finally {
+        setIsCalculatingSize(false);
+      }
+    };
+
+    const handleOrientationChange = () => {
+      setTimeout(() => {
+        if (isMounted) {
+          updateFontSize();
+        }
+      }, 50);
     };
 
     updateFontSize();
-
-    const subscription = Dimensions.addEventListener('change', updateFontSize);
-
+    const subscription = Dimensions.addEventListener('change', handleOrientationChange);
+    
     return () => {
+      isMounted = false;
       subscription.remove();
     };
-  }, [currentWord, message, calculateFontSize]);
+  }, [currentWord, message, userFont, isCalculatingSize]);
+
+  useEffect(() => {
+    // Initial animation
+    if (isComponentMounted.value) {
+      animateStretch();
+    }
+  }, []);  // Run once on mount
 
   useEffect(() => {
     isComponentMounted.value = true;
     return () => {
       isComponentMounted.value = false;
-      scale.value = 0.1;
+      scale.value = 0.1;  // Reset to initial values
       opacity.value = 0;
       bgColor.value = userBgColor;
       textColor.value = getContrastingColor(userBgColor);
@@ -87,37 +97,15 @@ export default function FlashStretch({
   }, []);
 
   const calculateScale = useCallback(() => {
-    if (!textDimensions.width || !textDimensions.height) {
-      return 1;
-    }
-
     const screenData = getFlashScreenDimensions();
-    const availableWidth = screenData.width * 0.9;
-    const availableHeight = screenData.height * 0.9;
+    const baseScale = screenData.isLandscape ? 1.2 : 1.4;
+    return baseScale;
+  }, []);
 
-    const maxScaleWidth = textDimensions.width > 0 ? availableWidth / textDimensions.width : 1;
-    const maxScaleHeight = textDimensions.height > 0 ? availableHeight / textDimensions.height : 1;
-
-    const calculatedScale = Math.min(maxScaleWidth, maxScaleHeight);
-    
-    const MAX_SCALE = 10;
-    
-    return Math.min(
-      Math.max(
-        isFinite(calculatedScale) ? calculatedScale : 1,
-        0.1
-      ),
-      MAX_SCALE
-    );
-  }, [textDimensions]);
-
-  const animatedStyle = useAnimatedStyle(() => {
-    const safeScale = isFinite(scale.value) && scale.value > 0 ? scale.value : 1;
-    return {
-      transform: [{ scale: safeScale }],
-      opacity: opacity.value,
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
+  }));
 
   const animatedBgStyle = useAnimatedStyle(() => ({
     backgroundColor: bgColor.value,
@@ -146,58 +134,65 @@ export default function FlashStretch({
     if (!isComponentMounted.value) return;
 
     const targetScale = calculateScale();
-    if (!isFinite(targetScale) || targetScale <= 0) return;
-
+    
+    // Reset to starting position
     scale.value = 0.1;
     opacity.value = 0;
 
-    opacity.value = withTiming(1, { duration: duration / 4 });
+    // Change background color if randomization is enabled
+    animateBackgroundColor();
 
-    scale.value = withTiming(
-      targetScale,
-      {
-        duration: (duration * 3) / 4,
-      },
-      (finished) => {
-        if (finished && isComponentMounted.value) {
-          opacity.value = withTiming(
-            0,
-            { duration: duration / 4 },
-            (finished) => {
-              if (finished && isComponentMounted.value) {
-                runOnJS(changeWord)();
-              }
-            }
-          );
-        }
-      }
-    );
-  }, [calculateScale, scale, opacity, duration, changeWord, isComponentMounted]);
-
-  const handleTextLayout = useCallback((event) => {
-    const { width, height } = event.nativeEvent.layout;
-    setTextDimensions({ 
-      width: Math.max(width, 1),
-      height: Math.max(height, 1)
+    // Fade in and grow
+    scale.value = withTiming(targetScale, { 
+      duration: duration * 0.75,
+      easing: Easing.out(Easing.ease)
     });
-  }, []);
+    opacity.value = withTiming(1, { 
+      duration: duration * 0.25,
+      easing: Easing.in(Easing.ease)
+    });
+
+    // Fade out
+    setTimeout(() => {
+      if (isComponentMounted.value) {
+        opacity.value = withTiming(
+          0,
+          { 
+            duration: duration * 0.25,
+            easing: Easing.in(Easing.ease)
+          },
+          (finished) => {
+            if (finished && isComponentMounted.value) {
+              runOnJS(changeWord)();
+              runOnJS(animateStretch)();
+            }
+          }
+        );
+      }
+    }, duration * 0.75);
+  }, [scale, opacity, duration, changeWord, isComponentMounted, calculateScale, animateBackgroundColor]);
 
   useEffect(() => {
     animateBackgroundColor();
-    animateStretch();
-  }, [animateBackgroundColor, animateStretch, currentWord]);
+  }, [animateBackgroundColor]);
 
   return (
     <Animated.View style={[styles.container, animatedBgStyle]}>
       <Animated.Text
-        ref={textRef}
         style={[
           styles.messageText,
-          { fontSize, fontFamily: userFont },
+          {
+            fontSize,
+            fontFamily: userFont,
+            maxWidth: '90%',
+            textAlign: 'center',
+          },
           animatedStyle,
           animatedTextStyle,
         ]}
-        onLayout={handleTextLayout}
+        numberOfLines={1}
+        adjustsFontSizeToFit={true}
+        minimumFontScale={0.5}
       >
         {message[currentWord]}
       </Animated.Text>

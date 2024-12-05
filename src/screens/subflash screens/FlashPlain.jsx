@@ -8,7 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { fontScalingFactors } from '../../values/fontScalingFactors';
 import availableColors from '../../values/COLORS';
-import { getFlashScreenDimensions } from '../../utils/screenDimensions';
+import { calculateFontSize, getFlashScreenDimensions } from '../../utils/textUtils';
 
 const getContrastingColor = (bgColor = '#000000') => {
   const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
@@ -34,78 +34,48 @@ export default function FlashPlain({
   );
   const textColor = useSharedValue(getContrastingColor(bgColor.value));
   const isComponentMounted = useSharedValue(true);
-  const landscapeDifferential = useSharedValue(false);
+  const [isCalculatingSize, setIsCalculatingSize] = useState(false);
 
-  // console.log(userFont);
-
-  const calculateFontSize = useCallback(
-    (text) => {
-      const screenData = getFlashScreenDimensions();
-
-      // Calculate available width based on device and orientation
-      const widthFactor = screenData.isPad
-        ? screenData.isLandscape
-          ? 0.85
-          : 0.9 // Reduced iPad factors to leave more margin
-        : screenData.isLandscape
-        ? 0.92
-        : 0.95;
-
-      const availableWidth = screenData.width * widthFactor;
-      const MIN_FONT_SIZE = screenData.isPad ? 24 : 20; // Slightly larger minimum for iPad
-
-      // Calculate max font size based on screen dimensions and orientation
-      const MAX_FONT_SIZE = screenData.isLandscape
-        ? screenData.height * (screenData.isPad ? 0.45 : 0.65) // Reduced multiplier for iPad landscape
-        : screenData.width * (screenData.isPad ? 0.28 : 0.3); // Slightly increased iPad portrait
-
-      // Get the scaling factor for the current font
-      const fontScale =
-        (fontScalingFactors[userFont] || fontScalingFactors.default) *
-        (screenData.isPad ? (landscapeDifferential.value ? 0.6 : 0.85) : 0.65); // Separate scaling reduction for iPad
-
-      console.log(landscapeDifferential.value);
-
-      // Calculate initial font size with improved scaling
-      let newFontSize = Math.min(
-        (availableWidth / (text.length * fontScale)) *
-          (screenData.isLandscape ? 1.3 : 1.1) * // Increased multipliers
-          (text.length <= 3
-            ? 1.3
-            : text.length <= 5
-            ? 1.2
-            : text.length <= 8
-            ? 1.1
-            : 1), // Progressive boost for shorter words
-        MAX_FONT_SIZE
-      );
-
-      // Ensure font size is not smaller than minimum
-      newFontSize = Math.max(MIN_FONT_SIZE, Math.floor(newFontSize));
-
-      return newFontSize;
-    },
-    [userFont]
-  );
-
-  // Update font size when word changes & check for rotation change
+  // Font size calculation and orientation handling
   useEffect(() => {
-    const subscription = Dimensions.addEventListener('change', ({ screen }) => {
-      const isLandscape = screen.width > screen.height;
-      // console.log(
-      //   'Orientation changed:',
-      //   isLandscape ? 'Landscape' : 'Portrait'
-      // );
+    let isMounted = true;
+    
+    const updateFontSize = () => {
+      if (!isMounted || isCalculatingSize) return;
+      
+      setIsCalculatingSize(true);
+      try {
+        const newSize = calculateFontSize(
+          message[currentWord],
+          userFont,
+          fontScalingFactors
+        );
+        if (isMounted) {
+          setFontSize(newSize);
+        }
+      } catch (error) {
+        console.error('Error calculating font size:', error);
+      } finally {
+        setIsCalculatingSize(false);
+      }
+    };
 
-      landscapeDifferential.value = isLandscape;
-    });
-    const newSize = calculateFontSize(message[currentWord]);
-    setFontSize(newSize);
+    const handleOrientationChange = () => {
+      setTimeout(() => {
+        if (isMounted) {
+          updateFontSize();
+        }
+      }, 50);
+    };
 
+    updateFontSize();
+    const subscription = Dimensions.addEventListener('change', handleOrientationChange);
+    
     return () => {
+      isMounted = false;
       subscription.remove();
     };
-  }, [currentWord, message, calculateFontSize]);
+  }, [currentWord, message, userFont, isCalculatingSize]);
 
   // Reset all animations and states when unmounting
   useEffect(() => {
@@ -189,11 +159,18 @@ export default function FlashPlain({
       <Animated.Text
         style={[
           styles.messageText,
-          { fontSize, fontFamily: userFont },
+          { 
+            fontSize,
+            fontFamily: userFont,
+            maxWidth: '90%',  // Ensure text stays within bounds
+            textAlign: 'center'
+          },
           animatedStyle,
           animatedTextStyle,
         ]}
         numberOfLines={1}
+        adjustsFontSizeToFit={true}  // Fallback auto-adjustment
+        minimumFontScale={0.5}
       >
         {message[currentWord]}
       </Animated.Text>
