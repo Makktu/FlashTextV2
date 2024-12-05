@@ -58,3 +58,16 @@ Background: Photo by Li Zhang on Unsplash
 Photo by Camille Couvez on Unsplash
 
 Main screen Background Image by Maxim Berg on Unsplash
+
+### Thu 5 December 2024
+
+Might have finally got dynamic font working.
+
+More testing required on real devices. iPad and iPhone.
+
+All being well, this is what'sleft to do:
+
+1: Make Swoosh default to 2s timer
+2: Improve display for text input bar on iPad.
+3: Make first animation default to Stretch.
+4: Create proper app icon.
