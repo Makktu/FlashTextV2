@@ -205,9 +205,9 @@ const Main = () => {
     setText(enteredText);
   };
 
-  const cancelInput = () => {
-    setText('');
-  };
+  // const cancelInput = () => {
+  //   setText('');
+  // };
 
   const handleHistoryPress = () => {
     if (messageHistory.length === 0) {
