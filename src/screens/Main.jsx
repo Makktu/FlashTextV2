@@ -30,7 +30,7 @@ const backgroundImg = require('../../assets/img/flashtext_bg1.jpg');
 const Main = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentScreen, setCurrentScreen] = useState('main');
-  const [flashType, setFlashType] = useState('plain');
+  const [flashType, setFlashType] = useState('stretch');
   const [duration, setDuration] = useState(1000);
   const [choppedMessage, setChoppedMessage] = useState([]);
   const [userBgColor, setUserBgColor] = useState(0);
