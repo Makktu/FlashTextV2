@@ -177,7 +177,7 @@ export default function FlashSwoosh({
           translateY.value = withTiming(end.y, { duration: duration * 0.3 });
           opacity.value = withTiming(0, { duration: duration * 0.3 });
         }
-      }, duration * 0.4);
+      }, duration * 0.7);
     }
 
     return direction;

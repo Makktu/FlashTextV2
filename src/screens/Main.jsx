@@ -39,11 +39,11 @@ const Main = () => {
   const [messageHistory, setMessageHistory] = useState([]);
   const [userFont, setUserFont] = useState('Russo');
   const [selectedItems, setSelectedItems] = useState([
+    false,
+    false,
+    false,
+    false,
     true,
-    false,
-    false,
-    false,
-    false,
     false,
   ]);
   const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false);
@@ -63,6 +63,17 @@ const Main = () => {
   // check if platform is ipad
   const isIPad = Platform.isPad;
   console.log(isIPad ? 'IPAD' : 'NOT IPAD');
+
+  // Check initial orientation for iPad
+  useEffect(() => {
+    if (isIPad) {
+      const checkOrientation = async () => {
+        const orientation = await ScreenOrientation.getOrientationAsync();
+        setIsIpadAndLandscape(orientation === 3 || orientation === 4);
+      };
+      checkOrientation();
+    }
+  }, [isIPad]);
 
   // if Ipad, sense when the user has changed to another orientation
   useEffect(() => {
@@ -369,7 +380,7 @@ const Main = () => {
                       onChangeText={handleInput}
                       value={text}
                       placeholder='Enter your text here...'
-                      placeholderTextColor='rgba(255, 255, 255, 0.5)'
+                      placeholderTextColor='rgba(0, 0, 0, 0.4)'
                       multiline={true}
                       inputAccessoryViewID={inputAccessoryViewID}
                     />
@@ -552,33 +563,37 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    color: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    color: 'rgba(0, 0, 0, 0.9)',
     padding: 15,
     paddingRight: 50,
+    paddingTop: 20,
     borderRadius: 15,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.35)',
     borderWidth: 1.5,
     height: 70,
     width: '100%',
     fontSize: 24,
     textAlignVertical: 'top',
+    // Primary shadow for depth
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 3,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 5,
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
     elevation: 5,
-    shadowColor: 'rgba(255, 255, 255, 0.5)',
+    // Secondary glow effect
+    shadowColor: 'rgba(255, 255, 255, 0.6)',
     shadowOffset: {
       width: 0,
       height: 0,
     },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.5,
     shadowRadius: 12,
-    placeholderTextColor: 'rgba(255, 255, 255, 0.5)',
+    // Text input specific
+    placeholderTextColor: 'rgba(0, 0, 0, 0.4)',
   },
   clearButton: {
     position: 'absolute',
@@ -589,12 +604,14 @@ const styles = StyleSheet.create({
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: 15,
   },
   clearButtonText: {
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: 28,
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 24,
     fontWeight: '400',
-    lineHeight: 30,
+    lineHeight: 28,
   },
   inputAccessory: {
     backgroundColor: 'rgba(248, 248, 248, 0.98)',

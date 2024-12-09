@@ -65,9 +65,23 @@ Might have finally got dynamic font working.
 
 More testing required on real devices. iPad and iPhone.
 
-All being well, this is what'sleft to do:
+All being well, this is what's left to do:
 
-1: Make Swoosh default to 2s timer
-2: Improve display for text input bar on iPad.
-3: Make first animation default to Stretch.
-4: Create proper app icon.
+1: Make Swoosh default to 1.5s timer (or all?). ✅
+2: Improve display for text input bar on iPad. ✅
+3: Make first animation default to Stretch. ✅
+4: Create proper app icon. ✅
+5: Fix iPad display when user opens app in Landscape. ✅
+
+### Mon 9 December 2024
+
+All of the above things are now done.
+
+### Tue 10 December 2024
+
+Next up:
+
+Testing on real devices.
+Any final tinkering & testing required.
+Creating screenshots across various devices and orientations for the App Store.
+Publish.

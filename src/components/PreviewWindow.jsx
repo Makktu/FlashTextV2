@@ -9,24 +9,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-
-// Get dimensions from window
-const window = Dimensions.get('window');
-const isIPad = Platform.isPad;
-const isPortrait = window.height > window.width;
-const isLandscape = window.width > window.height;
-
-// Modify dimensions for iPad in both portrait and landscape mode
-const PREVIEW_WIDTH = isIPad
-  ? isLandscape
-    ? window.width * 0.45
-    : window.width * 0.75
-  : window.width * 0.9;
-const PREVIEW_HEIGHT = isIPad
-  ? isLandscape
-    ? window.height * 0.2
-    : window.height * 0.35
-  : 180;
+import { fontScalingFactors } from '../values/fontScalingFactors';
 
 const PreviewWindow = ({
   text,
@@ -37,6 +20,48 @@ const PreviewWindow = ({
   randomImg,
   triggerAnimation
 }) => {
+  const [dimensions, setDimensions] = useState(() => {
+    const window = Dimensions.get('window');
+    const isIPad = Platform.isPad;
+    const isPortrait = window.height > window.width;
+    return {
+      width: isIPad
+        ? isPortrait
+          ? window.width * 0.75
+          : window.width * 0.45
+        : window.width * 0.9,
+      height: isIPad
+        ? isPortrait
+          ? window.height * 0.35
+          : window.height * 0.2
+        : 180
+    };
+  });
+
+  // Update dimensions on orientation change
+  useEffect(() => {
+    const updateDimensions = () => {
+      const window = Dimensions.get('window');
+      const isIPad = Platform.isPad;
+      const isPortrait = window.height > window.width;
+      setDimensions({
+        width: isIPad
+          ? isPortrait
+            ? window.width * 0.75
+            : window.width * 0.45
+          : window.width * 0.9,
+        height: isIPad
+          ? isPortrait
+            ? window.height * 0.35
+            : window.height * 0.2
+          : 180
+      });
+    };
+
+    const subscription = Dimensions.addEventListener('change', updateDimensions);
+    return () => subscription.remove();
+  }, []);
+
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const moveAnim = useRef(new Animated.Value(0)).current;
@@ -190,34 +215,36 @@ const PreviewWindow = ({
     }
   }, [triggerAnimation]);
 
-  // Calculate appropriate text size based on word length
-  const calculateTextSize = useCallback((word) => {
-    if (!word) return 24;
-    const PREVIEW_WIDTH =
-      isIPad && isPortrait ? window.width * 0.75 : window.width * 0.8; // 80% of preview width for padding
-    const PREVIEW_HEIGHT = isIPad && isPortrait ? window.height * 0.7 : 100; // Preview height minus padding
-    const BASE_SIZE = 24;
+  const calculatePreviewFontSize = (word) => {
+    const fontAdjustment = fontScalingFactors[selectedFont] || 1;
+    const previewWidth = dimensions.width * 0.85; // Increased from 0.8 to 0.85
+    
+    // Base size calculation
+    let baseSize = (previewWidth / word.length) * fontAdjustment;
+    
+    // Adjust based on word length
+    if (word.length <= 3) {
+      baseSize *= 1.3;
+    } else if (word.length <= 5) {
+      baseSize *= 1.1;
+    } else if (word.length > 8) {
+      baseSize *= 0.95; // Increased from 0.9
+    }
+    
+    // Enforce min/max bounds relative to preview size
+    const minSize = Platform.isPad ? 28 : 24; // Increased minimum sizes further
+    const maxSize = dimensions.height * 0.55; // Slightly increased maximum
+    
+    return Math.floor(Math.min(Math.max(baseSize, minSize), maxSize));
+  };
 
-    // Estimate width per character (varies by font)
-    const CHAR_WIDTH_RATIO = 0.6; // Approximate width/height ratio
-    const estimatedWidth = word.length * BASE_SIZE * CHAR_WIDTH_RATIO;
-
-    // Scale based on width or height constraints
-    const widthScale = PREVIEW_WIDTH / estimatedWidth;
-    const heightScale = PREVIEW_HEIGHT / BASE_SIZE;
-
-    // Use the more constraining scale
-    const scale = Math.min(widthScale, heightScale, 2.5); // Cap at 2.5x base size
-
-    return Math.max(Math.floor(BASE_SIZE * scale), 16); // Min size 16px
-  }, []);
-
-  // Update text size when word changes
+  // Update font size when word changes
   useEffect(() => {
     if (words[currentWordIndex]) {
-      setTextSize(calculateTextSize(words[currentWordIndex]));
+      const newSize = calculatePreviewFontSize(words[currentWordIndex]);
+      setTextSize(newSize);
     }
-  }, [currentWordIndex, words, calculateTextSize]);
+  }, [currentWordIndex, words, selectedFont]);
 
   // Calculate luminance of background color to determine text color
   const getTextColor = useCallback(
@@ -307,28 +334,30 @@ const PreviewWindow = ({
   };
 
   return (
-    <View style={styles.container}>
-      <View
-        style={[
-          styles.previewArea,
-          selectedColor === 'random' ? styles.gradient : getBackgroundStyle(),
-          styles.solidColorPreview,
-        ]}
-      >
-        {selectedColor === 'random' && (
-          <LinearGradient
-            colors={getRandomGradient()}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-        )}
-        <Text
-          style={[styles.previewLabel, { color: getTextColor(selectedColor) }]}
+    <View style={{ width: dimensions.width, height: dimensions.height }}>
+      <View style={styles.container}>
+        <View
+          style={[
+            styles.previewArea,
+            selectedColor === 'random' ? styles.gradient : getBackgroundStyle(),
+            styles.solidColorPreview,
+          ]}
         >
-          Preview
-        </Text>
-        <View style={styles.previewContent}>{renderPreviewContent()}</View>
+          {selectedColor === 'random' && (
+            <LinearGradient
+              colors={getRandomGradient()}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+          )}
+          <Text
+            style={[styles.previewLabel, { color: getTextColor(selectedColor) }]}
+          >
+            Preview
+          </Text>
+          <View style={styles.previewContent}>{renderPreviewContent()}</View>
+        </View>
       </View>
     </View>
   );
@@ -336,13 +365,19 @@ const PreviewWindow = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: PREVIEW_WIDTH,
-    height: PREVIEW_HEIGHT,
+    width: '100%',
+    height: '100%',
     alignSelf: 'center',
     marginTop: 20,
-    marginBottom: isIPad ? 40 : 20,
+    marginBottom: Platform.isPad ? 40 : 20,
     borderRadius: 15,
     overflow: 'hidden',
+  },
+  previewContainer: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   gradient: {
     flex: 1,
