@@ -81,7 +81,7 @@ All of the above things are now done.
 
 Next up:
 
-Testing on real devices.
-Any final tinkering & testing required.
+Testing on real devices. ✅
+Any final tinkering & testing required. ✅
 Creating screenshots across various devices and orientations for the App Store.
 Publish.

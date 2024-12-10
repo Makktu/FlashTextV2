@@ -6,6 +6,7 @@ import FlashPlain from './subflash screens/FlashPlain';
 import FlashSwoosh from './subflash screens/FlashSwoosh';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { Platform } from 'react-native';
+import { useKeepAwake } from 'expo-keep-awake';
 
 export default function FlashScreen({
   returnTap,
@@ -36,22 +37,44 @@ export default function FlashScreen({
           console.error('Failed to lock orientation:', error);
         }
       } else {
-        await ScreenOrientation.unlockAsync();
+        try {
+          await ScreenOrientation.unlockAsync();
+        } catch (error) {
+          console.error('Failed to unlock orientation:', error);
+        }
       }
       setIsOrientationSet(true);
     }
 
-    setOrientation();
-    StatusBar.setHidden(true);
+    async function initialize() {
+      await setOrientation();
+      StatusBar.setHidden(true);
+    }
+
+    initialize().catch(error => {
+      console.error('Failed to initialize:', error);
+    });
 
     return () => {
-      if (Platform.isPad) {
-        ScreenOrientation.lockAsync(
-          ScreenOrientation.OrientationLock.PORTRAIT_UP
-        ).catch(console.error);
-      }
+      const cleanup = async () => {
+        try {
+          if (Platform.isPad) {
+            await ScreenOrientation.lockAsync(
+              ScreenOrientation.OrientationLock.PORTRAIT_UP
+            );
+          }
+        } catch (error) {
+          console.error('Failed during cleanup:', error);
+        }
+      };
+      cleanup().catch(error => {
+        console.error('Failed to cleanup:', error);
+      });
     };
   }, []);
+
+  // Use the hook to keep the screen awake
+  useKeepAwake();
 
   // Don't render content until orientation is set
   if (!isOrientationSet && Platform.isPad) {
