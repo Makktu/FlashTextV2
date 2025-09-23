@@ -74,10 +74,10 @@ const Main = () => {
             orientationInfo.orientation === 3 ||
             orientationInfo.orientation === 4
           ) {
-            console.log('User changed to LANDSCAPE');
+            // changed to landscape
             setIsIpadAndLandscape(true);
           } else {
-            console.log('User changed to PORTRAIT');
+            // changed to portrait
             setIsIpadAndLandscape(false);
           }
         }

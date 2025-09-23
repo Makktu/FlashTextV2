@@ -1,8 +1,7 @@
 import { StyleSheet, View, Text } from 'react-native';
 import { Searchbar } from 'react-native-paper';
-import React from 'react';
 
-export default function InputBox({ handleInput, cancelInput, text }) {
+export default function InputBox({ handleInput, text }) {
   return (
     <View>
       <View style={styles.inputContainer}>
@@ -19,7 +18,7 @@ export default function InputBox({ handleInput, cancelInput, text }) {
           underlineColor='transparent'
           outlineColor='#37474F'
           activeOutlineColor='#546E7A'
-          clearButtonMode="while-editing"
+          clearButtonMode='while-editing'
           clearIcon={() => (
             <View style={styles.clearButton}>
               <Text style={styles.clearButtonText}>✕</Text>

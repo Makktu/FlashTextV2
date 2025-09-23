@@ -58,3 +58,14 @@ Background: Photo by Li Zhang on Unsplash
 Photo by Camille Couvez on Unsplash
 
 Main screen Background Image by Maxim Berg on Unsplash
+
+## Version 3.0.0
+
+## Start date: 24 Sep 2025
+
+### Things to be added
+
+- Improved UI.
+- "TikTok mode": takes account of the TikTok/YouTube Shorts UI.
+  Text shown in portrait mode will allow extra space down right side of screen.
+- further details TBA
