@@ -71,31 +71,31 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | — | Pending |
-| INFRA-02 | — | Pending |
-| INFRA-03 | — | Pending |
-| INFRA-04 | — | Pending |
-| SURF-01 | — | Pending |
-| SURF-02 | — | Pending |
-| SURF-03 | — | Pending |
-| COMP-01 | — | Pending |
-| COMP-02 | — | Pending |
-| COMP-03 | — | Pending |
-| COMP-04 | — | Pending |
-| COMP-05 | — | Pending |
-| POLH-01 | — | Pending |
-| POLH-02 | — | Pending |
-| POLH-03 | — | Pending |
-| POLH-04 | — | Pending |
-| POLH-05 | — | Pending |
-| PLAT-01 | — | Pending |
-| PLAT-02 | — | Pending |
+| INFRA-01 | Phase 1 | Pending |
+| INFRA-02 | Phase 1 | Pending |
+| INFRA-03 | Phase 1 | Pending |
+| INFRA-04 | Phase 1 | Pending |
+| SURF-01 | Phase 2 | Pending |
+| SURF-02 | Phase 2 | Pending |
+| SURF-03 | Phase 2 | Pending |
+| POLH-01 | Phase 2 | Pending |
+| POLH-02 | Phase 2 | Pending |
+| POLH-05 | Phase 2 | Pending |
+| COMP-01 | Phase 3 | Pending |
+| COMP-02 | Phase 3 | Pending |
+| COMP-03 | Phase 3 | Pending |
+| COMP-04 | Phase 3 | Pending |
+| COMP-05 | Phase 3 | Pending |
+| POLH-03 | Phase 4 | Pending |
+| POLH-04 | Phase 4 | Pending |
+| PLAT-01 | Phase 5 | Pending |
+| PLAT-02 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 19 total
-- Mapped to phases: 0
-- Unmapped: 19 ⚠️
+- Mapped to phases: 19
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-16*
-*Last updated: 2026-02-16 after initial definition*
+*Last updated: 2026-02-16 after roadmap creation*
